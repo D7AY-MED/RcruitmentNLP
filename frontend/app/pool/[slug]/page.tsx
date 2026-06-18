@@ -6,7 +6,8 @@ import { AlertTriangle, ArrowRight, Banknote, Briefcase, Clock, Globe, Graduatio
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { getPublicPool } from '@/lib/frontendData';
+import { getPublicPool as getPublicPoolMock } from '@/lib/frontendData';
+import { getPublicJobPool } from '@/lib/jobPoolService';
 import { JobPool } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 
@@ -33,14 +34,28 @@ export default function PublicJobPoolPage() {
   const [joining, setJoining] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    const currentPool = getPublicPool(slug);
-    if (!currentPool) {
-      setError({ title: 'Pool not found', message: 'This application link is invalid or has been removed.' });
-    }
-    setPool(currentPool);
-    setLoading(false);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const currentPool = await getPublicJobPool(slug);
+        if (cancelled) return;
+        if (!currentPool) {
+          setError({ title: 'Pool not found', message: 'This application link is invalid or has been removed.' });
+        }
+        setPool(currentPool);
+      } catch {
+        if (cancelled) return;
+        const currentPool = getPublicPoolMock(slug);
+        if (!currentPool) {
+          setError({ title: 'Pool not found', message: 'This application link is invalid or has been removed.' });
+        }
+        setPool(currentPool);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
   }, [slug]);
 
   const apply = useCallback(() => {

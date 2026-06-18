@@ -6,7 +6,8 @@ import { AlertTriangle, Archive, ArrowLeft, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { demoUser, getPool, listApplicants, publicPoolUrl, setPoolStatus } from '@/lib/frontendData';
+import { demoUser, getPool, listApplicants, publicPoolUrl, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { getJobPool, updateJobPoolStatus } from '@/lib/jobPoolService';
 import { JobPool, StudentApplicant } from '@/lib/types';
 import JobPoolStatusBadge from '@/components/job-pools/JobPoolStatusBadge';
 import CopyLinkButton from '@/components/job-pools/CopyLinkButton';
@@ -37,17 +38,27 @@ export default function JobPoolDetails() {
   const [busy, setBusy] = useState(false);
   const user = demoUser;
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     setError('');
-    const currentPool = getPool(poolId);
-    if (!currentPool) {
-      setError('Pool not found.');
-      setPool(null);
-      setStudents([]);
-      return;
+    try {
+      const currentPool = await getJobPool(poolId);
+      if (!currentPool) {
+        setError('Pool not found.');
+        setPool(null);
+        setStudents([]);
+        return;
+      }
+      setPool(currentPool);
+    } catch {
+      const currentPool = getPool(poolId);
+      if (!currentPool) {
+        setError('Pool not found.');
+        setPool(null);
+        setStudents([]);
+        return;
+      }
+      setPool(currentPool);
     }
-
-    setPool(currentPool);
     setStudents(listApplicants(poolId));
   }, [poolId]);
 
@@ -55,10 +66,21 @@ export default function JobPoolDetails() {
     load();
   }, [load]);
 
-  const changeStatus = (status: JobPool['status']) => {
+  const changeStatus = async (status: JobPool['status']) => {
     setBusy(true);
-    const updatedPool = setPoolStatus(poolId, status);
-    if (updatedPool) setPool(updatedPool);
+    try {
+      if (status === 'archived') {
+        await updateJobPoolStatus(poolId, false);
+        setPool(prev => prev ? { ...prev, status: 'archived' } : null);
+      } else {
+        const dbStatus = status === 'active';
+        await updateJobPoolStatus(poolId, dbStatus);
+        setPool(prev => prev ? { ...prev, status } : null);
+      }
+    } catch {
+      const updatedPool = setPoolStatusMock(poolId, status);
+      if (updatedPool) setPool(updatedPool);
+    }
     toast({ title: 'Updated', description: `Pool set to ${status}.` });
     setBusy(false);
   };

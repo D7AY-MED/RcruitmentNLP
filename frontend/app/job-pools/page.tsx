@@ -6,7 +6,8 @@ import { AlertTriangle, Briefcase, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { deletePool, demoUser, listPools, setPoolStatus } from '@/lib/frontendData';
+import { deletePool as deletePoolMock, demoUser, listPools as listPoolsMock, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { listJobPools, updateJobPoolStatus, deleteJobPool } from '@/lib/jobPoolService';
 import { JobPool } from '@/lib/types';
 import JobPoolCard from '@/components/job-pools/JobPoolCard';
 import CreateJobPoolModal from '@/components/job-pools/CreateJobPoolModal';
@@ -22,28 +23,49 @@ export default function JobPoolsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const user = demoUser;
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback(async () => {
     setError('');
-    setPools(listPools());
+    try {
+      const data = await listJobPools();
+      setPools(data);
+    } catch {
+      setPools(listPoolsMock());
+    }
   }, []);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const handleStatusChange = (pool: JobPool, status: JobPool['status']) => {
+  const handleStatusChange = async (pool: JobPool, status: JobPool['status']) => {
     setBusyId(pool.id);
-    setPoolStatus(pool.id, status);
-    toast({ title: 'Updated', description: `Pool set to ${status}.` });
+    try {
+      if (status === 'archived') {
+        await deleteJobPool(pool.id);
+        toast({ title: 'Archived', description: 'Pool archived.' });
+      } else {
+        const dbStatus = status === 'active';
+        await updateJobPoolStatus(pool.id, dbStatus);
+        toast({ title: 'Updated', description: `Pool set to ${status}.` });
+      }
+    } catch {
+      setPoolStatusMock(pool.id, status);
+      toast({ title: 'Updated (offline)', description: `Pool set to ${status} locally.` });
+    }
     refresh();
     setBusyId(null);
   };
 
-  const handleDelete = (pool: JobPool) => {
-    if (!window.confirm(`Delete "${pool.title}"? This only affects the local frontend demo.`)) return;
+  const handleDelete = async (pool: JobPool) => {
+    if (!window.confirm(`Delete "${pool.title}"?`)) return;
     setBusyId(pool.id);
-    deletePool(pool.id);
-    toast({ title: 'Deleted', description: 'Pool removed from the local demo.' });
+    try {
+      await deleteJobPool(pool.id);
+      toast({ title: 'Deleted', description: 'Pool removed.' });
+    } catch {
+      deletePoolMock(pool.id);
+      toast({ title: 'Deleted (offline)', description: 'Pool removed locally.' });
+    }
     refresh();
     setBusyId(null);
   };

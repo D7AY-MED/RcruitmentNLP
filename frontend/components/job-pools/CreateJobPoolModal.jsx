@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CopyLinkButton from '@/components/job-pools/CopyLinkButton';
-import { createPool, publicPoolUrl } from '@/lib/frontendData';
+import { createJobPool, publicPoolUrl } from '@/lib/frontendData';
 
 const SENIORITY_LEVELS = ['Intern', 'Junior', 'Mid-Level', 'Senior', 'Lead', 'Manager', 'Director'];
 const INTERVIEW_FOCUS_AREAS = [
@@ -189,10 +189,10 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
     try {
       const payload = {
         title: formData.title,
-        seniority_level: formData.seniority,
-        years_experience: formData.experience,
+        seniority_level: formData.seniority || null,
+        years_experience: formData.experience ? parseInt(formData.experience, 10) : null,
         main_mission: formData.mission,
-        responsibilities: formData.responsibilities,
+        responsibilities: formData.responsibilities.filter(r => r.trim()),
         must_have_skills: formData.mustHaveSkills,
         nice_to_have_skills: formData.niceToHaveSkills,
         soft_skills: formData.competencies,
@@ -204,7 +204,7 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
         notes: formData.notes
       };
       
-      const pool = createPool(payload);
+      const pool = await createJobPool(payload);
       setCreated(pool);
       onCreated?.(pool);
     } catch (err) {

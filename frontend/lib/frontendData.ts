@@ -1,4 +1,7 @@
 import { AuthUser, Candidate, JobPool, SearchHistoryItem, StudentApplicant } from '@/lib/types';
+import { createJobPool, listJobPools, getJobPool, updateJobPoolStatus, deleteJobPool, getPublicJobPool } from './jobPoolService';
+
+export { createJobPool, listJobPools, getJobPool, updateJobPoolStatus, deleteJobPool, getPublicJobPool };
 
 export const demoUser: AuthUser = {
   id: 'demo-recruiter',
