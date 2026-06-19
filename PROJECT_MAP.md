@@ -10,10 +10,15 @@ matching project/
 │   │   │   ├── route.ts       # POST (create pool + Gemini store), GET (list)
 │   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
 │   │   │   └── public/route.ts# GET (public pool by token)
+│   │   ├── (candidate)/       # Candidate-scoped pages (route group → no URL prefix)
+│   │   │   └── apply/page.tsx # /apply Jobzyn-style job detail page (hero, sections, sidebar)
 │   │   ├── job-pools/         # HR dashboard pages
 │   │   ├── pool/              # Public application pages
 │   │   └── page.tsx           # Home page (search & match)
-│   ├── components/            # React components (ui, job-pools, etc.)
+│   ├── components/            # React components (ui, job-pools, candidate, etc.)
+│   │   ├── candidate/         # Candidate-facing reusable components
+│   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs
+│   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info
 │   ├── lib/                   # Utilities, types, services
 │   │   ├── frontendData.ts    # Mock data + Supabase re-exports
 │   │   ├── jobPoolService.ts  # CRUD via fetch to /api/job-pools/*
@@ -31,6 +36,9 @@ matching project/
 │   │   ├── main.py            # FastAPI entrypoint (registers routers)
 │   │   ├── routers/           # API route modules
 │   │   │   └── pools.py       # POST /api/v1/pools/gemini-store
+│   │   ├── candidate/         # Candidate-scoped package (mirrors frontend (candidate)/)
+│   │   │   ├── router.py      # GET /api/v1/candidate/health, GET /offer/demo
+│   │   │   └── test_router.py # Hermetic TestClient tests (no DB/env required)
 │   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
 │   │   └── services/          # Business logic & AI services
 │   │       └── gemini_store_service.py  # Gemini File Search store CRUD
@@ -161,6 +169,13 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │         └─> Transparent, reassuring candidate experience        │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+> **Status — `/apply` page (June 2026):** redesigned to match the Jobzyn job detail page layout with a hero
+> section (title, company badge, metadata tags, primary CTA and dynamic Share button), structured description
+> cards (À propos, Missions, Profil recherché, Ce que nous offrons, Processus), a sticky sidebar (company card,
+> secondary CTA), and a polished footer. Features PooLink branding and professional blue accents throughout.
+> Backend exposes `GET /api/v1/candidate/offer/demo` returning the corresponding mock data. The page is
+> **not** yet wired to a real pool token or Supabase Auth. Tracked as the next candidate-feature task.
 
 ### Data Flow Diagram
 
