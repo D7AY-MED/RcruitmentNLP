@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, Briefcase, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import CreditBalance from '@/components/CreditBalance';
+import { logout } from '@/lib/recruiterAuth';
 import { AuthUser } from '@/lib/types';
 
 interface AppSidebarProps {
@@ -13,12 +14,18 @@ interface AppSidebarProps {
 
 export default function AppSidebar({ user, refreshBalance = 0 }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const links = [
-    { name: 'Talent Matcher', href: '/', icon: Search },
+    { name: 'Talent Matcher', href: '/dashboard', icon: Search },
     { name: 'Job Pools', href: '/job-pools', icon: Briefcase },
   ];
+
+  const handleLogout = () => {
+    logout();
+    router.replace('/recruiter/login');
+  };
 
   return (
     <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white border-r border-gray-200 flex flex-col shrink-0 min-h-screen transition-all duration-300 relative`}>
@@ -54,11 +61,21 @@ export default function AppSidebar({ user, refreshBalance = 0 }: AppSidebarProps
           );
         })}
       </nav>
-      {user && (
-        <div className="p-4 border-t border-gray-200 shrink-0 mt-auto">
+      <div className="p-4 border-t border-gray-200 shrink-0 mt-auto space-y-3">
+        {user && (
           <CreditBalance hrProfileId={user.id} refreshTrigger={refreshBalance} isCollapsed={isCollapsed} />
-        </div>
-      )}
+        )}
+        <button
+          onClick={handleLogout}
+          title={isCollapsed ? 'Log out' : undefined}
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 ${
+            isCollapsed ? 'justify-center' : ''
+          }`}
+        >
+          <LogOut className="w-5 h-5 shrink-0" />
+          {!isCollapsed && 'Log out'}
+        </button>
+      </div>
     </aside>
   );
 }

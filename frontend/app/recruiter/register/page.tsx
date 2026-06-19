@@ -38,7 +38,7 @@ export default function RecruiterRegisterPage() {
         company_name: form.company_name,
         phone: form.phone || undefined, // phone is optional
       });
-      router.push('/job-pools'); // recruiter dashboard
+      router.push('/dashboard'); // recruiter dashboard
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {

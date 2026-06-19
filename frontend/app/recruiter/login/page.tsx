@@ -24,7 +24,7 @@ export default function RecruiterLoginPage() {
     setLoading(true);
     try {
       await loginRecruiter(email, password);
-      router.push('/job-pools'); // recruiter dashboard
+      router.push('/dashboard'); // recruiter dashboard
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {

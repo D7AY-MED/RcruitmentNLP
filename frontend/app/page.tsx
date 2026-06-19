@@ -1,169 +1,111 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Toaster } from 'react-hot-toast';
-import SearchComponent from '@/components/SearchComponent';
-import ResultsComponent from '@/components/ResultsComponent';
-import { Candidate, SearchHistoryItem } from '@/lib/types';
-import { demoUser, getSearchHistory, getSearchHistoryDetails } from '@/lib/frontendData';
-import AppHeader from '@/components/AppHeader';
-import AppSidebar from '@/components/AppSidebar';
+import Link from 'next/link';
+import { Search, Briefcase, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { getToken } from '@/lib/recruiterAuth';
 
-export default function Home() {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [searchId, setSearchId] = useState<string>('');
-  const [refreshBalance, setRefreshBalance] = useState(0);
-  const [historyItems, setHistoryItems] = useState<SearchHistoryItem[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [openingHistoryId, setOpeningHistoryId] = useState<string | null>(null);
-  const user = demoUser;
-  const hrProfileId = user.id;
-
-  const fetchSearchHistory = async () => {
-    setHistoryLoading(true);
-    setHistoryItems(getSearchHistory());
-    setHistoryLoading(false);
-  };
-
-  const handleOpenHistory = async (item: SearchHistoryItem) => {
-    setOpeningHistoryId(item.id);
-    const data = getSearchHistoryDetails(item.id);
-    setSearchId(data.searchId || item.id);
-    setCandidates(Array.isArray(data.candidates) ? data.candidates : []);
-    setOpeningHistoryId(null);
-  };
+/**
+ * Public landing page (route: /).
+ * Anyone can see it. The recruiter dashboard lives at /dashboard and is gated
+ * by RequireRecruiter, so the CTAs here adapt to whether a session exists.
+ */
+export default function LandingPage() {
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetchSearchHistory();
+    setLoggedIn(Boolean(getToken()));
   }, []);
 
-  const mergeCandidateDetails = (
-    unlockedCandidates: Array<Pick<Candidate, 'id'> & Partial<Pick<Candidate, 'name' | 'phone' | 'email' | 'cv_url'>>>
-  ) => {
-    if (unlockedCandidates.length === 0) return;
-
-    const detailsById = new Map(unlockedCandidates.map(c => [c.id, c] as const));
-    setCandidates(prev =>
-      prev.map(c => {
-        const details = detailsById.get(c.id);
-        if (!details) return c;
-
-        return {
-          ...c,
-          ...(details.name ? { name: details.name } : {}),
-          ...(details.phone ? { phone: details.phone } : {}),
-          ...(details.email ? { email: details.email } : {}),
-          ...(details.cv_url ? { cv_url: details.cv_url } : {}),
-        };
-      })
-    );
-  };
-
-  const handleSearchComplete = (newCandidates: Candidate[], newSearchId: string) => {
-    setCandidates(newCandidates);
-    setSearchId(newSearchId);
-    fetchSearchHistory();
-  };
-
-  const handleUnlockComplete = (
-    unlockedCandidates: Array<Pick<Candidate, 'id'> & Partial<Pick<Candidate, 'name' | 'phone' | 'email' | 'cv_url'>>>
-  ) => {
-    setRefreshBalance(prev => prev + 1);
-    mergeCandidateDetails(unlockedCandidates);
-  };
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AppSidebar user={user} refreshBalance={refreshBalance} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <Toaster position="top-right" />
+    <div className="min-h-screen bg-gradient-to-b from-white to-indigo-50">
+      {/* Top bar */}
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+        <span className="text-xl font-bold tracking-tight text-gray-900">xQuesty</span>
+        <nav className="flex items-center gap-3">
+          {loggedIn ? (
+            <Link href="/dashboard">
+              <Button size="sm">Go to dashboard</Button>
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/recruiter/login"
+                className="text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                Sign in
+              </Link>
+              <Link href="/recruiter/register">
+                <Button size="sm">Get started</Button>
+              </Link>
+            </>
+          )}
+        </nav>
+      </header>
 
-        <AppHeader user={user} hrProfileId={hrProfileId} refreshBalance={refreshBalance} />
-
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <SearchComponent
-                hrProfileId={hrProfileId}
-                onSearchComplete={handleSearchComplete}
-              />
-
-              {candidates.length > 0 && (
-                <ResultsComponent
-                  candidates={candidates}
-                  searchId={searchId}
-                  hrProfileId={hrProfileId}
-                  onUnlockComplete={handleUnlockComplete}
-                  onCandidateDetails={mergeCandidateDetails}
-                />
-              )}
-            </div>
-
-            <aside className="lg:col-span-1">
-              <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sticky top-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Search History</h2>
-                  <button
-                    onClick={fetchSearchHistory}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
-                {historyLoading ? (
-                  <div className="text-sm text-gray-500">Loading history...</div>
-                ) : historyItems.length === 0 ? (
-                  <div className="text-sm text-gray-500">
-                    No previous searches yet. Your recent matching runs will appear here.
-                  </div>
-                ) : (
-                  <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
-                    {historyItems.map((item) => {
-                      const isActive = item.id === searchId;
-                      return (
-                        <article
-                          key={item.id}
-                          className={`rounded-lg border p-3 transition ${
-                            isActive ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <p className="text-xs text-gray-500">
-                              {new Date(item.createdAt).toLocaleString()}
-                            </p>
-                            <span className="text-[10px] px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                              {item.unlockedCount}/{item.topCount} unlocked
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-800 line-clamp-3 mb-3">
-                            {item.queryDescription}
-                          </p>
-                          <button
-                            onClick={() => handleOpenHistory(item)}
-                            disabled={openingHistoryId === item.id}
-                            className="w-full text-sm font-medium px-3 py-2 rounded-md bg-gray-900 text-white hover:bg-black disabled:opacity-60"
-                          >
-                            {openingHistoryId === item.id ? 'Opening...' : 'Open Search'}
-                          </button>
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-            </aside>
+      {/* Hero */}
+      <main className="mx-auto max-w-6xl px-4 sm:px-6">
+        <section className="flex flex-col items-center py-20 text-center sm:py-28">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-medium text-indigo-700">
+            <Sparkles className="h-3.5 w-3.5" />
+            AI-powered recruitment
+          </span>
+          <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+            Find the right candidates, faster.
+          </h1>
+          <p className="mt-5 max-w-xl text-lg text-gray-600">
+            Describe the role in plain language and let xQuesty surface pre-qualified,
+            intelligently ranked candidates — then manage everything from one dashboard.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            {loggedIn ? (
+              <Link href="/dashboard">
+                <Button size="lg">Open dashboard</Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/recruiter/register">
+                  <Button size="lg">Create recruiter account</Button>
+                </Link>
+                <Link href="/recruiter/login">
+                  <Button size="lg" variant="outline">
+                    Sign in
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
-        </main>
+        </section>
 
-        <footer className="bg-white border-t border-gray-200 mt-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-center text-sm text-gray-500">
-              HR Dashboard - Candidate Matching System
+        {/* Feature row */}
+        <section className="grid gap-6 pb-24 sm:grid-cols-2">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-50">
+              <Search className="h-5 w-5 text-indigo-600" />
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-gray-900">Talent Matcher</h3>
+            <p className="text-sm text-gray-600">
+              Natural-language search that ranks candidates by how well they fit your role.
             </p>
           </div>
-        </footer>
-      </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-50">
+              <Briefcase className="h-5 w-5 text-indigo-600" />
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-gray-900">Job Pools</h3>
+            <p className="text-sm text-gray-600">
+              Create shareable application links and collect pre-screened applicants in one place.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-gray-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-5 text-center text-sm text-gray-500 sm:px-6">
+          xQuesty — AI-powered recruitment
+        </div>
+      </footer>
     </div>
   );
 }

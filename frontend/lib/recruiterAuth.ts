@@ -5,7 +5,10 @@
  * Stores the JWT in localStorage (simple approach for now, per spec).
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Empty base = same-origin Next.js route handlers under /api/recruiter/*
+// (these talk to Supabase Auth server-side). Override with NEXT_PUBLIC_API_URL
+// only if you point auth at a separate backend.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const TOKEN_KEY = 'recruiter_token';
 
 export interface Recruiter {
