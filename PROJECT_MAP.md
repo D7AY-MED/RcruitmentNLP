@@ -7,7 +7,7 @@ matching project/
 ├── frontend/                  # Next.js (React) application
 │   ├── app/                   # Next.js App Router pages & API routes
 │   │   ├── api/job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
-│   │   │   ├── route.ts       # POST (create), GET (list)
+│   │   │   ├── route.ts       # POST (create pool + Gemini store), GET (list)
 │   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
 │   │   │   └── public/route.ts# GET (public pool by token)
 │   │   ├── job-pools/         # HR dashboard pages
@@ -28,11 +28,14 @@ matching project/
 ├── backend/                   # Python FastAPI application
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py            # FastAPI entrypoint
+│   │   ├── main.py            # FastAPI entrypoint (registers routers)
 │   │   ├── routers/           # API route modules
-│   │   ├── models/            # Pydantic / SQLAlchemy models
+│   │   │   └── pools.py       # POST /api/v1/pools/gemini-store
+│   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
 │   │   └── services/          # Business logic & AI services
-│   ├── temp_gemini_store/     # Gemini file search artifacts
+│   │       └── gemini_store_service.py  # Gemini File Search store CRUD
+│   ├── temp_gemini_store/     # Gemini file search test script
+│   │   └── test_store.py      # Standalone test (uses root .env)
 │   ├── .env.example           # Backend env template
 │   └── requirements.txt       # Python dependencies
 ├── PROJECT_MAP.md             # This file
@@ -91,29 +94,28 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │     └─> ReactJS frontend loads recruiter dashboard              │
 │                                                                 │
 │  3. CREATE POOL                                                 │
-│     └─> POST /api/pools                                         │
-│         └─> Supabase PostgreSQL: pool record created            │
+│     └─> POST /api/pools (via Next.js BFF)                       │
+│         ├─> Supabase PostgreSQL: pool record created            │
+│         └─> POST /api/v1/pools/gemini-store (FastAPI backend)   │
+│             └─> Gemini File Search store created & linked       │
+│                 (naming: pool-{title}-{recruiter_id_prefix})    │
 │                                                                 │
 │  4. FILL JOB DESCRIPTION                                        │
 │     └─> Form: title, seniority, languages, skills, etc.         │
 │         └─> Saved to DB for audit trail                         │
 │                                                                 │
-│  5. GENERATE EMBEDDING STORE                                    │
-│     └─> New vector space created for this pool                  │
-│         └─> Isolates candidate data per job offer              │
-│                                                                 │
-│  6. GENERATE UNIQUE LINK                                        │
+│  5. GENERATE UNIQUE LINK                                        │
 │     └─> GET /api/pools/{id}/link                                │
 │         └─> Returns shareable URL (social, email, job boards)   │
 │                                                                 │
-│  7. RECEIVE CANDIDATES                                          │
+│  6. RECEIVE CANDIDATES                                          │
 │     └─> Dashboard shows finished candidates                     │
 │         └─> Contacts, CV, AI summary, matching score            │
 │                                                                 │
-│  8. VIEW RANKED CANDIDATES                                      │
+│  7. VIEW RANKED CANDIDATES                                      │
 │     └─> Auto-ranked by relevance score (embedding-based)        │
 │                                                                 │
-│  9. INTELLIGENT SEARCH (2 layers)                               │
+│  8. INTELLIGENT SEARCH (2 layers)                               │
 │     └─> Layer 1: Gemini File Search → Top 30 candidates         │
 │     └─> Layer 2: OpenAI API → Top 5 + matching justification    │
 └─────────────────────────────────────────────────────────────────┘

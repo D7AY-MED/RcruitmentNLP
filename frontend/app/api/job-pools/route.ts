@@ -14,6 +14,8 @@ export async function GET() {
   return NextResponse.json(data);
 }
 
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
   const body = await req.json();
@@ -25,5 +27,20 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await admin.from('job_pools').insert(body).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  try {
+    await fetch(`${BACKEND_URL}/api/v1/pools/gemini-store`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pool_id: data.id,
+        pool_title: data.title,
+        recruiter_id: data.hr_id,
+      }),
+    });
+  } catch (err) {
+    console.warn('Gemini store creation skipped:', err);
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
