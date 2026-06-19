@@ -16,6 +16,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Runtime / dev server logs
+*.log
+
 # Python
 __pycache__/
 *.py[cod]
