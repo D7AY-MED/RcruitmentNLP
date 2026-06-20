@@ -11,7 +11,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(req: Request) {
   let body: any;
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   }
 
   // 1. Create the auth user (email_confirm so they can log in right away).
-  const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+  const { data: created, error: createErr } = await getSupabaseAdmin().auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -50,13 +50,13 @@ export async function POST(req: Request) {
 
   // 2. Store the recruiter profile. upsert is idempotent if a DB trigger
   //    already created the row on signup.
-  const { error: profileErr } = await supabaseAdmin
-    .from('hr_profiles')
-    .upsert({ id: user.id, full_name, company_name, email, phone: phone ?? null });
+  const { error: profileErr } = await getSupabaseAdmin()
+    .from('hr_profiles' as any)
+    .upsert({ id: user.id, full_name, company_name, email, phone: phone ?? null } as any);
 
   if (profileErr) {
     // Roll back the auth user so the email can be reused after a failure.
-    await supabaseAdmin.auth.admin.deleteUser(user.id);
+    await getSupabaseAdmin().auth.admin.deleteUser(user.id);
     return NextResponse.json(
       { detail: `Profile creation failed: ${profileErr.message}` },
       { status: 500 },
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
   }
 
   // 3. Sign in to mint a session token for the new account.
-  const { data: session, error: signErr } = await supabaseAdmin.auth.signInWithPassword({
+  const { data: session, error: signErr } = await getSupabaseAdmin().auth.signInWithPassword({
     email,
     password,
   });
