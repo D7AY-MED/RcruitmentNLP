@@ -72,8 +72,10 @@ export async function POST(req: NextRequest) {
   const { data, error } = await admin.from('job_pools').insert(body).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  let geminiError: string | null = null;
+
   try {
-    await fetch(`${BACKEND_URL}/api/v1/pools/gemini-store`, {
+    const geminiRes = await fetch(`${BACKEND_URL}/api/v1/pools/gemini-store`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -82,8 +84,21 @@ export async function POST(req: NextRequest) {
         recruiter_id: data.hr_id,
       }),
     });
-  } catch (err) {
-    console.warn('Gemini store creation skipped:', err);
+
+    if (!geminiRes.ok) {
+      const body = await geminiRes.json().catch(() => ({}));
+      geminiError = body.detail || geminiRes.statusText;
+    }
+  } catch (err: any) {
+    geminiError = err?.message || 'Backend unreachable';
+  }
+
+  if (geminiError) {
+    await admin.from('job_pools').delete().eq('id', data.id);
+    return NextResponse.json(
+      { error: `Gemini store creation failed: ${geminiError}` },
+      { status: 502 },
+    );
   }
 
   return NextResponse.json(data, { status: 201 });
