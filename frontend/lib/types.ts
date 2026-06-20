@@ -1,62 +1,8 @@
-export interface HRProfile {
-  id: string;
-  user_id: string;
-  name: string;
-  email: string;
-  created_at: string;
-}
-
-export interface HRSearch {
-  id: string;
-  hr_profile_id: string;
-  job_description: string;
-  top_5_results_ids: string[];
-  created_at: string;
-}
-
-export interface UnlockLedger {
-  id: string;
-  hr_profile_id: string;
-  amount: number;
-  description: string;
-  created_at: string;
-}
-
-export interface UnlockedCandidate {
-  id: string;
-  ledger_id: string;
-  candidate_id: string;
-  created_at: string;
-}
-
-export interface HRBalance {
-  hr_profile_id: string;
-  balance: number;
-}
-
 export interface AuthUser {
   id: string;
   email: string;
   fullName?: string;
   companyName?: string;
-}
-
-export interface Candidate {
-  id: string;
-  name: string;
-  summary: string;
-  matchDescription?: string;
-  phone?: string;
-  email?: string;
-  cv_url?: string;
-}
-
-export interface SearchHistoryItem {
-  id: string;
-  queryDescription: string;
-  createdAt: string;
-  topCount: number;
-  unlockedCount: number;
 }
 
 export interface JobPool {

@@ -1,4 +1,4 @@
-import { AuthUser, Candidate, JobPool, SearchHistoryItem, StudentApplicant } from '@/lib/types';
+import { AuthUser, JobPool, StudentApplicant } from '@/lib/types';
 import { createJobPool, listJobPools, getJobPool, updateJobPoolStatus, deleteJobPool, getPublicJobPool } from './jobPoolService';
 
 export { createJobPool, listJobPools, getJobPool, updateJobPoolStatus, deleteJobPool, getPublicJobPool };
@@ -9,54 +9,6 @@ export const demoUser: AuthUser = {
   fullName: 'Demo Recruiter',
   companyName: 'xQuesty',
 };
-
-export const demoCandidates: Candidate[] = [
-  {
-    id: 'cand-1',
-    name: 'Maya Chen',
-    summary: 'Frontend engineer with strong React, TypeScript, and design-system experience.',
-    matchDescription: 'Strong fit for component architecture, accessibility, and product collaboration.',
-    phone: '+1 555 0101',
-    email: 'maya.chen@example.com',
-    cv_url: '#',
-  },
-  {
-    id: 'cand-2',
-    name: 'Adam Rivera',
-    summary: 'Full-stack developer focused on Next.js dashboards and data-heavy workflows.',
-    matchDescription: 'Matches the need for pragmatic UI delivery and business-facing tooling.',
-    phone: '+1 555 0102',
-    email: 'adam.rivera@example.com',
-    cv_url: '#',
-  },
-  {
-    id: 'cand-3',
-    name: 'Nora Patel',
-    summary: 'Product-minded engineer with experience shipping polished recruiting interfaces.',
-    matchDescription: 'Excellent communication profile with strong UX judgment.',
-    phone: '+1 555 0103',
-    email: 'nora.patel@example.com',
-    cv_url: '#',
-  },
-  {
-    id: 'cand-4',
-    name: 'Jon Bell',
-    summary: 'React specialist with a background in performance tuning and component libraries.',
-    matchDescription: 'Good match for fast iteration and maintainable frontend systems.',
-    phone: '+1 555 0104',
-    email: 'jon.bell@example.com',
-    cv_url: '#',
-  },
-  {
-    id: 'cand-5',
-    name: 'Sara Williams',
-    summary: 'UI engineer comfortable translating ambiguous requirements into crisp interfaces.',
-    matchDescription: 'Strong fit for frontend ownership and stakeholder-facing workflows.',
-    phone: '+1 555 0105',
-    email: 'sara.williams@example.com',
-    cv_url: '#',
-  },
-];
 
 let pools: JobPool[] = [
   {
@@ -99,39 +51,6 @@ const applicants: Record<string, StudentApplicant[]> = {
     },
   ],
 };
-
-export function getCreditBalance() {
-  return 12;
-}
-
-export function searchCandidates(jobDescription: string) {
-  const searchId = `search-${Date.now()}`;
-  const query = jobDescription.trim();
-
-  return {
-    searchId,
-    candidates: demoCandidates.map((candidate) => ({
-      ...candidate,
-      matchDescription: candidate.matchDescription || `Relevant to: ${query}`,
-    })),
-  };
-}
-
-export function getSearchHistory(): SearchHistoryItem[] {
-  return [
-    {
-      id: 'demo-search-1',
-      queryDescription: 'Frontend engineer with React, TypeScript, dashboard, and UX experience.',
-      createdAt: '2026-06-12T11:20:00.000Z',
-      topCount: 5,
-      unlockedCount: 5,
-    },
-  ];
-}
-
-export function getSearchHistoryDetails(searchId: string) {
-  return { searchId, candidates: demoCandidates };
-}
 
 export function listPools() {
   return [...pools];

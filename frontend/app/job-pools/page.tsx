@@ -6,9 +6,10 @@ import { AlertTriangle, Briefcase, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { deletePool as deletePoolMock, demoUser, listPools as listPoolsMock, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { deletePool as deletePoolMock, listPools as listPoolsMock, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
 import { listJobPools, updateJobPoolStatus, deleteJobPool } from '@/lib/jobPoolService';
 import { JobPool } from '@/lib/types';
+import { useRecruiter } from '@/lib/recruiter-context';
 import JobPoolCard from '@/components/job-pools/JobPoolCard';
 import CreateJobPoolModal from '@/components/job-pools/CreateJobPoolModal';
 import AppHeader from '@/components/AppHeader';
@@ -21,7 +22,7 @@ export default function JobPoolsPage() {
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const user = demoUser;
+  const user = useRecruiter();
 
   const refresh = useCallback(async () => {
     setError('');

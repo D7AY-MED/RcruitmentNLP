@@ -25,16 +25,16 @@ export async function GET(req: Request) {
     .from('hr_profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
-  return NextResponse.json(
-    profile ?? {
-      id: data.user.id,
-      full_name: '',
-      email: data.user.email,
-      company_name: '',
-      phone: null,
-      created_at: data.user.created_at,
-    },
-  );
+  const meta = data.user.user_metadata ?? {};
+
+  return NextResponse.json({
+    id: data.user.id,
+    full_name: (profile as any)?.full_name ?? (profile as any)?.name ?? meta.full_name ?? '',
+    email: (profile as any)?.email ?? data.user.email ?? '',
+    company_name: (profile as any)?.company_name ?? meta.company_name ?? '',
+    phone: (profile as any)?.phone ?? null,
+    created_at: (profile as any)?.created_at ?? data.user.created_at,
+  });
 }

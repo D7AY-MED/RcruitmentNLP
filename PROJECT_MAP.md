@@ -48,7 +48,6 @@ matching project/
 │   │   │   ├── recruiters/page.tsx # Manage recruiters (table + create modal)
 │   │   │   └── candidates/page.tsx # Manage candidates (table + create modal)
 │   │   ├── job-pools/         # (Legacy/Reference) HR dashboard pages
-│   │   ├── pool/              # (Legacy/Reference) Public application pages
 │   │   └── page.tsx           # Home page (search & match)
 │   ├── components/            # React components (ui, job-pools, candidate, etc.)
 │   │   ├── candidate/         # Candidate-facing reusable components

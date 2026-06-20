@@ -32,19 +32,18 @@ export async function POST(req: Request) {
     .from('hr_profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
   return NextResponse.json({
     access_token: data.session.access_token,
     token_type: 'bearer',
-    recruiter:
-      profile ?? {
-        id: data.user.id,
-        full_name: '',
-        email: data.user.email,
-        company_name: '',
-        phone: null,
-        created_at: data.user.created_at,
-      },
+    recruiter: {
+      id: data.user.id,
+      full_name: (profile as any)?.full_name ?? (profile as any)?.name ?? data.user.user_metadata?.full_name ?? '',
+      email: (profile as any)?.email ?? data.user.email ?? '',
+      company_name: (profile as any)?.company_name ?? data.user.user_metadata?.company_name ?? '',
+      phone: (profile as any)?.phone ?? null,
+      created_at: (profile as any)?.created_at ?? data.user.created_at,
+    },
   });
 }
