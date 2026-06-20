@@ -275,8 +275,23 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
           <input
             type="number"
             min="0"
+            max="50"
             value={formData.experience}
-            onChange={(e) => updateField('experience', e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '') {
+                updateField('experience', '');
+              } else {
+                const num = Number(val);
+                if (num > 50) {
+                  updateField('experience', '50');
+                } else if (num < 0) {
+                  updateField('experience', '0');
+                } else {
+                  updateField('experience', val);
+                }
+              }
+            }}
             placeholder="e.g. 5"
             className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
           />
@@ -587,19 +602,8 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
             </p>
             
             <div className="w-full max-w-md rounded-xl border border-border bg-muted/30 p-5 mb-8 text-left shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Public Application Link</p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-background border border-border p-3 rounded-lg">
-                <a
-                  href={publicPoolUrl(created.public_slug)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-primary hover:underline break-all inline-flex items-center gap-1.5 flex-1"
-                >
-                  {publicPoolUrl(created.public_slug)}
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" aria-hidden="true" />
-                </a>
-                <CopyLinkButton value={publicPoolUrl(created.public_slug)} className="sm:ml-auto shrink-0" />
-              </div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Public Application Link</p>
+              <CopyLinkButton value={publicPoolUrl(created.public_slug)} className="w-full" />
             </div>
             
             <Button onClick={onClose} size="lg" className="w-full max-w-md font-semibold">Go to Dashboard</Button>

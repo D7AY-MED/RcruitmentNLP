@@ -77,6 +77,11 @@ export interface JobPool {
   deadline?: string;
   description?: string;
   required_skills?: string[];
+  nice_to_have_skills?: string[];
+  soft_skills?: string[];
+  deal_breakers?: string[];
+  responsibilities?: string[];
+  notes?: string;
 }
 
 export interface StudentApplicant {

@@ -6,23 +6,41 @@
 matching project/
 ├── frontend/                  # Next.js (React) application
 │   ├── app/                   # Next.js App Router pages & API routes
-│   │   ├── api/job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
-│   │   │   ├── route.ts       # POST (create pool + Gemini store), GET (list)
-│   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
-│   │   │   └── public/route.ts# GET (public pool by token)
 │   │   ├── (candidate)/       # Candidate-scoped pages (route group → no URL prefix)
-│   │   │   └── apply/page.tsx # /apply Jobzyn-style job detail page (hero, sections, sidebar)
-│   │   ├── job-pools/         # HR dashboard pages
-│   │   ├── pool/              # Public application pages
+│   │   │   └── apply/
+│   │   │       ├── [token]/
+│   │   │       │   └── page.tsx # Dynamic /apply/[token] candidate view (Supabase integration)
+│   │   │       └── page.tsx   # /apply static/demo layout page
+│   │   ├── api/
+│   │   │   ├── job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
+│   │   │   │   ├── route.ts   # POST (verify recruiter + insert), GET (list)
+│   │   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
+│   │   │   │   └── public/route.ts# GET public pool by token (joins hr_profiles)
+│   │   │   └── recruiter/     # Recruiter authentication endpoints
+│   │   │       ├── login/route.ts # POST login
+│   │   │       ├── register/route.ts # POST register
+│   │   │       └── me/route.ts    # GET current session user
+│   │   ├── dashboard/         # Recruiter authenticated dashboard
+│   │   │   ├── layout.tsx     # RequireRecruiter guard & sidebar wrapper
+│   │   │   └── page.tsx       # List created pools, metrics, actions
+│   │   ├── recruiter/         # Auth pages
+│   │   │   ├── login/page.tsx # Recruiter login view
+│   │   │   └── register/page.tsx # Recruiter register view
+│   │   ├── job-pools/         # (Legacy/Reference) HR dashboard pages
+│   │   ├── pool/              # (Legacy/Reference) Public application pages
 │   │   └── page.tsx           # Home page (search & match)
 │   ├── components/            # React components (ui, job-pools, candidate, etc.)
 │   │   ├── candidate/         # Candidate-facing reusable components
+│   │   │   ├── AuthRequiredModal.tsx # Dialog prompted before candidate applies
 │   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs
 │   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info
+│   │   ├── AppSidebar.tsx     # Navigation sidebar for recruiter dashboard
+│   │   └── RequireRecruiter.tsx # Auth protection wrapper for pages/layouts
 │   ├── lib/                   # Utilities, types, services
-│   │   ├── frontendData.ts    # Mock data + Supabase re-exports
-│   │   ├── jobPoolService.ts  # CRUD via fetch to /api/job-pools/*
-│   │   ├── supabase.ts        # Supabase client init (unused, kept for reference)
+│   │   ├── frontendData.ts    # Mock data + helper functions
+│   │   ├── jobPoolService.ts  # CRUD / API fetch wrappers with JWT Auth header
+│   │   ├── recruiterAuth.ts   # Client-side session and cookie helpers
+│   │   ├── supabaseAdmin.ts   # Supabase client using service role key
 │   │   ├── types.ts           # Shared TypeScript types
 │   │   └── utils.ts           # Helpers (cn, formatDate, initials)
 │   ├── .env                   # Frontend env (NEXT_PUBLIC_SUPABASE_*, SUPABASE_SERVICE_ROLE_KEY)
@@ -102,7 +120,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │     └─> ReactJS frontend loads recruiter dashboard              │
 │                                                                 │
 │  3. CREATE POOL                                                 │
-│     └─> POST /api/pools (via Next.js BFF)                       │
+│     └─> POST /api/job-pools (via Next.js BFF)                   │
 │         ├─> Supabase PostgreSQL: pool record created            │
 │         └─> POST /api/v1/pools/gemini-store (FastAPI backend)   │
 │             └─> Gemini File Search store created & linked       │
@@ -113,7 +131,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │         └─> Saved to DB for audit trail                         │
 │                                                                 │
 │  5. GENERATE UNIQUE LINK                                        │
-│     └─> GET /api/pools/{id}/link                                │
+│     └─> Frontend creates link: /apply/[token]                   │
 │         └─> Returns shareable URL (social, email, job boards)   │
 │                                                                 │
 │  6. RECEIVE CANDIDATES                                          │
@@ -170,12 +188,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-> **Status — `/apply` page (June 2026):** redesigned to match the Jobzyn job detail page layout with a hero
-> section (title, company badge, metadata tags, primary CTA and dynamic Share button), structured description
-> cards (À propos, Missions, Profil recherché, Ce que nous offrons, Processus), a sticky sidebar (company card,
-> secondary CTA), and a polished footer. Features PooLink branding and professional blue accents throughout.
-> Backend exposes `GET /api/v1/candidate/offer/demo` returning the corresponding mock data. The page is
-> **not** yet wired to a real pool token or Supabase Auth. Tracked as the next candidate-feature task.
+> **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate CV upload and authentication using Supabase. The shareable tokenized URL allows public candidate access.
 
 ### Data Flow Diagram
 
@@ -219,11 +232,11 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 
 | Entity | Key Fields | Description |
 |---|---|---|
-| **User** | id, name, email, role, created_at | Candidates, recruiters, admins |
-| **Pool / Offer** | id, recruiter_id, title, description, seniority, languages, skills, unique_link, created_at | Job offers with shareable link |
-| **Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate-to-pool link with score |
-| **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent matching |
-| **Q&A** | id, application_id, question, answer, created_at | Interview transcript per candidate |
+| **Recruiter (hr_profiles)** | id, full_name, email, company_name, phone | Recruiter profiles mapping to Auth users |
+| **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, seniority_level, languages, created_at | Job pools/offers with unique tokenized links |
+| **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
+| **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
+| **Q&A** | id, application_id, question, answer, created_at | Chat transcript per candidate application |
 
 ---
 

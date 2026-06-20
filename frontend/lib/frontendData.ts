@@ -179,6 +179,6 @@ export function deletePool(poolId: string) {
 }
 
 export function publicPoolUrl(slug: string) {
-  if (typeof window === 'undefined') return `/pool/${slug}`;
-  return `${window.location.origin}/pool/${slug}`;
+  if (typeof window === 'undefined') return `/apply/${slug}`;
+  return `${window.location.origin}/apply/${slug}`;
 }

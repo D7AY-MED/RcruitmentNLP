@@ -5,11 +5,27 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const admin = supabaseUrl && serviceKey ? createClient(supabaseUrl, serviceKey) : null;
 
-const STATIC_HR_ID = '00000000-0000-0000-0000-000000000001';
-
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
-  const { data, error } = await admin.from('job_pools').select('*').eq('hr_id', STATIC_HR_ID).order('created_at', { ascending: false });
+
+  const header = req.headers.get('authorization') ?? '';
+  const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : '';
+
+  if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+  const { data: userData, error: authError } = await admin.auth.getUser(token);
+  if (authError || !userData?.user) {
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+  }
+
+  const hrId = userData.user.id;
+
+  const { data, error } = await admin
+    .from('job_pools')
+    .select('*')
+    .eq('hr_id', hrId)
+    .order('created_at', { ascending: false });
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
@@ -18,12 +34,40 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
-  const body = await req.json();
 
-  await admin.from('hr_profiles').upsert(
-    { id: STATIC_HR_ID, user_id: STATIC_HR_ID, name: 'Test HR', email: 'test@example.com' },
+  const header = req.headers.get('authorization') ?? '';
+  const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : '';
+
+  if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+  const { data: userData, error: authError } = await admin.auth.getUser(token);
+  if (authError || !userData?.user) {
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+  }
+
+  const hrId = userData.user.id;
+  const userMetadata = userData.user.user_metadata || {};
+  const email = userData.user.email;
+  const full_name = userMetadata.full_name || 'Recruiter';
+  const company_name = userMetadata.company_name || '';
+  const phone = userMetadata.phone || null;
+
+  // Make sure a profile exists in hr_profiles first.
+  const { error: profileError } = await admin.from('hr_profiles').upsert(
+    { id: hrId, full_name, email, company_name, phone },
     { onConflict: 'id' }
   );
+
+  if (profileError) {
+    return NextResponse.json(
+      { error: `Failed to create hr profile: ${profileError.message}` },
+      { status: 500 }
+    );
+  }
+
+  const body = await req.json();
+  // Override hr_id with the authenticated user's ID
+  body.hr_id = hrId;
 
   const { data, error } = await admin.from('job_pools').insert(body).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

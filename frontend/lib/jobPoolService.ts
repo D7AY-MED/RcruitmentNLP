@@ -1,4 +1,5 @@
 import { JobPool } from './types';
+import { getToken } from './recruiterAuth';
 
 const STATIC_HR_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -24,6 +25,7 @@ function generatePublicToken(title: string): string {
 }
 
 function mapDbRowToJobPool(row: any): JobPool {
+  const profile = row.hr_profiles;
   return {
     id: row.id,
     public_slug: row.public_token,
@@ -33,15 +35,20 @@ function mapDbRowToJobPool(row: any): JobPool {
     main_mission: row.main_mission || undefined,
     description: row.description || undefined,
     required_skills: row.must_have_skills || [],
-    company_name: undefined,
+    company_name: profile?.company_name || undefined,
     applicant_count: undefined,
-    location: undefined,
-    contract_type: undefined,
-    experience_level: row.seniority_level || undefined,
-    education_level: undefined,
+    location: 'Remote',
+    contract_type: 'CDI',
+    experience_level: row.years_experience ? `${row.years_experience} ans` : (row.seniority_level || undefined),
+    education_level: 'BAC +5',
     language: row.languages?.join(', ') || undefined,
-    salary_range: undefined,
+    salary_range: 'A discuter',
     deadline: undefined,
+    nice_to_have_skills: row.nice_to_have_skills || [],
+    soft_skills: row.soft_skills || [],
+    deal_breakers: row.deal_breakers || [],
+    responsibilities: row.responsibilities || [],
+    notes: row.notes || undefined,
   };
 }
 
@@ -51,7 +58,18 @@ function apiUrl(path: string) {
 }
 
 async function apiFetch(path: string, options?: RequestInit) {
-  const res = await fetch(apiUrl(path), { headers: { 'Content-Type': 'application/json' }, ...options });
+  const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string> || {}),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(apiUrl(path), {
+    ...options,
+    headers,
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Request failed (${res.status})`);
