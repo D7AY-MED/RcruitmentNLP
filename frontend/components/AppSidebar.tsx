@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Briefcase, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { Briefcase, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { logout } from '@/lib/recruiterAuth';
 import { AuthUser } from '@/lib/types';
 
@@ -16,7 +16,6 @@ export default function AppSidebar({ user }: AppSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const links = [
-    { name: 'Talent Matcher', href: '/dashboard', icon: Search },
     { name: 'Job Pools', href: '/job-pools', icon: Briefcase },
   ];
 
