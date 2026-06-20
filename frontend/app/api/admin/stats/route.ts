@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireAdmin } from '@/lib/adminGuard';
 
-async function countRows(table: string, filter?: { col: string; val: string }) {
+async function countRows(table: string, filter?: { col: string; val: any }) {
   let query = getSupabaseAdmin().from(table).select('*', { count: 'exact', head: true });
   if (filter) query = query.eq(filter.col, filter.val);
   const { count, error } = await query;
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       countRows('hr_profiles'),
       countRows('candidate_profiles'),
       countRows('job_pools'),
-      countRows('job_pools', { col: 'status', val: 'active' }),
+      countRows('job_pools', { col: 'status', val: true }),
     ]);
 
     return NextResponse.json({ recruiters, candidates, pools, activePools });
