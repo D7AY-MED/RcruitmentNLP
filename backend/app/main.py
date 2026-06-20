@@ -13,7 +13,10 @@ from app.config import FRONTEND_ORIGINS
 from app.database import init_db
 from app.routers import recruiter
 from app.routers import pools
-from app.candidate import router as candidate_router
+from app.candidate.router import router as candidate_router
+from app.routers import users
+from app.routers import job_offers
+from app.routers import applications 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,6 +37,9 @@ app.add_middleware(
 # Register recruiter auth routes (/api/recruiter/*).
 app.include_router(recruiter.router)
 
+app.include_router(users.router)
+app.include_router(job_offers.router)
+app.include_router(applications.router)
 
 @app.on_event("startup")
 def on_startup():

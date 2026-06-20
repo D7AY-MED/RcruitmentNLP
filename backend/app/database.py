@@ -9,6 +9,7 @@ Creates the engine + session factory and exposes:
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.config import DATABASE_URL
 
@@ -27,7 +28,7 @@ if _db_url.startswith("postgresql://"):
 
 # pool_pre_ping=True transparently recycles connections dropped by the
 # Supabase pooler, avoiding stale-connection errors on idle apps.
-engine = create_engine(_db_url, pool_pre_ping=True)
+engine = create_engine(_db_url, pool_pre_ping=True, poolclass=NullPool)
 
 # autoflush/autocommit off -> we control transactions explicitly in routers.
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)

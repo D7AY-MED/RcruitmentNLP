@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.recruiter import Recruiter
-from app.schemas import RecruiterLogin, RecruiterOut, RecruiterRegister, Token
+from app.schemas.recruiter import RecruiterLogin, RecruiterOut, RecruiterRegister, Token
 from app.security import (
     create_access_token,
     get_current_recruiter,

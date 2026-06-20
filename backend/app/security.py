@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.config import JWT_ALGORITHM, JWT_EXPIRE_MINUTES, JWT_SECRET_KEY
 from app.database import get_db
 from app.models.recruiter import Recruiter
+from app.models.user import User
 
 # Tells FastAPI/Swagger where the login endpoint is and how to read the token.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/recruiter/login")
@@ -73,3 +74,17 @@ def get_current_recruiter(
     if recruiter is None:
         raise credentials_error
     return recruiter
+
+def require_admin(user: User):
+    if user.role != "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+def require_role(user: User, roles: list[str]):
+    if user.role not in roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not allowed"
+        )
