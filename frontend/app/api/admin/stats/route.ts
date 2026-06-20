@@ -10,7 +10,6 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireAdmin } from '@/lib/adminGuard';
 
-/** Count rows in a table without fetching them (head + exact count). */
 async function countRows(table: string, filter?: { col: string; val: string }) {
   let query = getSupabaseAdmin().from(table).select('*', { count: 'exact', head: true });
   if (filter) query = query.eq(filter.col, filter.val);
@@ -36,7 +35,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ recruiters, candidates, pools, activePools });
   } catch (err: any) {
     return NextResponse.json(
-      { detail: `Failed to load stats: ${err?.message ?? 'unknown error'}` },
+      { detail: `Stats error — ${err?.message ?? 'unknown error'}` },
       { status: 500 },
     );
   }
