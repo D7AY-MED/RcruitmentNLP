@@ -1,32 +1,34 @@
-# HR Dashboard Frontend
+# xQuesty "Link" — Recruitment Platform
 
-A frontend-only Next.js demo for candidate matching and job-pool management.
+AI-powered recruitment platform with candidate matching, AI interviews, and smart ranking.
 
-## Features
+## Structure
 
-- Search candidate matches from local sample data
-- Preview locked and unlocked candidate cards
-- View local search history
-- Manage local job pools
-- Preview public job-pool application pages
+```
+matching project/
+  frontend/       — Next.js 15 (React) application
+  backend/        — Python FastAPI server
+  PROJECT_MAP.md  — Full system documentation
+```
 
-## Tech Stack
-
-- Next.js 15
-- React 19
-- TypeScript
-- Tailwind CSS
-- Lucide React icons
-
-## Getting Started
+## Getting Started (Frontend)
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000/matching](http://localhost:3000/matching) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Notes
+## Getting Started (Backend)
 
-This project is a standalone frontend demo. It does not require environment variables, service setup, data storage, or authentication providers. Demo data lives in `lib/frontendData.ts`.
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate    # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+See `PROJECT_MAP.md` for the full system architecture, data flow, and database schema.

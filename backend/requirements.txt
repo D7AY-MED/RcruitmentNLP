@@ -1,0 +1,12 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-dotenv==1.0.1
+supabase>=2.0.0
+google-genai>=1.0.0
+
+# --- Recruiter authentication stack ---
+SQLAlchemy>=2.0.36               # ORM / database layer
+psycopg[binary]>=3.2             # PostgreSQL driver (psycopg3 — has wheels for new Python)
+bcrypt>=4.1                      # Password hashing (used directly; passlib is unmaintained)
+python-jose[cryptography]>=3.3   # JWT encode/decode
+email-validator>=2.2             # Required by Pydantic EmailStr
