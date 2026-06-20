@@ -1,19 +1,40 @@
 /**
- * POST /api/recruiter/register
+ * /api/admin/recruiters
  *
- * Registers a recruiter through Supabase Auth (server-side, service-role key):
- *   1. Create the auth user (email + password), pre-confirmed.
- *   2. Store the profile in hr_profiles (id = auth user id).
- *   3. Sign in to return an access token for immediate login.
+ *   GET  -> list every recruiter (hr_profiles), newest first.
+ *   POST -> create a recruiter account (Supabase auth user + hr_profiles row).
  *
- * Response shape matches the frontend's TokenResponse:
- *   { access_token, token_type, recruiter }
+ * Both actions are admin-only (requireAdmin). POST reuses the same provisioning
+ * flow as /api/recruiter/register but is initiated by an administrator.
  */
 
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { requireAdmin } from '@/lib/adminGuard';
+
+export async function GET(req: Request) {
+  const auth = await requireAdmin(req);
+  if (!auth.ok) {
+    return NextResponse.json({ detail: auth.detail }, { status: auth.status });
+  }
+
+  const { data, error } = await getSupabaseAdmin()
+    .from('hr_profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ detail: error.message }, { status: 500 });
+  }
+  return NextResponse.json(data ?? []);
+}
 
 export async function POST(req: Request) {
+  const auth = await requireAdmin(req);
+  if (!auth.ok) {
+    return NextResponse.json({ detail: auth.detail }, { status: auth.status });
+  }
+
   let body: any;
   try {
     body = await req.json();
@@ -29,7 +50,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // 1. Create the auth user (email_confirm so they can log in right away).
+  // 1. Create the auth user (pre-confirmed so they can log in right away).
   const { data: created, error: createErr } = await getSupabaseAdmin().auth.admin.createUser({
     email,
     password,
@@ -48,11 +69,12 @@ export async function POST(req: Request) {
 
   const user = created.user;
 
-  // 2. Store the recruiter profile. upsert is idempotent if a DB trigger
-  //    already created the row on signup.
-  const { error: profileErr } = await getSupabaseAdmin()
+  // 2. Store the recruiter profile.
+  const { data: profile, error: profileErr } = await getSupabaseAdmin()
     .from('hr_profiles' as any)
-    .upsert({ id: user.id, full_name, company_name, email, phone: phone ?? null } as any);
+    .upsert({ id: user.id, full_name, company_name, email, phone: phone ?? null } as any)
+    .select()
+    .single();
 
   if (profileErr) {
     // Roll back the auth user so the email can be reused after a failure.
@@ -63,32 +85,5 @@ export async function POST(req: Request) {
     );
   }
 
-  // 3. Sign in to mint a session token for the new account.
-  const { data: session, error: signErr } = await getSupabaseAdmin().auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (signErr || !session?.session) {
-    return NextResponse.json(
-      { detail: 'Account created, but automatic sign-in failed. Please log in.' },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json(
-    {
-      access_token: session.session.access_token,
-      token_type: 'bearer',
-      recruiter: {
-        id: user.id,
-        full_name,
-        email,
-        company_name,
-        phone: phone ?? null,
-        created_at: user.created_at,
-      },
-    },
-    { status: 201 },
-  );
+  return NextResponse.json(profile, { status: 201 });
 }

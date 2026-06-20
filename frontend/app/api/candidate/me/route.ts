@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET(req: Request) {
   const header = req.headers.get('authorization') ?? '';
@@ -9,12 +9,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
   }
 
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  const { data, error } = await getSupabaseAdmin().auth.getUser(token);
   if (error || !data?.user) {
     return NextResponse.json({ detail: 'Invalid or expired token' }, { status: 401 });
   }
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await getSupabaseAdmin()
     .from('candidate_profiles')
     .select('*')
     .eq('id', data.user.id)

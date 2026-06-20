@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(req: Request) {
   let body: any;
@@ -14,13 +14,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ detail: 'Email and password are required.' }, { status: 400 });
   }
 
-  const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+  const { data, error } = await getSupabaseAdmin().auth.signInWithPassword({ email, password });
 
   if (error || !data?.session || !data.user) {
     return NextResponse.json({ detail: 'Invalid email or password.' }, { status: 401 });
   }
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await getSupabaseAdmin()
     .from('candidate_profiles')
     .select('*')
     .eq('id', data.user.id)

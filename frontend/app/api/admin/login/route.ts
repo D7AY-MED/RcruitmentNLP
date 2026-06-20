@@ -1,8 +1,10 @@
 /**
- * POST /api/recruiter/login
+ * POST /api/admin/login
  *
- * Verifies email + password via Supabase Auth and returns a session token
- * plus the recruiter's hr_profiles record.
+ * Verifies email + password via Supabase Auth, then confirms the user is a
+ * provisioned administrator (a row in admin_profiles). A valid Supabase login
+ * that is NOT an admin is rejected with 403 so non-admins can't reach the
+ * admin dashboard even with correct credentials.
  */
 
 import { NextResponse } from 'next/server';
@@ -28,23 +30,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ detail: 'Invalid email or password.' }, { status: 401 });
   }
 
+  // Gate on admin membership — a valid login is not sufficient.
   const { data: profile } = await getSupabaseAdmin()
-    .from('hr_profiles')
+    .from('admin_profiles')
     .select('*')
     .eq('id', data.user.id)
     .single();
 
+  if (!profile) {
+    return NextResponse.json(
+      { detail: 'This account is not an administrator.' },
+      { status: 403 },
+    );
+  }
+
   return NextResponse.json({
     access_token: data.session.access_token,
     token_type: 'bearer',
-    recruiter:
-      profile ?? {
-        id: data.user.id,
-        full_name: '',
-        email: data.user.email,
-        company_name: '',
-        phone: null,
-        created_at: data.user.created_at,
-      },
+    admin: profile,
   });
 }

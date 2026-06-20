@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(req: Request) {
   let body: any;
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+  const { data: created, error: createErr } = await getSupabaseAdmin().auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -35,19 +35,19 @@ export async function POST(req: Request) {
 
   const user = created.user;
 
-  const { error: profileErr } = await supabaseAdmin
-    .from('candidate_profiles')
-    .upsert({ id: user.id, full_name, email, phone });
+  const { error: profileErr } = await getSupabaseAdmin()
+    .from('candidate_profiles' as any)
+    .upsert({ id: user.id, full_name, email, phone } as any);
 
   if (profileErr) {
-    await supabaseAdmin.auth.admin.deleteUser(user.id);
+    await getSupabaseAdmin().auth.admin.deleteUser(user.id);
     return NextResponse.json(
       { detail: `Profile creation failed: ${profileErr.message}` },
       { status: 500 },
     );
   }
 
-  const { data: session, error: signErr } = await supabaseAdmin.auth.signInWithPassword({
+  const { data: session, error: signErr } = await getSupabaseAdmin().auth.signInWithPassword({
     email,
     password,
   });

@@ -22,16 +22,31 @@ matching project/
 │   │   │   │   ├── login/route.ts # POST login
 │   │   │   │   ├── register/route.ts # POST register
 │   │   │   │   └── me/route.ts    # GET current session user
-│   │   │   └── candidate/     # Candidate authentication endpoints
-│   │   │       ├── login/route.ts # POST login
-│   │   │       ├── register/route.ts # POST register
-│   │   │       └── me/route.ts    # GET current session user
+│   │   │   ├── candidate/     # Candidate authentication endpoints
+│   │   │   │   ├── login/route.ts # POST login
+│   │   │   │   ├── register/route.ts # POST register
+│   │   │   │   └── me/route.ts    # GET current session user
+│   │   │   └── admin/         # Administrator BFF (service-role key, requireAdmin)
+│   │   │       ├── login/route.ts   # POST login (gated by admin_profiles)
+│   │   │       ├── me/route.ts      # GET current admin
+│   │   │       ├── register/route.ts# POST guarded bootstrap (x-admin-setup-token)
+│   │   │       ├── stats/route.ts   # GET platform counts
+│   │   │       ├── recruiters/route.ts       # GET list / POST create
+│   │   │       ├── recruiters/[id]/route.ts  # DELETE
+│   │   │       ├── candidates/route.ts       # GET list / POST create
+│   │   │       └── candidates/[id]/route.ts  # DELETE
 │   │   ├── dashboard/         # Recruiter authenticated dashboard
 │   │   │   ├── layout.tsx     # RequireRecruiter guard & sidebar wrapper
 │   │   │   └── page.tsx       # List created pools, metrics, actions
 │   │   ├── recruiter/         # Auth pages
 │   │   │   ├── login/page.tsx # Recruiter login view
 │   │   │   └── register/page.tsx # Recruiter register view
+│   │   ├── admin/             # Administrator dashboard (route prefix /admin)
+│   │   │   ├── layout.tsx     # Guards /admin/* (login bypasses) + AdminSidebar
+│   │   │   ├── page.tsx       # Dashboard: platform stat cards
+│   │   │   ├── login/page.tsx # Standalone admin login
+│   │   │   ├── recruiters/page.tsx # Manage recruiters (table + create modal)
+│   │   │   └── candidates/page.tsx # Manage candidates (table + create modal)
 │   │   ├── job-pools/         # (Legacy/Reference) HR dashboard pages
 │   │   ├── pool/              # (Legacy/Reference) Public application pages
 │   │   └── page.tsx           # Home page (search & match)
@@ -40,6 +55,11 @@ matching project/
 │   │   │   ├── AuthRequiredModal.tsx # Modal with inline signup (name, email, phone required, password) / login forms, real Supabase auth via /api/candidate/*, triggered by "Postuler" or "Connexion"
 │   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs; includes header "Connexion" button wired to modal
 │   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info; "Postuler" triggers auth modal
+│   │   ├── admin/             # Administrator dashboard components
+│   │   │   ├── RequireAdmin.tsx    # Client route guard (admin session)
+│   │   │   ├── AdminSidebar.tsx    # Admin navigation sidebar
+│   │   │   ├── UserTable.tsx       # Reusable user listing table
+│   │   │   └── CreateUserModal.tsx # Create recruiter/candidate modal
 │   │   ├── AppSidebar.tsx     # Navigation sidebar for recruiter dashboard
 │   │   └── RequireRecruiter.tsx # Auth protection wrapper for pages/layouts
 │   ├── lib/                   # Utilities, types, services
@@ -47,6 +67,8 @@ matching project/
 │   │   ├── jobPoolService.ts  # CRUD / API fetch wrappers with JWT Auth header
 │   │   ├── recruiterAuth.ts   # Client-side session and cookie helpers
 │   │   ├── candidateAuth.ts   # Candidate auth client (login, register, getCurrentCandidate)
+│   │   ├── adminAuth.ts       # Admin auth client (loginAdmin, getCurrentAdmin, authHeader)
+│   │   ├── adminGuard.ts      # Server helper requireAdmin(req): token + admin_profiles check
 │   │   ├── supabaseAdmin.ts   # Supabase client using service role key
 │   │   ├── types.ts           # Shared TypeScript types
 │   │   └── utils.ts           # Helpers (cn, formatDate, initials)
@@ -63,6 +85,9 @@ matching project/
 │   │   │   └── pools.py       # POST /api/v1/pools/gemini-store
 │   │   ├── candidate/         # Candidate-scoped package (mirrors frontend (candidate)/)
 │   │   │   ├── router.py      # GET /api/v1/candidate/health, GET /offer/demo
+│   │   │   └── test_router.py # Hermetic TestClient tests (no DB/env required)
+│   │   ├── admin/             # Administrator-scoped package (mirrors frontend admin/)
+│   │   │   ├── router.py      # GET /api/v1/admin/health, /capabilities
 │   │   │   └── test_router.py # Hermetic TestClient tests (no DB/env required)
 │   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
 │   │   └── services/          # Business logic & AI services
@@ -245,6 +270,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 |---|---|---|
 | **Recruiter (hr_profiles)** | id, full_name, email, company_name, phone | Recruiter profiles mapping to Auth users |
 | **Candidate (candidate_profiles)** | id, full_name, email, phone, created_at | Candidate profiles mapping to Auth users |
+| **Admin (admin_profiles)** | id, full_name, email, created_at | Administrator profiles; membership grants access to the `/admin` dashboard and `/api/admin/*` |
 | **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, experience_range, seniority_level, languages, education_level, contract_type, location, created_at | Job pools/offers with unique tokenized links |
 | **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
 | **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
