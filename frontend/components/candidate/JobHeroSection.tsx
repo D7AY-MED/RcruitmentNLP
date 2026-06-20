@@ -24,6 +24,7 @@ export interface JobHeroProps {
   educationLevel?: string;
   sector?: string;
   publishDate?: string;
+  onConnexion?: () => void;
 }
 
 function MetaTag({
@@ -56,6 +57,7 @@ export default function JobHeroSection({
   educationLevel,
   sector = 'Conseil & Audit',
   publishDate = 'Publiée il y a 18 jours',
+  onConnexion,
 }: JobHeroProps) {
   return (
     <section className="relative bg-white border-b border-gray-200 overflow-hidden pb-12 sm:pb-14">
@@ -95,6 +97,7 @@ export default function JobHeroSection({
             <Search className="w-5 h-5" />
           </button>
           <Button
+            onClick={onConnexion}
             className="h-10 px-5 text-[13px] font-bold rounded-xl text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5"
             style={{
               background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
@@ -134,7 +137,7 @@ export default function JobHeroSection({
         {/* Metadata tags */}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
           {contractType && <MetaTag icon={FileText} name="Type de contrat" value={contractType} />}
-          {location && <MetaTag icon={MapPin} name="Lieu de travail" value="Sur site" />}
+          {location && <MetaTag icon={MapPin} name="Lieu de travail" value={location} />}
           {experienceLevel && <MetaTag icon={Calendar} name="Expérience" value={experienceLevel} />}
           {languages && <MetaTag icon={Globe} name="Langues" value={languages} />}
           {educationLevel && <MetaTag icon={GraduationCap} name="Niveau d'étude" value={educationLevel} />}

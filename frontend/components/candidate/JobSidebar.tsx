@@ -1,13 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRight, Building2, MapPin, Share2, Check } from 'lucide-react';
+import { ArrowRight, Share2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// Default placeholder copy shown until the company description is made dynamic.
+const DEFAULT_COMPANY_DESCRIPTION =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
 export interface JobSidebarProps {
   companyName: string;
   location?: string;
   companyDescription?: string;
+  /** Optional recruiter/company logo URL. Falls back to a branded initial badge. */
+  companyLogoUrl?: string;
+  /** Optional company sector (e.g. "Ameublement"). Shown next to the location. */
+  companySector?: string;
+  contractType?: string;
+  experienceLevel?: string;
+  educationLevel?: string;
   onApply?: () => void;
 }
 
@@ -15,6 +26,11 @@ export default function JobSidebar({
   companyName,
   location,
   companyDescription,
+  companyLogoUrl,
+  companySector,
+  contractType,
+  experienceLevel,
+  educationLevel,
   onApply,
 }: JobSidebarProps) {
   const [copied, setCopied] = useState(false);
@@ -28,6 +44,17 @@ export default function JobSidebar({
       console.error('Failed to copy link:', err);
     }
   };
+
+  // First letter of the company name, used for the default logo badge.
+  const companyInitial = (companyName?.trim()?.[0] || '?').toUpperCase();
+
+  // Subtitle line: "sector • location" (whichever pieces are available).
+  const subtitleParts = [companySector, location].filter(Boolean);
+  const subtitle = subtitleParts.join(' • ');
+
+  const description = companyDescription?.trim()
+    ? companyDescription
+    : DEFAULT_COMPANY_DESCRIPTION;
 
   return (
     <aside className="md:col-span-1">
@@ -60,31 +87,40 @@ export default function JobSidebar({
 
         {/* Company card */}
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 border border-blue-100">
-              <Building2
-                className="w-5 h-5 text-blue-600"
-                aria-hidden="true"
+          <div className="flex items-center gap-3 mb-4">
+            {/* Company logo — real image if available, otherwise a branded initial badge */}
+            {companyLogoUrl ? (
+              <img
+                src={companyLogoUrl}
+                alt={`Logo ${companyName}`}
+                className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0 shadow-sm"
               />
-            </div>
-            <div>
-              <h3 className="text-[15px] font-semibold text-gray-900">
+            ) : (
+              <div
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm"
+                style={{
+                  background: 'linear-gradient(to right, #2563EB, #60A5FA)',
+                }}
+                aria-hidden="true"
+              >
+                {companyInitial}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold text-gray-900 truncate">
                 {companyName}
               </h3>
-              {location && (
-                <p className="flex items-center gap-1 text-[13px] text-gray-500 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                  {location}
+              {subtitle && (
+                <p className="text-[13px] text-gray-500 mt-0.5 truncate">
+                  {subtitle}
                 </p>
               )}
             </div>
           </div>
 
-          {companyDescription && (
-            <p className="text-[13px] text-gray-600 leading-relaxed mb-4">
-              {companyDescription}
-            </p>
-          )}
+          <p className="text-[13px] text-gray-600 leading-relaxed mb-4">
+            {description}
+          </p>
 
           <a
             href="#"
@@ -101,18 +137,30 @@ export default function JobSidebar({
             Informations clés
           </h4>
           <ul className="space-y-2.5 text-[13px] text-gray-600">
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-              Poste basé à Casablanca
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-              Cabinet international de premier plan
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-              Missions variées en M&A et financement
-            </li>
+            {location && (
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                Lieu : {location}
+              </li>
+            )}
+            {contractType && (
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                Contrat : {contractType}
+              </li>
+            )}
+            {experienceLevel && (
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                Expérience : {experienceLevel}
+              </li>
+            )}
+            {educationLevel && (
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                Études : {educationLevel}
+              </li>
+            )}
           </ul>
         </div>
       </div>

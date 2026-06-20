@@ -7,16 +7,22 @@ matching project/
 ├── frontend/                  # Next.js (React) application
 │   ├── app/                   # Next.js App Router pages & API routes
 │   │   ├── (candidate)/       # Candidate-scoped pages (route group → no URL prefix)
-│   │   │   └── apply/
-│   │   │       ├── [token]/
-│   │   │       │   └── page.tsx # Dynamic /apply/[token] candidate view (Supabase integration)
-│   │   │       └── page.tsx   # /apply static/demo layout page
+│   │   │   ├── apply/
+│   │   │   │   ├── [token]/
+│   │   │   │   │   └── page.tsx # Dynamic /apply/[token] candidate view (Supabase integration)
+│   │   │   │   └── page.tsx   # /apply static/demo layout page
+│   │   │   └── interview/
+│   │   │       └── page.tsx   # /apply/interview — demo interview page (landing after candidate auth)
 │   │   ├── api/
 │   │   │   ├── job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
 │   │   │   │   ├── route.ts   # POST (verify recruiter + insert), GET (list)
 │   │   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
 │   │   │   │   └── public/route.ts# GET public pool by token (joins hr_profiles)
-│   │   │   └── recruiter/     # Recruiter authentication endpoints
+│   │   │   ├── recruiter/     # Recruiter authentication endpoints
+│   │   │   │   ├── login/route.ts # POST login
+│   │   │   │   ├── register/route.ts # POST register
+│   │   │   │   └── me/route.ts    # GET current session user
+│   │   │   └── candidate/     # Candidate authentication endpoints
 │   │   │       ├── login/route.ts # POST login
 │   │   │       ├── register/route.ts # POST register
 │   │   │       └── me/route.ts    # GET current session user
@@ -31,15 +37,16 @@ matching project/
 │   │   └── page.tsx           # Home page (search & match)
 │   ├── components/            # React components (ui, job-pools, candidate, etc.)
 │   │   ├── candidate/         # Candidate-facing reusable components
-│   │   │   ├── AuthRequiredModal.tsx # Dialog prompted before candidate applies
-│   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs
-│   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info
+│   │   │   ├── AuthRequiredModal.tsx # Modal with inline signup (name, email, phone required, password) / login forms, real Supabase auth via /api/candidate/*, triggered by "Postuler" or "Connexion"
+│   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs; includes header "Connexion" button wired to modal
+│   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info; "Postuler" triggers auth modal
 │   │   ├── AppSidebar.tsx     # Navigation sidebar for recruiter dashboard
 │   │   └── RequireRecruiter.tsx # Auth protection wrapper for pages/layouts
 │   ├── lib/                   # Utilities, types, services
 │   │   ├── frontendData.ts    # Mock data + helper functions
 │   │   ├── jobPoolService.ts  # CRUD / API fetch wrappers with JWT Auth header
 │   │   ├── recruiterAuth.ts   # Client-side session and cookie helpers
+│   │   ├── candidateAuth.ts   # Candidate auth client (login, register, getCurrentCandidate)
 │   │   ├── supabaseAdmin.ts   # Supabase client using service role key
 │   │   ├── types.ts           # Shared TypeScript types
 │   │   └── utils.ts           # Helpers (cn, formatDate, initials)
@@ -154,8 +161,12 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │  1. CLICK LINK                                                  │
 │     └─> Link contains pool_id + job_description context         │
 │                                                                 │
-│  2. LOGIN / SIGNUP                                              │
-│     └─> Supabase Auth (fast, reliable JWT)                      │
+│  2. LOGIN / SIGNUP (in-modal)                                   │
+│     └─> AuthRequiredModal with inline forms (name, email,       │
+│         phone, password) — real Supabase Auth via               │
+│         /api/candidate/{login,register,me}                      │
+│     └─> JWT stored in localStorage (candidate_token)            │
+│     └─> On success → redirect to /apply/interview               │
 │                                                                 │
 │  3. UPLOAD CV                                                   │
 │     └─> File → Supabase Storage S3 bucket                       │
@@ -188,7 +199,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-> **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate CV upload and authentication using Supabase. The shareable tokenized URL allows public candidate access.
+> **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate authentication via an in-modal signup/login flow. The shareable tokenized URL allows public candidate access. Both the header "Connexion" button and the sidebar "Postuler" button open the same `AuthRequiredModal`, which includes registration (name, email, phone, password) and login forms. Auth uses real Supabase Auth via `/api/candidate/{register,login,me}` server-side routes with the service role key, storing the JWT in localStorage under `candidate_token`. On success, candidates land at `/apply/interview` (a demo interview page) which is protected by an auth guard.
 
 ### Data Flow Diagram
 
@@ -233,7 +244,8 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 | Entity | Key Fields | Description |
 |---|---|---|
 | **Recruiter (hr_profiles)** | id, full_name, email, company_name, phone | Recruiter profiles mapping to Auth users |
-| **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, seniority_level, languages, created_at | Job pools/offers with unique tokenized links |
+| **Candidate (candidate_profiles)** | id, full_name, email, phone, created_at | Candidate profiles mapping to Auth users |
+| **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, experience_range, seniority_level, languages, education_level, contract_type, location, created_at | Job pools/offers with unique tokenized links |
 | **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
 | **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
 | **Q&A** | id, application_id, question, answer, created_at | Chat transcript per candidate application |

@@ -87,6 +87,7 @@ export default function CandidateApplyPage() {
         experienceLevel={MOCK_OFFER.experienceLevel}
         languages={MOCK_OFFER.languages}
         educationLevel={MOCK_OFFER.educationLevel}
+        onConnexion={() => setShowAuthModal(true)}
       />
 
       {/* ---------- MAIN CONTENT (two columns) ---------- */}

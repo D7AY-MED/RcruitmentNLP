@@ -10,18 +10,10 @@ import { getPublicJobPool } from '@/lib/jobPoolService';
 import { getPublicPool as getPublicPoolMock } from '@/lib/frontendData';
 import { JobPool } from '@/lib/types';
 
-const DEFAULT_BENEFITS = [
-  "Environnement international stimulant avec exposition à des opérations de haut niveau.",
-  "Programme de formation continue et développement de carrière structuré.",
-  "Rémunération compétitive avec package d'avantages attractif.",
-  "Missions diversifiées auprès de clients variés.",
-  "Opportunités d'évolution rapide vers des postes de management.",
-];
-
 const DEFAULT_PROCESS = [
-  { step: "1", label: "Pré-sélection sur CV et lettre de motivation" },
-  { step: "2", label: "Entretien technique et étude de cas" },
-  { step: "3", label: "Rencontre avec l'équipe et les associés" },
+  { step: "1", label: "Dépôt de CV & Analyse IA : Téléversez votre CV pour une extraction automatique de vos compétences et de votre expérience." },
+  { step: "2", label: "Entretien virtuel interactif : Répondez en ligne aux questions posées par notre assistant IA adaptées à votre profil et à l'offre." },
+  { step: "3", label: "Évaluation & Matching : Les recruteurs étudient votre score de compatibilité et vos réponses pour le processus final de sélection." },
 ];
 
 export default function CandidateApplyDynamicPage() {
@@ -104,19 +96,17 @@ export default function CandidateApplyDynamicPage() {
   }
 
   // Derive structured data for sections
-  const aboutText = pool.description || pool.main_mission || "Aucune description fournie pour ce poste.";
+  const aboutText = pool.description || pool.main_mission || "";
   
   const missionsList =
     pool.responsibilities && pool.responsibilities.length > 0
       ? pool.responsibilities
-      : ["Réaliser les tâches courantes liées aux objectifs du département.", "Collaborer avec les membres de l'équipe sur les livrables du projet.", "Participer aux réunions d'évaluation et de planification."];
+      : [];
 
   // Build Profile requirements dynamically
   const profileRequirements = [];
   if (pool.education_level) {
     profileRequirements.push(`Diplôme requis : ${pool.education_level}.`);
-  } else {
-    profileRequirements.push("Diplôme d'études supérieures requis (BAC +5 ou équivalent).");
   }
 
   if (pool.experience_level) {
@@ -147,12 +137,13 @@ export default function CandidateApplyDynamicPage() {
       <JobHeroSection
         title={pool.title}
         companyName={pool.company_name || 'Entreprise Confidentielle'}
-        location={pool.location || 'Casablanca'}
-        contractType={pool.contract_type || 'CDI'}
-        salaryRange={pool.salary_range || 'A discuter'}
-        experienceLevel={pool.experience_level}
-        languages={pool.language}
-        educationLevel={pool.education_level || 'BAC +5'}
+        location={pool.location || undefined}
+        contractType={pool.contract_type || undefined}
+        salaryRange={pool.salary_range || undefined}
+        experienceLevel={pool.experience_level || undefined}
+        languages={pool.language || undefined}
+        educationLevel={pool.education_level || undefined}
+        onConnexion={() => setShowAuthModal(true)}
       />
 
       {/* ---------- MAIN CONTENT (two columns) ---------- */}
@@ -161,39 +152,45 @@ export default function CandidateApplyDynamicPage() {
           {/* LEFT COLUMN (2/3) — Job Description */}
           <div className="md:col-span-2 space-y-8">
             {/* About the role */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">À propos du poste</h2>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{aboutText}</p>
-            </section>
+            {aboutText && (
+              <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">À propos du poste</h2>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{aboutText}</p>
+              </section>
+            )}
 
             {/* Missions */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Missions</h2>
-              <ul className="space-y-3">
-                {missionsList.map((m, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
-                    <span
-                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-blue-600"
-                      aria-hidden="true"
-                    />
-                    <span className="leading-relaxed">{m}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {missionsList.length > 0 && (
+              <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Missions</h2>
+                <ul className="space-y-3">
+                  {missionsList.map((m, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
+                      <span
+                        className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-blue-600"
+                        aria-hidden="true"
+                      />
+                      <span className="leading-relaxed">{m}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {/* Required profile */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Profil recherché</h2>
-              <ul className="space-y-3">
-                {profileRequirements.map((p, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" aria-hidden="true" />
-                    <span className="leading-relaxed">{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {profileRequirements.length > 0 && (
+              <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Profil recherché</h2>
+                <ul className="space-y-3">
+                  {profileRequirements.map((p, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="leading-relaxed">{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {/* Competency Badges Section */}
             {((pool.required_skills && pool.required_skills.length > 0) ||
@@ -240,22 +237,6 @@ export default function CandidateApplyDynamicPage() {
               </section>
             )}
 
-            {/* Benefits */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Ce que nous offrons</h2>
-              <ul className="space-y-3">
-                {DEFAULT_BENEFITS.map((b, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
-                    <span
-                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-blue-600"
-                      aria-hidden="true"
-                    />
-                    <span className="leading-relaxed">{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
             {/* Recruitment process */}
             <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-5">Processus de recrutement</h2>
@@ -280,8 +261,11 @@ export default function CandidateApplyDynamicPage() {
           {/* RIGHT COLUMN (1/3) — Sidebar */}
           <JobSidebar
             companyName={pool.company_name || 'Entreprise Confidentielle'}
-            location={pool.location || 'Casablanca'}
-            companyDescription={pool.notes || "Cette entreprise recrute via PooLink, notre plateforme d'entretiens basés sur l'intelligence artificielle."}
+            location={pool.location || undefined}
+            companySector="Conseil & Audit"
+            contractType={pool.contract_type || undefined}
+            experienceLevel={pool.experience_level || undefined}
+            educationLevel={pool.education_level || undefined}
             onApply={() => setShowAuthModal(true)}
           />
         </div>

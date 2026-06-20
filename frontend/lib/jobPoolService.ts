@@ -16,6 +16,10 @@ export interface JobPoolInsert {
   languages?: string[] | null;
   years_experience?: number | null;
   notes?: string | null;
+  experience_range?: string | null;
+  education_level?: string | null;
+  contract_type?: string | null;
+  location?: string | null;
 }
 
 function generatePublicToken(title: string): string {
@@ -37,12 +41,14 @@ function mapDbRowToJobPool(row: any): JobPool {
     required_skills: row.must_have_skills || [],
     company_name: profile?.company_name || undefined,
     applicant_count: undefined,
-    location: 'Remote',
-    contract_type: 'CDI',
-    experience_level: row.years_experience ? `${row.years_experience} ans` : (row.seniority_level || undefined),
-    education_level: 'BAC +5',
+    location: row.location || undefined,
+    contract_type: row.contract_type || undefined,
+    experience_level: row.experience_range
+      ? (row.experience_range.includes('ans') ? row.experience_range : `${row.experience_range} ans`)
+      : (row.years_experience ? `${row.years_experience} ans` : (row.seniority_level || undefined)),
+    education_level: row.education_level || undefined,
     language: row.languages?.join(', ') || undefined,
-    salary_range: 'A discuter',
+    salary_range: undefined,
     deadline: undefined,
     nice_to_have_skills: row.nice_to_have_skills || [],
     soft_skills: row.soft_skills || [],
@@ -97,6 +103,10 @@ export async function createJobPool(payload: JobPoolInsert): Promise<JobPool> {
       languages: payload.languages || null,
       years_experience: payload.years_experience || null,
       notes: payload.notes || null,
+      experience_range: payload.experience_range || null,
+      education_level: payload.education_level || null,
+      contract_type: payload.contract_type || null,
+      location: payload.location || null,
     }),
   });
   return mapDbRowToJobPool(data);
