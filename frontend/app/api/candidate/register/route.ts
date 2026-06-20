@@ -1,15 +1,3 @@
-/**
- * POST /api/recruiter/register
- *
- * Registers a recruiter through Supabase Auth (server-side, service-role key):
- *   1. Create the auth user (email + password), pre-confirmed.
- *   2. Store the profile in hr_profiles (id = auth user id).
- *   3. Sign in to return an access token for immediate login.
- *
- * Response shape matches the frontend's TokenResponse:
- *   { access_token, token_type, recruiter }
- */
-
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
@@ -21,20 +9,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ detail: 'Invalid request body.' }, { status: 400 });
   }
 
-  const { full_name, email, password, company_name, phone } = body ?? {};
-  if (!full_name || !email || !password || !company_name) {
+  const { full_name, email, password, phone } = body ?? {};
+  if (!full_name || !email || !password || !phone) {
     return NextResponse.json(
-      { detail: 'full_name, email, password and company_name are required.' },
+      { detail: 'full_name, email, password and phone are required.' },
       { status: 400 },
     );
   }
 
-  // 1. Create the auth user (email_confirm so they can log in right away).
   const { data: created, error: createErr } = await getSupabaseAdmin().auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name, company_name, phone: phone ?? null },
+    user_metadata: { full_name, phone: phone ?? null },
   });
 
   if (createErr || !created?.user) {
@@ -48,14 +35,11 @@ export async function POST(req: Request) {
 
   const user = created.user;
 
-  // 2. Store the recruiter profile. upsert is idempotent if a DB trigger
-  //    already created the row on signup.
   const { error: profileErr } = await getSupabaseAdmin()
-    .from('hr_profiles' as any)
-    .upsert({ id: user.id, full_name, company_name, email, phone: phone ?? null } as any);
+    .from('candidate_profiles' as any)
+    .upsert({ id: user.id, full_name, email, phone } as any);
 
   if (profileErr) {
-    // Roll back the auth user so the email can be reused after a failure.
     await getSupabaseAdmin().auth.admin.deleteUser(user.id);
     return NextResponse.json(
       { detail: `Profile creation failed: ${profileErr.message}` },
@@ -63,7 +47,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // 3. Sign in to mint a session token for the new account.
   const { data: session, error: signErr } = await getSupabaseAdmin().auth.signInWithPassword({
     email,
     password,
@@ -80,12 +63,11 @@ export async function POST(req: Request) {
     {
       access_token: session.session.access_token,
       token_type: 'bearer',
-      recruiter: {
+      candidate: {
         id: user.id,
         full_name,
         email,
-        company_name,
-        phone: phone ?? null,
+        phone,
         created_at: user.created_at,
       },
     },

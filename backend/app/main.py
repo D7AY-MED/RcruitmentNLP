@@ -17,13 +17,15 @@ from app.candidate.router import router as candidate_router
 from app.routers import users
 from app.routers import job_offers
 from app.routers import applications 
+from app.admin import router as admin_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="xQuesty Link API", version="0.1.0")
 app.include_router(pools.router)
-app.include_router(candidate_router)
+app.include_router(candidate_router.router)
+app.include_router(admin_router.router)
 
 # Allow the Next.js frontend to call this API from the browser.
 app.add_middleware(

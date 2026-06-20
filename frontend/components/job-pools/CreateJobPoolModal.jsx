@@ -9,6 +9,8 @@ import CopyLinkButton from '@/components/job-pools/CopyLinkButton';
 import { createJobPool, publicPoolUrl } from '@/lib/frontendData';
 
 const SENIORITY_LEVELS = ['Intern', 'Junior', 'Mid-Level', 'Senior', 'Lead', 'Manager', 'Director'];
+const CONTRACT_TYPES = ['CDI', 'CDD', 'Stage', 'Freelance', 'Alternance'];
+const EDUCATION_LEVELS = ['Bac', 'Bac +2', 'Bac +3', 'Bac +4', 'Bac +5', 'Doctorat', 'Pas de diplôme requis'];
 const INTERVIEW_FOCUS_AREAS = [
   { id: 'Technical Skills', label: 'Technical Skills', group: 'Hard Skills' },
   { id: 'Problem Solving', label: 'Problem Solving', group: 'Soft Skills' },
@@ -96,6 +98,17 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
   const [error, setError] = useState('');
   const [created, setCreated] = useState(null);
 
+  const handleExperienceFormat = (val) => {
+    const trimmed = val.trim();
+    if (/^\d+$/.test(trimmed)) {
+      const num = Number(trimmed);
+      if (num > 50) return '50-';
+      if (num < 0) return '0-';
+      return `${num}-`;
+    }
+    return trimmed;
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     title: '',
@@ -111,7 +124,10 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
     dealBreakersCustom: '',
     interviewFocus: [],
     notes: '',
-    languagesCustom: ''
+    languagesCustom: '',
+    educationLevel: 'Bac +5',
+    contractType: 'CDI',
+    location: 'Hybride'
   });
 
   useEffect(() => {
@@ -134,7 +150,10 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
         dealBreakersCustom: '',
         interviewFocus: [],
         notes: '',
-        languagesCustom: ''
+        languagesCustom: '',
+        educationLevel: 'Bac +5',
+        contractType: 'CDI',
+        location: 'Hybride'
       });
     }
   }, [open]);
@@ -187,10 +206,22 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
     setSubmitting(true);
     setError('');
     try {
+      let yearsExperience = null;
+      if (formData.experience) {
+        const match = formData.experience.match(/^(\d+)/);
+        if (match) {
+          yearsExperience = parseInt(match[1], 10);
+        }
+      }
+
       const payload = {
         title: formData.title,
         seniority_level: formData.seniority || null,
-        years_experience: formData.experience ? parseInt(formData.experience, 10) : null,
+        years_experience: yearsExperience,
+        experience_range: formData.experience || null,
+        education_level: formData.educationLevel || null,
+        contract_type: formData.contractType || null,
+        location: formData.location || null,
         main_mission: formData.mission,
         responsibilities: formData.responsibilities.filter(r => r.trim()),
         must_have_skills: formData.mustHaveSkills,
@@ -273,28 +304,70 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
         <div>
           <label className="block text-sm font-medium text-foreground mb-1">Years of Experience</label>
           <input
-            type="number"
-            min="0"
-            max="50"
+            type="text"
             value={formData.experience}
             onChange={(e) => {
               const val = e.target.value;
-              if (val === '') {
-                updateField('experience', '');
-              } else {
-                const num = Number(val);
-                if (num > 50) {
-                  updateField('experience', '50');
-                } else if (num < 0) {
-                  updateField('experience', '0');
-                } else {
-                  updateField('experience', val);
+              if (/^[0-9-]*$/.test(val)) {
+                updateField('experience', val);
+              }
+            }}
+            onBlur={(e) => updateField('experience', handleExperienceFormat(e.target.value))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const formatted = handleExperienceFormat(e.target.value);
+                if (formatted !== e.target.value) {
+                  e.preventDefault();
+                  updateField('experience', formatted);
                 }
               }
             }}
             placeholder="e.g. 5"
             className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
           />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">Type de contrat</label>
+          <select
+            value={formData.contractType}
+            onChange={(e) => updateField('contractType', e.target.value)}
+            className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
+          >
+            {CONTRACT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">Niveau d'étude</label>
+          <select
+            value={formData.educationLevel}
+            onChange={(e) => updateField('educationLevel', e.target.value)}
+            className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
+          >
+            {EDUCATION_LEVELS.map(el => <option key={el} value={el}>{el}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-1.5">Lieu de travail</label>
+        <div className="flex rounded-lg border border-input p-1 bg-muted/30">
+          {['Sur site', 'Hybride', 'Télétravail'].map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => updateField('location', opt)}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                formData.location === opt
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
         </div>
       </div>
 

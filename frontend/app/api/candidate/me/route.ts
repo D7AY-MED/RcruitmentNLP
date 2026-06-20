@@ -1,10 +1,3 @@
-/**
- * GET /api/recruiter/me
- *
- * Returns the recruiter identified by the Authorization bearer token
- * (the Supabase access token issued at login/register).
- */
-
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
@@ -22,7 +15,7 @@ export async function GET(req: Request) {
   }
 
   const { data: profile } = await getSupabaseAdmin()
-    .from('hr_profiles')
+    .from('candidate_profiles')
     .select('*')
     .eq('id', data.user.id)
     .single();
@@ -32,7 +25,6 @@ export async function GET(req: Request) {
       id: data.user.id,
       full_name: '',
       email: data.user.email,
-      company_name: '',
       phone: null,
       created_at: data.user.created_at,
     },
