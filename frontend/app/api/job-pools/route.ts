@@ -30,23 +30,6 @@ export async function POST(req: NextRequest) {
   const user = await authenticate(req);
   if (!user) return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   const db = getSupabaseAdmin();
-  const userMetadata = user.user_metadata || {};
-  const email = user.email;
-  const full_name = userMetadata.full_name || 'Recruiter';
-  const company_name = userMetadata.company_name || '';
-  const phone = userMetadata.phone || null;
-
-  const { error: profileError } = await db.from('hr_profiles').upsert(
-    { id: user.id, full_name, email, company_name, phone },
-    { onConflict: 'id' }
-  );
-
-  if (profileError) {
-    return NextResponse.json(
-      { error: `Failed to create hr profile: ${profileError.message}` },
-      { status: 500 }
-    );
-  }
 
   const body = await req.json();
   body.hr_id = user.id;
