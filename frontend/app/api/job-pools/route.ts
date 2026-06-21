@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
-
 async function authenticate(req: NextRequest) {
   const header = req.headers.get('authorization') ?? '';
   const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length) : '';
@@ -36,35 +34,6 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await db.from('job_pools').insert(body).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  let geminiError: string | null = null;
-
-  try {
-    const geminiRes = await fetch(`${BACKEND_URL}/api/v1/pools/gemini-store`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pool_id: data.id,
-        pool_title: data.title,
-        recruiter_id: data.hr_id,
-      }),
-    });
-
-    if (!geminiRes.ok) {
-      const geminiBody = await geminiRes.json().catch(() => ({}));
-      geminiError = geminiBody.detail || geminiRes.statusText;
-    }
-  } catch (err: any) {
-    geminiError = err?.message || 'Backend unreachable';
-  }
-
-  if (geminiError) {
-    await db.from('job_pools').delete().eq('id', data.id);
-    return NextResponse.json(
-      { error: `Gemini store creation failed: ${geminiError}` },
-      { status: 502 },
-    );
-  }
 
   return NextResponse.json(data, { status: 201 });
 }
