@@ -6,10 +6,9 @@ import { AlertTriangle, Archive, ArrowLeft, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { getPool, listApplicants, publicPoolUrl, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { demoUser, getPool, listApplicants, publicPoolUrl, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
 import { getJobPool, updateJobPoolStatus } from '@/lib/jobPoolService';
 import { JobPool, StudentApplicant } from '@/lib/types';
-import { useRecruiter } from '@/lib/recruiter-context';
 import JobPoolStatusBadge from '@/components/job-pools/JobPoolStatusBadge';
 import CopyLinkButton from '@/components/job-pools/CopyLinkButton';
 import ApplicantsList from '@/components/job-pools/ApplicantsList';
@@ -37,7 +36,7 @@ export default function JobPoolDetails() {
   const [students, setStudents] = useState<StudentApplicant[]>([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const user = useRecruiter();
+  const user = demoUser;
 
   const load = useCallback(async () => {
     setError('');

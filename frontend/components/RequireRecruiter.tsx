@@ -1,9 +1,20 @@
 'use client';
 
+/**
+ * Client-side route guard for recruiter-only pages.
+ *
+ * The auth token is stored in localStorage (set by lib/recruiterAuth), so the
+ * check must run in the browser:
+ *   - No token            -> redirect to /recruiter/login (nothing rendered).
+ *   - Token present       -> render immediately, then validate in the
+ *                            background; on a real auth failure (401), log out
+ *                            and redirect. Transient network errors are ignored
+ *                            so a backend blip doesn't sign the user out.
+ */
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken, getCurrentRecruiter, logout } from '@/lib/recruiterAuth';
-import { RecruiterProvider } from '@/lib/recruiter-context';
 
 export default function RequireRecruiter({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -16,6 +27,7 @@ export default function RequireRecruiter({ children }: { children: React.ReactNo
       return;
     }
 
+    // Token exists -> show the page, then verify it is still valid.
     setReady(true);
 
     getCurrentRecruiter().catch((err: any) => {
@@ -25,6 +37,7 @@ export default function RequireRecruiter({ children }: { children: React.ReactNo
         logout();
         router.replace('/recruiter/login');
       }
+      // Otherwise (e.g. "Failed to fetch") keep the user signed in.
     });
   }, [router]);
 
@@ -36,5 +49,5 @@ export default function RequireRecruiter({ children }: { children: React.ReactNo
     );
   }
 
-  return <RecruiterProvider>{children}</RecruiterProvider>;
+  return <>{children}</>;
 }

@@ -143,7 +143,6 @@ export default function CandidateApplyDynamicPage() {
         experienceLevel={pool.experience_level || undefined}
         languages={pool.language || undefined}
         educationLevel={pool.education_level || undefined}
-        onConnexion={() => setShowAuthModal(true)}
       />
 
       {/* ---------- MAIN CONTENT (two columns) ---------- */}
@@ -262,7 +261,7 @@ export default function CandidateApplyDynamicPage() {
           <JobSidebar
             companyName={pool.company_name || 'Entreprise Confidentielle'}
             location={pool.location || undefined}
-            companySector="Conseil & Audit"
+            companyDescription={pool.notes || undefined}
             contractType={pool.contract_type || undefined}
             experienceLevel={pool.experience_level || undefined}
             educationLevel={pool.education_level || undefined}
