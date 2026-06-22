@@ -1,13 +1,11 @@
 /**
  * Administrator authentication client.
  *
- * Mirrors lib/recruiterAuth.ts and lib/candidateAuth.ts. Talks to the
- * same-origin Next.js route handlers under /api/admin/* (which authenticate
- * against Supabase Auth and verify admin_profiles membership server-side).
- * Stores the JWT in localStorage under `admin_token`.
+ * Talks to same-origin Next.js route handlers under /api/admin/* (which
+ * authenticate against Supabase Auth and verify admin_profiles membership
+ * server-side). Stores the JWT in localStorage under `admin_token`.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const TOKEN_KEY = 'admin_token';
 
 export interface Admin {
@@ -25,7 +23,7 @@ interface TokenResponse {
 
 /** Call the backend and surface a clean error message on failure. */
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
   });
