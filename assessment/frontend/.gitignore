@@ -1,8 +1,0 @@
-.next
-node_modules
-*.log
-dev.db
-dev.db-journal
-.env
-
-.vercel
