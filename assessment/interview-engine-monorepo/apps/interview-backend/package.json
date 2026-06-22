@@ -1,0 +1,12 @@
+{
+  "name": "@interview-engine/backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "echo \"Run backend dev server here\"",
+    "build": "echo \"Build backend here\"",
+    "check": "echo \"Typecheck backend here\""
+  }
+}

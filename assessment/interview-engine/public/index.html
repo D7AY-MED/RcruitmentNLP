@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xquesty AI Assessment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <main class="shell">
+      <header class="header">
+        <div>
+          <p class="eyebrow">XQUESTY</p>
+          <h1>Adaptive Interview Assessment</h1>
+        </div>
+        <span class="badge" id="statusBadge">Ready</span>
+      </header>
+
+      <section id="startScreen" class="card">
+        <h2>Start Assessment</h2>
+        <p class="muted">
+          One focused step at a time. The interview adapts to your profile and keeps typing effort low.
+        </p>
+        <form id="startForm" class="stack">
+          <label>
+            Candidate ID
+            <input id="candidateIdInput" name="candidateId" placeholder="e.g. cand_2026_001" required />
+          </label>
+          <button class="btn btn-primary" id="startBtn" type="submit">Begin</button>
+        </form>
+      </section>
+
+      <section id="assessmentScreen" class="card hidden">
+        <div class="row">
+          <div>
+            <p class="eyebrow" id="stageLabel">Phase</p>
+            <h2 id="questionTitle">Question</h2>
+            <p class="muted" id="questionDescription"></p>
+          </div>
+          <div class="meta">
+            <p id="turnLabel">Turn 0</p>
+            <p id="percentLabel">0%</p>
+          </div>
+        </div>
+
+        <div class="progress">
+          <div id="progressFill"></div>
+        </div>
+
+        <form id="answerForm" class="stack"></form>
+        <p id="formError" class="error hidden"></p>
+
+        <div class="actions">
+          <button id="submitBtn" class="btn btn-primary" type="button">Submit</button>
+        </div>
+      </section>
+
+      <section id="loadingScreen" class="card hidden">
+        <p class="eyebrow">Loading Next Step</p>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </section>
+
+      <section id="completeScreen" class="card hidden">
+        <h2>Assessment Completed</h2>
+        <p class="muted">Thanks for completing your interview. Your recruiter report is ready.</p>
+        <pre id="reportJson" class="report"></pre>
+      </section>
+    </main>
+
+    <template id="optionTemplate">
+      <label class="option">
+        <input />
+        <span></span>
+      </label>
+    </template>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

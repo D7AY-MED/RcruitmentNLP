@@ -24,7 +24,7 @@ client = TestClient(app)
 
 
 def test_health():
-    resp = client.get("/api/v1/candidate/health")
+    resp = client.get("/api/candidate/health")
     assert resp.status_code == 200
     body = resp.json()
     assert body["status"] == "ok"
@@ -32,7 +32,7 @@ def test_health():
 
 
 def test_demo_offer():
-    resp = client.get("/api/v1/candidate/offer/demo")
+    resp = client.get("/api/candidate/offer/demo")
     assert resp.status_code == 200
     body = resp.json()
     # Verify required top-level fields

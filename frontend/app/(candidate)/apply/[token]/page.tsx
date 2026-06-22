@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowUp, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
 import JobHeroSection from '@/components/candidate/JobHeroSection';
 import JobSidebar from '@/components/candidate/JobSidebar';
 import AuthRequiredModal from '@/components/candidate/AuthRequiredModal';
 import { getPublicJobPool } from '@/lib/jobPoolService';
 import { getPublicPool as getPublicPoolMock } from '@/lib/frontendData';
+import { getToken, getCurrentCandidate } from '@/lib/candidateAuth';
+import type { Candidate } from '@/lib/candidateAuth';
 import { JobPool } from '@/lib/types';
 
 const DEFAULT_PROCESS = [
@@ -24,6 +26,31 @@ export default function CandidateApplyDynamicPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ title: string; message: string } | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const t = getToken();
+    if (!t) { setAuthChecked(true); return; }
+    getCurrentCandidate()
+      .then(setCandidate)
+      .catch(() => {})
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  const handleApply = useCallback(() => {
+    if (candidate) {
+      router.push(`/apply/interview/${token}`);
+    } else {
+      setShowAuthModal(true);
+    }
+  }, [candidate, token, router]);
+
+  const handleProfile = useCallback(() => {
+    router.push('/profile');
+  }, [router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -143,6 +170,11 @@ export default function CandidateApplyDynamicPage() {
         experienceLevel={pool.experience_level || undefined}
         languages={pool.language || undefined}
         educationLevel={pool.education_level || undefined}
+        isAuthenticated={!!candidate}
+        candidateName={candidate?.full_name}
+        candidateEmail={candidate?.email}
+        onProfile={handleProfile}
+        onConnexion={() => setShowAuthModal(true)}
       />
 
       {/* ---------- MAIN CONTENT (two columns) ---------- */}
@@ -261,11 +293,11 @@ export default function CandidateApplyDynamicPage() {
           <JobSidebar
             companyName={pool.company_name || 'Entreprise Confidentielle'}
             location={pool.location || undefined}
-            companyDescription={pool.notes || undefined}
+            companySector="Conseil & Audit"
             contractType={pool.contract_type || undefined}
             experienceLevel={pool.experience_level || undefined}
             educationLevel={pool.education_level || undefined}
-            onApply={() => setShowAuthModal(true)}
+            onApply={handleApply}
           />
         </div>
       </main>
@@ -332,7 +364,7 @@ export default function CandidateApplyDynamicPage() {
       </footer>
 
       {/* ---------- AUTH REQUIRED MODAL ---------- */}
-      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} token={token} />
     </div>
   );
 }

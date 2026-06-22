@@ -5,10 +5,8 @@
  * Stores the JWT in localStorage (simple approach for now, per spec).
  */
 
-// Empty base = same-origin Next.js route handlers under /api/recruiter/*
-// (these talk to Supabase Auth server-side). Override with NEXT_PUBLIC_API_URL
-// only if you point auth at a separate backend.
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+// Always use same-origin Next.js API routes which talk to Supabase Auth
+// server-side via getSupabaseAdmin() (works over HTTPS, no DNS issues).
 const TOKEN_KEY = 'recruiter_token';
 
 export interface Recruiter {
@@ -36,7 +34,7 @@ interface TokenResponse {
 
 /** Call the backend and surface a clean error message on failure. */
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
   });
