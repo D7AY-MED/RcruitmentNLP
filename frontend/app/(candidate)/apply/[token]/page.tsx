@@ -333,7 +333,7 @@ export default function CandidateApplyDynamicPage() {
       </footer>
 
       {/* ---------- AUTH REQUIRED MODAL ---------- */}
-      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} token={token} />
     </div>
   );
 }

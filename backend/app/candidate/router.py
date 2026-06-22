@@ -1,37 +1,24 @@
-"""
-Candidate endpoints (DEMO).
-
-Mounted under the /api/v1/candidate prefix. The /apply frontend page is
-currently a static demo with no backend call; this router exists as the home
-for candidate-facing endpoints (CV upload, AI interview submission, pool
-lookup) that will be added once the real feature is wired to recruiter links.
-"""
-
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.schemas_candidate import CandidateLogin, CandidateOut, CandidateRegister, CandidateToken
+from app.security_candidate import create_candidate_token, get_current_candidate
+from app.supabase_auth import get_user, login_user, register_user
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/candidate", tags=["candidate"])
+router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 
 
 @router.get("/health")
 async def health():
-    """Liveness check for the candidate service area."""
     logger.info("candidate health ok")
     return {"status": "ok", "service": "candidate"}
 
 
 @router.get("/offer/demo")
 async def get_demo_offer():
-    """Return a static demo offer matching the Jobzyn page structure.
-
-    Provides the same mock data consumed by the /apply frontend page so that
-    the page can later switch from hardcoded constants to a real API call
-    without changing its rendering logic.
-    """
-    logger.info("serving demo offer")
     return {
         "title": "Sr Consultant Transaction Services",
         "company_name": "PooLink Confidential",
@@ -70,3 +57,65 @@ async def get_demo_offer():
             ],
         },
     }
+
+
+def _candidate_out_from_supabase(sb_user: dict) -> CandidateOut:
+    meta = sb_user.get("user_metadata", {}) or {}
+    return CandidateOut(
+        id=sb_user["id"],
+        full_name=meta.get("full_name", ""),
+        email=sb_user["email"],
+        phone=meta.get("phone"),
+        created_at=sb_user.get("created_at", ""),
+    )
+
+
+@router.post("/register", response_model=CandidateToken, status_code=status.HTTP_201_CREATED)
+def register(payload: CandidateRegister):
+    try:
+        sb_user = register_user(
+            email=payload.email,
+            password=payload.password,
+            full_name=payload.full_name,
+            phone=payload.phone,
+        )
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+    token = create_candidate_token(
+        candidate_id=sb_user["id"],
+        email=sb_user["email"],
+        full_name=(sb_user.get("user_metadata") or {}).get("full_name", payload.full_name),
+    )
+    return CandidateToken(
+        access_token=token,
+        candidate=_candidate_out_from_supabase(sb_user),
+    )
+
+
+@router.post("/login", response_model=CandidateToken)
+def login(payload: CandidateLogin):
+    try:
+        sb_session = login_user(email=payload.email, password=payload.password)
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+
+    sb_user = sb_session.get("user", {})
+    meta = sb_user.get("user_metadata", {}) or {}
+    token = create_candidate_token(
+        candidate_id=sb_user["id"],
+        email=sb_user["email"],
+        full_name=meta.get("full_name", ""),
+    )
+    return CandidateToken(
+        access_token=token,
+        candidate=_candidate_out_from_supabase(sb_user),
+    )
+
+
+@router.get("/me", response_model=CandidateOut)
+def me(current=Depends(get_current_candidate)):
+    sb_user = get_user(current["id"])
+    if sb_user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return _candidate_out_from_supabase(sb_user)

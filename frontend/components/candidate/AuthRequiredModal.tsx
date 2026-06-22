@@ -11,9 +11,10 @@ type AuthView = 'choose' | 'login' | 'register';
 interface AuthRequiredModalProps {
   isOpen: boolean;
   onClose: () => void;
+  token?: string;
 }
 
-export default function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
+export default function AuthRequiredModal({ isOpen, onClose, token }: AuthRequiredModalProps) {
   const router = useRouter();
   const [view, setView] = useState<AuthView>('choose');
   const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ export default function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModal
     setLoading(true);
     try {
       await registerCandidate({ full_name: fullName, email, password, phone });
-      router.push('/apply/interview');
+      router.push(token ? `/apply/interview/${token}` : '/apply/interview');
     } catch (err: any) {
       setError(err.message || 'Inscription échouée. Veuillez réessayer.');
       setLoading(false);
@@ -61,7 +62,7 @@ export default function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModal
     setLoading(true);
     try {
       await loginCandidate(email, password);
-      router.push('/apply/interview');
+      router.push(token ? `/apply/interview/${token}` : '/apply/interview');
     } catch (err: any) {
       setError(err.message || 'Email ou mot de passe incorrect.');
       setLoading(false);

@@ -15,6 +15,7 @@ from app.routers import recruiter
 from app.routers import pools
 from app.candidate import router as candidate_router
 from app.admin import router as admin_router
+from app.interview import router as interview_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ app = FastAPI(title="xQuesty Link API", version="0.1.0")
 app.include_router(pools.router)
 app.include_router(candidate_router.router)
 app.include_router(admin_router.router)
+app.include_router(interview_router.router)
 
 # Allow the Next.js frontend to call this API from the browser.
 app.add_middleware(
@@ -39,8 +41,11 @@ app.include_router(recruiter.router)
 
 @app.on_event("startup")
 def on_startup():
-    # Create the `recruiters` table if it does not exist yet.
-    init_db()
+    try:
+        init_db()
+        logger.info("Database tables ready.")
+    except Exception as exc:
+        logger.warning("Database unavailable at startup (%s). Tables will be missing until DB is reachable.", exc)
 
 
 @app.get("/health")

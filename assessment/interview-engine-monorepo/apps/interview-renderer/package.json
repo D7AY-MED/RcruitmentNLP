@@ -1,0 +1,12 @@
+{
+  "name": "@interview-engine/renderer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.tsx",
+  "scripts": {
+    "dev": "echo \"Run renderer dev server here\"",
+    "build": "echo \"Build renderer here\"",
+    "check": "echo \"Typecheck renderer here\""
+  }
+}

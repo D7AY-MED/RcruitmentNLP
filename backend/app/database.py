@@ -9,6 +9,7 @@ Creates the engine + session factory and exposes:
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import make_url
 
 from app.config import DATABASE_URL
 
@@ -18,12 +19,13 @@ if not DATABASE_URL:
         "and fill in your Supabase connection string."
     )
 
-# We use the psycopg3 driver. Normalize a plain "postgresql://" URL (as stored
-# in .env) to the SQLAlchemy "postgresql+psycopg://" form so the right driver
-# is selected without the user having to edit the connection string.
-_db_url = DATABASE_URL
-if _db_url.startswith("postgresql://"):
-    _db_url = _db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+# Normalize the URL: use the psycopg3 driver, ensure SSL is enabled
+# for Supabase connections.
+url = make_url(DATABASE_URL)
+url = url.set(drivername="postgresql+psycopg")
+if "sslmode" not in url.query:
+    url = url.update_query_dict({"sslmode": "require"})
+_db_url = url.render_as_string(hide_password=False)
 
 # pool_pre_ping=True transparently recycles connections dropped by the
 # Supabase pooler, avoiding stale-connection errors on idle apps.

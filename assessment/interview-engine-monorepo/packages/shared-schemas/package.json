@@ -1,0 +1,11 @@
+{
+  "name": "@interview-engine/shared-schemas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "echo \"Build shared schemas here\"",
+    "check": "echo \"Typecheck shared schemas here\""
+  }
+}

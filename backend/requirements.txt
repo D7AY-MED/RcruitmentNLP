@@ -10,3 +10,8 @@ psycopg[binary]>=3.2             # PostgreSQL driver (psycopg3 — has wheels fo
 bcrypt>=4.1                      # Password hashing (used directly; passlib is unmaintained)
 python-jose[cryptography]>=3.3   # JWT encode/decode
 email-validator>=2.2             # Required by Pydantic EmailStr
+
+# --- Interview engine ---
+openai>=1.0.0                    # OpenAI Responses API
+pypdf>=5.0.0                     # PDF text extraction
+python-multipart>=0.0.32         # FastAPI Form / File upload parsing

@@ -12,7 +12,9 @@ matching project/
 │   │   │   │   │   └── page.tsx # Dynamic /apply/[token] candidate view (Supabase integration)
 │   │   │   │   └── page.tsx   # /apply static/demo layout page
 │   │   │   └── interview/
-│   │   │       └── page.tsx   # /apply/interview — demo interview page (landing after candidate auth)
+│   │   │       ├── [token]/
+│   │   │       │   └── page.tsx   # /apply/interview/[token] — auth guard + pool fetch + <InterviewView />
+│   │   │       └── page.tsx   # /apply/interview — demo interview page (legacy)
 │   │   ├── api/
 │   │   │   ├── job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
 │   │   │   │   ├── route.ts   # POST (verify recruiter + insert), GET (list)
@@ -61,6 +63,15 @@ matching project/
 │   │   │   └── CreateUserModal.tsx # Create recruiter/candidate modal
 │   │   ├── AppSidebar.tsx     # Navigation sidebar for recruiter dashboard
 │   │   └── RequireRecruiter.tsx # Auth protection wrapper for pages/layouts
+│   ├── interview/             # AI Interview Engine (self-contained module)
+│   │   ├── components/        # Interview UI components
+│   │   │   ├── InterviewView.tsx   # Main orchestrator (idle/active/completed states)
+│   │   │   ├── SetupForm.tsx       # CV upload (drag-drop file or paste)
+│   │   │   ├── QASession.tsx       # Streaming question + answer input + progress
+│   │   │   └── CompletedScreen.tsx # Interview completion screen
+│   │   └── lib/
+│   │       ├── api.ts         # SSE consumer for /start and /next endpoints
+│   │       └── types.ts       # TypeScript interfaces
 │   ├── lib/                   # Utilities, types, services
 │   │   ├── frontendData.ts    # Mock data + helper functions
 │   │   ├── jobPoolService.ts  # CRUD / API fetch wrappers with JWT Auth header
@@ -89,12 +100,23 @@ matching project/
 │   │   │   ├── router.py      # GET /api/v1/admin/health, /capabilities
 │   │   │   └── test_router.py # Hermetic TestClient tests (no DB/env required)
 │   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
+│   │   ├── interview/         # AI Interview Engine (self-contained module)
+│   │   │   ├── __init__.py
+│   │   │   ├── router.py      # POST /api/v1/interview/start, POST /api/v1/interview/next (SSE)
+│   │   │   ├── openai_client.py   # AsyncOpenAI Responses API (streaming + non-streaming)
+│   │   │   ├── prompt.py      # Builds system prompt from template + CV
+│   │   │   ├── cv_parser.py   # PDF text extraction (pypdf) + plain text
+│   │   │   ├── session_store.py   # Supabase CRUD for interview_sessions table
+│   │   │   ├── auth.py        # Supabase JWT verification (python-jose)
+│   │   │   └── interview_prompt.txt  # System prompt template with {{CV_CONTENT}}
 │   │   └── services/          # Business logic & AI services
 │   │       └── gemini_store_service.py  # Gemini File Search store CRUD
 │   ├── temp_gemini_store/     # Gemini file search test script
 │   │   └── test_store.py      # Standalone test (uses root .env)
 │   ├── .env.example           # Backend env template
 │   └── requirements.txt       # Python dependencies
+├── docu/                      # Documentation
+│   └── AI_INTERVIEW.md        # Full interview engine docs (sequence diagrams, DB, architecture)
 ├── PROJECT_MAP.md             # This file
 ├── README.md
 └── .gitignore
@@ -102,7 +124,7 @@ matching project/
 
 ## Overview
 
-xQuesty "Link" is an AI-powered recruitment platform feature that enables recruiters to generate personalized interview links tied to specific job offers. Candidates upload their CV and take a text-based AI interview; recruiters receive pre-qualified candidates ranked by intelligent matching.
+xQuesty "Link" is an AI-powered recruitment platform feature that enables recruiters to generate personalized interview links tied to specific job offers. Candidates upload their CV and take a text-based AI interview (15 adaptive questions via OpenAI Responses API with SSE streaming); recruiters receive pre-qualified candidates ranked by intelligent matching.
 
 ---
 
@@ -133,8 +155,15 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 | Technology | Purpose |
 |---|---|
 | **Gemini File Search** | Fast, cost-effective embedding engine — first layer of matching (Top 30) |
+| **OpenAI Responses API** | Interview question generation — stateful, `previous_response_id` chaining, SSE streaming |
 | **OpenAI API** | Question generation, response analysis, summaries, final matching (Top 5) |
 | **Sentence-BERT / Transformers** | Advanced semantic similarity understanding |
+
+### Streaming & Real-time
+| Technology | Purpose |
+|---|---|
+| **SSE (Server-Sent Events)** | Word-by-word streaming of AI questions from FastAPI to browser |
+| **OpenAI Responses API (streaming)** | Token-by-token streaming from OpenAI to backend |
 
 ---
 
@@ -190,75 +219,83 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │         phone, password) — real Supabase Auth via               │
 │         /api/candidate/{login,register,me}                      │
 │     └─> JWT stored in localStorage (candidate_token)            │
-│     └─> On success → redirect to /apply/interview               │
+│     └─> On success → redirect to /apply/interview/{token}       │
 │                                                                 │
-│  3. UPLOAD CV                                                   │
-│     └─> File → Supabase Storage S3 bucket                       │
-│         └─> Secure URL generated                                │
+│  3. CV UPLOAD (on interview page)                               │
+│     └─> Drag-and-drop PDF/TXT or paste text directly            │
 │                                                                 │
-│  4. CV ANALYSIS                                                 │
-│     └─> CV sent to OpenAI API with job_description              │
-│         └─> Skills, experience, education extracted             │
+│  4. INTERVIEW START                                             │
+│     └─> CV sent to FastAPI → parsed (pypdf) → system prompt    │
+│         built → OpenAI Responses API (store:true) → first       │
+│         question streamed via SSE word-by-word                  │
 │                                                                 │
-│  5. FIRST AI QUESTION                                           │
-│     └─> Generated dynamically based on CV + job offer           │
-│         └─> Fully personalized interview start                  │
+│  5. FIRST AI QUESTION (Q1/15)                                   │
+│     └─> Personalized opener based on CV content                 │
+│         └─> Rendered token-by-token via SSE                     │
 │                                                                 │
-│  6. FULL INTERVIEW                                              │
-│     └─> Technical skills, soft skills, motivation, mobility...  │
-│         └─> AI-driven conversational flow                       │
+│  6. FULL INTERVIEW (Q2-14)                                      │
+│     └─> Technical depth, languages, work style, career          │
+│         direction, logistics — adaptive follow-ups              │
+│     └─> Each answer → OpenAI with previous_response_id chaining │
+│     └─> Each next question streamed word-by-word                │
 │                                                                 │
-│  7. REAL-TIME SAVE                                              │
-│     └─> Each Q&A saved to Supabase PostgreSQL                   │
-│         └─> Full audit trail                                    │
+│  7. REAL-TIME DB SAVE                                           │
+│     └─> Each question INSERTED to interview_sessions table      │
+│         (answer initially null)                                 │
+│     └─> Each answer UPDATED on the corresponding question row   │
+│         └─> Full audit trail per candidate                     │
 │                                                                 │
-│  8. AI SUMMARY & EMBEDDING                                      │
-│     └─> Resume generated by OpenAI API                          │
-│     └─> Embedding object stored in pool's vector store          │
-│         └─> Indexed for future matching                         │
+│  8. COMPLETION (Q15)                                            │
+│     └─> OpenAI returns [INTERVIEW_COMPLETE]                     │
+│     └─> session_status set to 'completed'                       │
+│     └─> "Entretien terminé — Merci pour votre temps"            │
 │                                                                 │
-│  9. CONFIRMATION                                                │
-│     └─> Message: "Your profile is now visible to the recruiter" │
-│         └─> Transparent, reassuring candidate experience        │
+│  9. RECRUITER REVIEW                                            │
+│     └─> All Q&A visible in dashboard (future feature)           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-> **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate authentication via an in-modal signup/login flow. The shareable tokenized URL allows public candidate access. Both the header "Connexion" button and the sidebar "Postuler" button open the same `AuthRequiredModal`, which includes registration (name, email, phone, password) and login forms. Auth uses real Supabase Auth via `/api/candidate/{register,login,me}` server-side routes with the service role key, storing the JWT in localStorage under `candidate_token`. On success, candidates land at `/apply/interview` (a demo interview page) which is protected by an auth guard.
+> **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate authentication via an in-modal signup/login flow. The shareable tokenized URL allows public candidate access. Both the header "Connexion" button and the sidebar "Postuler" button open the same `AuthRequiredModal`, which includes registration (name, email, phone, password) and login forms. Auth uses real Supabase Auth via `/api/candidate/{register,login,me}` server-side routes with the service role key, storing the JWT in localStorage under `candidate_token`. On success, candidates land at `/apply/interview/{token}` where they complete the full **15-question AI interview** (CV upload → streaming Q&A → completion). The interview is powered by FastAPI backend with OpenAI Responses API and SSE streaming.
 
 ### Data Flow Diagram
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
-│  Recruiter  │────▶│   ReactJS   │────▶│  FastAPI (Py)   │
-│  (Browser)  │◀────│   Frontend  │◀────│    Backend      │
-└─────────────┘     └─────────────┘     └────────┬────────┘
-                                                  │
-                    ┌─────────────────────────────┼─────────────────────────────┐
-                    │                             │                             │
-                    ▼                             ▼                             ▼
-            ┌──────────────┐              ┌──────────────┐              ┌──────────────┐
-            │ Supabase Auth│              │  PostgreSQL  │              │  S3 Storage  │
-            │   (JWT)      │              │   (Users,    │              │   (CV Files) │
-            │              │              │   Pools, Q&A)│              │              │
-            └──────────────┘              └──────────────┘              └──────────────┘
-                                                  │
-                    ┌─────────────────────────────┼
-                    │                             │                            
-                    ▼                             ▼                             
-            ┌──────────────┐              ┌──────────────┐              
-            │ Gemini File  │              │  OpenAI API  │              
-            │   Search     │              │  (Questions, │             
-            │ (Embedding   │              │  Analysis,   │              
-            │   Layer 1)   │              │  Summaries)  │             
-            └──────────────┘              └──────────────┘              
-                    │                             │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                          ┌──────────────┐
-                          │   Candidate  │
-                          │   (Browser)  │
-                          └──────────────┘
+ ┌─────────────┐     ┌─────────────┐     ┌─────────────────┐     ┌──────────────────┐
+ │  Recruiter  │────▶│   ReactJS   │────▶│  FastAPI (Py)   │────▶│  OpenAI Responses│
+ │  (Browser)  │◀────│   Frontend  │◀────│    Backend      │◀────│   API (SSE)      │
+ └─────────────┘     └──────┬──────┘     └────────┬────────┘     └──────────────────┘
+                            │                      │
+                            │                      │
+                            ▼                      ▼
+                    ┌──────────────┐      ┌──────────────┐
+                    │  Supabase    │      │  PostgreSQL  │
+                    │    Auth      │      │  interview_  │
+                    │   (JWT)      │      │  sessions    │
+                    └──────────────┘      └──────────────┘
+
+  Candidate Flow:
+  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+  │ /apply/  │───▶│  Auth    │───▶│ /apply/  │───▶│ Interview│
+  │ [token]  │    │  Modal   │    │interview/│    │ Complete │
+  │          │    │          │    │ [token]  │    │          │
+  └──────────┘    └──────────┘    └──────────┘    └──────────┘
+                                       │
+                                       ▼
+                               ┌─────────────────┐
+                               │  FastAPI /start  │──▶ OpenAI Responses API
+                               │  SSE stream (Q1) │◀── (streaming tokens)
+                               └─────────────────┘
+                                       │
+                                  ┌─────────┐
+                                  │ Q&A Loop │──▶ OpenAI (previous_response_id)
+                                  │ (×14)    │◀── SSE stream (Qn)
+                                  └─────────┘
+                                       │
+                                       ▼
+                               ┌─────────────────┐
+                               │  [INTERVIEW_    │
+                               │  COMPLETE]      │
+                               └─────────────────┘
 ```
 
 ---
@@ -273,7 +310,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 | **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, experience_range, seniority_level, languages, education_level, contract_type, location, created_at | Job pools/offers with unique tokenized links |
 | **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
 | **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
-| **Q&A** | id, application_id, question, answer, created_at | Chat transcript per candidate application |
+| **Interview Session (interview_sessions)** | id, candidate_id, name, question, answer, sequence (1-15), timestamp, session_status (active/completed), phone, openai_session_id (OpenAI response_id), session_id (UUID grouping all 15 questions) | Per-question rows for each AI interview; 1 row per question, answer filled on next turn |
 
 ---
 
