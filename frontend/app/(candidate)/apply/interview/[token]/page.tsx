@@ -68,10 +68,14 @@ export default function InterviewTokenPage() {
     );
   }
 
+  const maxQuestions = parseInt(process.env.NEXT_PUBLIC_TOTAL_QUESTIONS || '15', 10);
+
   return (
     <InterviewView
       jobTitle={pool.title}
       companyName={pool.company_name || 'Entreprise Confidentielle'}
+      poolId={pool.id}
+      maxQuestions={maxQuestions}
     />
   );
 }

@@ -13,6 +13,7 @@ from app.interview.openai_client import (
     continue_interview_stream,
     start_interview_stream,
 )
+from app.config import TOTAL_QUESTIONS
 from app.interview.prompt import build_interview_prompt
 from app.interview import session_store
 
@@ -30,6 +31,40 @@ async def _sse_stream(
 
 
 # ──────────────────────────────────────────────
+#  GET /api/v1/interview/session?pool_id=xxx
+# ──────────────────────────────────────────────
+
+
+@router.get("/session")
+async def get_session_status(
+    pool_id: str,
+    candidate: CandidateAuth = Depends(get_current_candidate),
+):
+    existing = session_store.find_session_by_pool(candidate.candidate_id, pool_id)
+
+    if existing is None:
+        return {"status": "none"}
+
+    if existing["session_status"] == "completed":
+        return {"status": "completed"}
+
+    current = session_store.get_current_unanswered_question(
+        candidate.candidate_id, existing["session_id"]
+    )
+
+    if current is None:
+        return {"status": "completed"}
+
+    return {
+        "status": "active",
+        "sessionId": existing["session_id"],
+        "responseId": current["openai_session_id"],
+        "question": current["question"],
+        "sequence": current["sequence"],
+    }
+
+
+# ──────────────────────────────────────────────
 #  POST /api/v1/interview/start
 # ──────────────────────────────────────────────
 
@@ -39,6 +74,7 @@ async def handle_start(
     cvFile: UploadFile | None = None,
     cvText: str | None = Form(default=None),
     phone: str | None = Form(default=None),
+    poolId: str | None = Form(default=None),
     candidate: CandidateAuth = Depends(get_current_candidate),
 ):
     cv_file_bytes: bytes | None = None
@@ -83,6 +119,7 @@ async def handle_start(
                         sequence=1,
                         question=final_question,
                         openai_session_id=response_id,
+                        pool_id=poolId or "",
                     )
                 except Exception as e:
                     logger.error("DB save failed for first question: %s", e)
@@ -141,19 +178,20 @@ async def handle_next(
     )
     if current_seq == 0:
         raise HTTPException(status_code=404, detail="Session not found.")
-    if current_seq >= 15:
+    if current_seq > TOTAL_QUESTIONS:
         raise HTTPException(status_code=400, detail="Interview already completed.")
 
     async def _next_events():
         try:
             new_response_id = ""
             next_question = ""
+            delta_buffer: list[dict] = []
 
             async for event_type, payload in continue_interview_stream(
                 body.previousResponseId, body.answer.strip()
             ):
                 if event_type == "delta":
-                    yield (event_type, payload)
+                    delta_buffer.append(payload)
                 elif event_type == "done":
                     pd = payload  # type: dict
                     new_response_id = pd.get("responseId", "")
@@ -178,12 +216,12 @@ async def handle_next(
             is_complete = next_question.strip() == "[INTERVIEW_COMPLETE]"
             next_seq = current_seq + 1
 
-            if is_complete:
+            # Guard: never exceed TOTAL_QUESTIONS, even if the model doesn't output [INTERVIEW_COMPLETE]
+            if is_complete or current_seq >= TOTAL_QUESTIONS:
                 try:
                     session_store.mark_session_completed(
                         candidate_id=candidate.candidate_id,
                         session_id=session_uuid,
-                        sequence=current_seq,
                     )
                 except Exception as e:
                     logger.error("DB mark_completed failed: %s", e)
@@ -210,6 +248,8 @@ async def handle_next(
                     yield ("error", {"error": "Failed to save interview progress. Please try again."})
                     return
 
+                for delta_payload in delta_buffer:
+                    yield ("delta", delta_payload)
                 yield ("done", {
                     "completed": False,
                     "responseId": new_response_id,

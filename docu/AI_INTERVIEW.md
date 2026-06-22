@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AI Interview Engine is an AI-powered asynchronous interview system integrated into PooLink. Candidates who click "Postuler" on a job offer are authenticated, then redirected to `/apply/interview/{public-token}` where they upload their CV and complete a **15-question adaptive AI interview**. Each Q&A pair is saved to Supabase PostgreSQL for recruiter review.
+The AI Interview Engine is an AI-powered asynchronous interview system integrated into PooLink. Candidates who click "Postuler" on a job offer are authenticated, then redirected to `/apply/interview/{public-token}` where they upload their CV and complete a **15-question adaptive AI interview**. Each Q&A pair is saved to Supabase PostgreSQL for recruiter review. Sessions are persisted — candidates can leave mid-interview and resume, or return to see a completion screen if already finished.
 
 ---
 
@@ -25,29 +25,41 @@ The AI Interview Engine is an AI-powered asynchronous interview system integrate
         │  └─ If invalid token → show "Offre introuvable"
         │
         ▼
-5. CV UPLOAD PAGE (idle state)
+5. SESSION CHECK (loading → idle/active/completed)
+        │  └─ GET /api/v1/interview/session?pool_id=xxx
+        │  ├─ None → show CV upload form (idle)
+        │  ├─ Active → restore last unanswered question (active)
+        │  └─ Completed → show completion screen (completed)
+        │
+        ▼
+6. CV UPLOAD PAGE (idle state, first visit only)
         │  └─ Drag-and-drop file (PDF/TXT) or paste text
         │  └─ "Commencer l'entretien" button
         │
         ▼
-6. FIRST AI QUESTION (active state)
-        │  └─ FastAPI receives CV → builds system prompt
+7. FIRST AI QUESTION (active state)
+        │  └─ FastAPI receives CV + poolId → builds system prompt
         │  └─ OpenAI Responses API → streaming tokens via SSE
         │  └─ Question rendered word-by-word in real time
-        │  └─ Question 1/15 counter displayed
+        │  └─ Question X/15 counter displayed
         │
         ▼
-7. ANSWER LOOP (active state, questions 1-15)
+8. ANSWER LOOP (active state, questions 1-15)
         │  └─ Candidate types answer → clicks "Envoyer la réponse"
         │  └─ FastAPI: saves answer → calls OpenAI with previous_response_id
-        │  └─ Next question streams via SSE
+        │  └─ Next question streams via SSE (deltas buffered, no [INTERVIEW_COMPLETE] shown)
         │  └─ Loop continues until question 15
         │
         ▼
-8. COMPLETION (completed state)
+9. COMPLETION (completed state)
         │  └─ OpenAI returns "[INTERVIEW_COMPLETE]"
-        │  └─ Session marked as completed in DB
-        │  └─ "Entretien terminé — Merci pour votre temps"
+        │  └─ All session rows marked session_status='completed'
+        │  └─ "Félicitations — entretien terminé ! Votre profil est entre les mains du recruteur"
+        │
+        ▼
+10. SESSION PERSISTENCE (on revisit)
+        │  └─ GET /session → status "completed" → completion screen
+        │  └─ GET /session → status "active" → resume from last unanswered question
         │
         ▼
    Recruiter can review answers in dashboard
@@ -87,6 +99,7 @@ The AI Interview Engine is an AI-powered asynchronous interview system integrate
 │  ┌──────────────────────────────────────────────┐                        │
 │  │  app/interview/                               │                       │
 │  │                                              │                       │
+│  │  GET  /api/v1/interview/session (status)     │                       │
 │  │  POST /api/v1/interview/start                │                       │
 │  │  POST /api/v1/interview/next                 │                       │
 │  │                                              │                       │
@@ -168,6 +181,27 @@ TURN 3 (Continue):
 
 ## API Endpoints
 
+### `GET /api/v1/interview/session?pool_id=xxx`
+
+**Auth:** `Authorization: Bearer <supabase_jwt>`
+
+Checks if a candidate has an existing interview session for a given job pool. Called on page mount to determine whether to show the CV upload form (new session), resume the interview, or display the completion screen.
+
+**Response** (JSON):
+```json
+// No session found:
+{ "status": "none" }
+
+// Active session (resumable):
+{ "status": "active", "sessionId": "uuid", "responseId": "resp_xxx", "question": "Last question text", "sequence": 5 }
+
+// Already completed:
+{ "status": "completed" }
+
+// Error or missing pool_id:
+{ "status": "none" }
+```
+
 ### `POST /api/v1/interview/start`
 
 **Auth:** `Authorization: Bearer <supabase_jwt>`
@@ -178,6 +212,7 @@ TURN 3 (Continue):
 | `cvText` | string | No* | Paste CV text |
 | `cvFile` | file | No* | Upload CV (PDF/TXT, max 5MB) |
 | `phone` | string | No | Candidate phone number |
+| `poolId` | string | No | Job pool UUID (for session persistence) |
 
 *\*Either cvText or cvFile must be provided.*
 
@@ -215,18 +250,24 @@ data: {"error": "AI service error."}
 
 **Response** (SSE — `text/event-stream`):
 
+For questions 1-14 (next question):
 ```
 event: delta
 data: {"delta": "Merci pour votre réponse..."}
 
-event: done
-data: {"completed": false, "responseId": "resp_yyy", "question": "Next question", "status": "active"}
-
-// OR (on question 15):
+event: delta
+data: {"delta": " next token..."}
 
 event: done
-data: {"completed": true, "responseId": "resp_zzz", "status": "completed"}
+data: {"completed": false, "responseId": "resp_yyy", "question": "Next question text", "status": "active"}
 ```
+
+For question 15 completion:
+```
+event: done
+data: {"completed": true, "responseId": "resp_zzz", "sessionId": "uuid", "status": "completed"}
+```
+*Note: No `delta` events are emitted on completion — the backend buffers the OpenAI response and detects `[INTERVIEW_COMPLETE]` before yielding any SSE, so the candidate never sees the raw completion token.*
 
 ---
 
@@ -245,6 +286,7 @@ create table public.interview_sessions (
   phone text null,                               -- candidate phone
   openai_session_id text null,                   -- OpenAI response_id for chaining
   session_id uuid null,                          -- groups all 15 questions of one interview
+  pool_id text null,                             -- job_pools.id for session-per-pool lookup
 
   constraint interview_sessions_pkey primary key (id)
 );
@@ -257,6 +299,9 @@ create index if not exists idx_user_sequence
 
 create index if not exists idx_interview_sessions_user_session_seq
   on public.interview_sessions using btree (candidate_id, session_id, sequence desc);
+
+create index if not exists idx_interview_sessions_candidate_pool
+  on public.interview_sessions using btree (candidate_id, pool_id);
 ```
 
 ### Row Lifecycle
@@ -267,7 +312,7 @@ create index if not exists idx_interview_sessions_user_session_seq
 | 1→2 | Candidate answers Q1 | `UPDATE` row 1: set answer |
 | 2 | Next question generated | `INSERT` with question=Q2, answer=null |
 | ... | (repeat) | ... |
-| 15 | Last question answered | `UPDATE` row 15: set answer + session_status='completed' |
+| 15 | Last question answered | `UPDATE` row 15: set answer; then `UPDATE` all session rows: session_status='completed' |
 
 ---
 
@@ -297,13 +342,16 @@ The prompt (`backend/app/interview/interview_prompt.txt`) consists of:
 ```
 backend/app/interview/
 ├── __init__.py                    # Package init
-├── router.py                      # FastAPI routes: /start (SSE), /next (SSE)
+├── router.py                      # FastAPI routes: GET /session, POST /start (SSE), POST /next (SSE)
 ├── openai_client.py               # AsyncOpenAI Responses API (streaming + non-streaming)
 ├── prompt.py                      # Builds system prompt from template + CV + job
 ├── cv_parser.py                   # PDF text extraction via pypdf, plain text fallback
-├── session_store.py               # Supabase PostgreSQL CRUD for interview_sessions
+├── session_store.py               # Supabase REST API CRUD for interview_sessions (supabase-py/HTTPS fallback)
 ├── auth.py                        # Supabase JWT verification (python-jose, HS256)
 └── interview_prompt.txt           # System prompt template with {{CV_CONTENT}}
+
+backend/migrations/
+└── 002_add_pool_id.sql            # ALTER TABLE + index for pool_id column
 ```
 
 ### Frontend (`frontend/interview/`)
@@ -311,13 +359,13 @@ backend/app/interview/
 ```
 frontend/interview/
 ├── components/
-│   ├── InterviewView.tsx          # Main orchestrator (idle → active → completed states)
+│   ├── InterviewView.tsx          # Main orchestrator (loading → idle/active/completed states + session check)
 │   ├── SetupForm.tsx              # CV upload (drag-drop file or paste text) + Start button
 │   ├── QASession.tsx              # Streaming question, answer input, progress counter
-│   └── CompletedScreen.tsx        # "Entretien terminé — Merci" screen
+│   └── CompletedScreen.tsx        # "Félicitations — entretien terminé !" screen
 └── lib/
-    ├── api.ts                     # SSE consumer for start/continue API calls
-    └── types.ts                   # TypeScript interfaces
+    ├── api.ts                     # SSE consumer + getSessionStatus() for start/continue/status APIs
+    └── types.ts                   # TypeScript interfaces (includes SessionStatus type)
 ```
 
 ### Page Route
@@ -326,7 +374,7 @@ frontend/interview/
 frontend/app/(candidate)/apply/interview/[token]/page.tsx
   └─ Auth guard (getCurrentCandidate)
   └─ Pool fetch (getPublicJobPool / mock fallback)
-  └─ Renders <InterviewView jobTitle={...} companyName={...} />
+  └─ Renders <InterviewView jobTitle={...} companyName={...} poolId={pool.id} />
 ```
 
 ---
@@ -371,11 +419,16 @@ All streaming endpoints use Server-Sent Events (`text/event-stream`).
 | `error` | server → client | `{error: "message"}` | Error occurred, abort |
 
 ```
+Client → Server: GET /session?pool_id=xxx (JSON response)
+Server → Client: { status: "none" | "active" | "completed" }
+
 Client → Server: POST /start (FormData)
 Server → Client: event: meta  →  event: delta*  →  event: done
 
 Client → Server: POST /next (JSON)
-Server → Client: event: delta*  →  event: done (completed: false|true)
+Server → Client: event: delta*  →  event: done (completed: false)
+  — or — (on Q15 completion, no deltas emitted)
+Server → Client: event: done (completed: true)
 ```
 
 ---
@@ -425,13 +478,29 @@ Candidate          Browser/Next.js            FastAPI                  OpenAI   
    │                    │◀──────────────────────────────────────────────────────────────────│
    │                    │                        │                       │                  │
    │  ┌─────────────────────────────────────────────────────────────────────────────────┐  │
-   │  │  INTERVIEW START                                                               │  │
+   │  │  SESSION CHECK (on mount)                                                      │  │
+   │  └─────────────────────────────────────────────────────────────────────────────────┘  │
+   │                    │                        │                       │                  │
+   │                    │  GET /interview/session │                       │                  │
+   │                    │  ?pool_id=xxx           │                       │                  │
+   │                    │───────────────────────▶│                       │                  │
+   │                    │                        │  SELECT candidate_id  │                  │
+   │                    │                        │  + pool_id            │                  │
+   │                    │                        │────────────────────────────────────────▶│
+   │                    │                        │◀────────────────────────────────────────│
+   │                    │  {status: "none"}      │                       │                  │
+   │                    │◀───────────────────────│                       │                  │
+   │                    │  (or "active"/         │                       │                  │
+   │                    │   "completed")         │                       │                  │
+   │                    │                        │                       │                  │
+   │  ┌─────────────────────────────────────────────────────────────────────────────────┐  │
+   │  │  INTERVIEW START (first visit only)                                              │  │
    │  └─────────────────────────────────────────────────────────────────────────────────┘  │
    │                    │                        │                       │                  │
    │  Upload CV +      │                        │                       │                  │
    │  click Start      │                        │                       │                  │
    │───────────────────▶│  POST /interview/start │                       │                  │
-   │                    │  (FormData: cv)        │                       │                  │
+   │                    │  (FormData: cv+poolId)  │                       │                  │
    │                    │───────────────────────▶│                       │                  │
    │                    │                        │  Extract CV text      │                  │
    │                    │                        │  (pypdf / plain)      │                  │
@@ -449,7 +518,7 @@ Candidate          Browser/Next.js            FastAPI                  OpenAI   
    │                    │  SSE: meta + delta* +  │                       │                  │
    │                    │  done {responseId, Q1} │                       │                  │
    │                    │◀───────────────────────│                       │                  │
-   │                    │                        │  INSERT Q1            │                  │
+   │                    │                        │  INSERT Q1 (pool_id)  │                  │
    │                    │                        │────────────────────────────────────────▶│
    │                    │                        │                       │                  │
    │  Question 1/15     │                        │                       │                  │
@@ -504,15 +573,21 @@ Candidate          Browser/Next.js            FastAPI                  OpenAI   
    │                    │                        │  ◀── "[INTERVIEW_    ─│                  │
    │                    │                        │        COMPLETE]"     │                  │
    │                    │                        │                       │                  │
-   │                    │                        │  MARK completed       │                  │
+   │                    │                        │  UPDATE all rows:     │                  │
+   │                    │                        │  session_status=      │                  │
+   │                    │                        │  'completed'          │                  │
    │                    │                        │────────────────────────────────────────▶│
    │                    │                        │                       │                  │
    │                    │  SSE: done             │                       │                  │
    │                    │  {completed: true}     │                       │                  │
    │                    │◀───────────────────────│                       │                  │
    │                    │                        │                       │                  │
-   │  "Entretien        │                        │                       │                  │
-   │   terminé"         │                        │                       │                  │
+   │  "Félicitations —  │                        │                       │                  │
+   │   entretien terminé│                        │                       │                  │
+   │   ! Votre profil   │                        │                       │                  │
+   │   est entre les    │                        │                       │                  │
+   │   mains du         │                        │                       │                  │
+   │   recruteur"        │                        │                       │                  │
    │◀───────────────────│                        │                       │                  │
 ```
 
@@ -533,11 +608,11 @@ Candidate          Browser/Next.js            FastAPI                  OpenAI   
 ## Error Handling
 
 | Scenario | HTTP Status | SSE Event | Recovery |
-|---|---|---|---|
+|---|---|---|---|---|
 | Missing cvText and cvFile | 400 | — (JSON) | Show error to candidate |
 | Invalid/expired JWT | 401 | — (JSON) | Redirect to login |
 | OpenAI service error | 200 | `event: error` | Show "AI service error" to candidate |
-| Database error | 200 | `event: error` | Logged server-side |
+| Database error | 200 | `event: error` | Logged server-side; candidate sees retry button (question text preserved) |
 | Session not found | 404 | — (JSON) | Show error to candidate |
 | Interview already completed | 400 | — (JSON) | Show message to candidate |
 
@@ -549,4 +624,3 @@ Candidate          Browser/Next.js            FastAPI                  OpenAI   
 - **Job context injection** — pass job description into prompt for more personalized questions
 - **Recruiter report generation** — AI summary of candidate performance after completion
 - **Application linking** — create a record in the applications table linking candidate to pool
-- **Resume/retry** — allow candidates to resume an incomplete interview

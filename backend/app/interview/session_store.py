@@ -25,6 +25,7 @@ def create_question(
     sequence: int,
     question: str,
     openai_session_id: str,
+    pool_id: str = "",
 ) -> dict:
     data = {
         "candidate_id": candidate_id,
@@ -36,6 +37,7 @@ def create_question(
         "openai_session_id": openai_session_id,
         "session_status": "active",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "pool_id": pool_id,
     }
     result = _get_table().insert(data).execute()
     return result.data[0] if result.data else {}
@@ -58,13 +60,11 @@ def update_answer(
 def mark_session_completed(
     candidate_id: str,
     session_id: uuid.UUID,
-    sequence: int,
 ) -> None:
     _get_table() \
         .update({"session_status": "completed"}) \
         .eq("candidate_id", candidate_id) \
         .eq("session_id", str(session_id)) \
-        .eq("sequence", sequence) \
         .execute()
 
 
@@ -102,3 +102,30 @@ def get_session_questions(
         .order("sequence") \
         .execute()
     return result.data if result.data else []
+
+
+def find_session_by_pool(
+    candidate_id: str, pool_id: str
+) -> dict | None:
+    result = _get_table() \
+        .select("session_id, session_status") \
+        .eq("candidate_id", candidate_id) \
+        .eq("pool_id", pool_id) \
+        .order("timestamp", desc=True) \
+        .limit(1) \
+        .execute()
+    return result.data[0] if result.data else None
+
+
+def get_current_unanswered_question(
+    candidate_id: str, session_id: str
+) -> dict | None:
+    result = _get_table() \
+        .select("*") \
+        .eq("candidate_id", candidate_id) \
+        .eq("session_id", session_id) \
+        .is_("answer", "null") \
+        .order("sequence", desc=True) \
+        .limit(1) \
+        .execute()
+    return result.data[0] if result.data else None

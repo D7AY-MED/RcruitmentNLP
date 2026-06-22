@@ -27,3 +27,8 @@ export type DeltaPayload = {
 export type ErrorPayload = {
   error: string;
 };
+
+export type SessionStatus =
+  | { status: 'none' }
+  | { status: 'completed' }
+  | { status: 'active'; sessionId: string; responseId: string; question: string; sequence: number };

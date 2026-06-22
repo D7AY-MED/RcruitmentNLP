@@ -1,4 +1,5 @@
 import { getToken } from '@/lib/candidateAuth';
+import type { SessionStatus } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -6,6 +7,23 @@ function authHeaders(): Record<string, string> {
   const token = getToken();
   if (!token) return {};
   return { Authorization: `Bearer ${token}` };
+}
+
+export async function getSessionStatus(poolId: string): Promise<SessionStatus> {
+  const token = getToken();
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(
+    `${API_URL}/api/v1/interview/session?pool_id=${encodeURIComponent(poolId)}`,
+    { headers },
+  );
+
+  if (!response.ok) {
+    return { status: 'none' };
+  }
+
+  return response.json();
 }
 
 export async function startInterview(

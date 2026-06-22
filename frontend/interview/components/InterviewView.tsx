@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Briefcase } from 'lucide-react';
-import { startInterview, continueInterview } from '../lib/api';
+import { useState, useCallback, useEffect } from 'react';
+import { Briefcase, Loader2 } from 'lucide-react';
+import { startInterview, continueInterview, getSessionStatus } from '../lib/api';
 import SetupForm from './SetupForm';
 import QASession from './QASession';
 import CompletedScreen from './CompletedScreen';
@@ -11,10 +11,14 @@ import type { InterviewStatus } from '../lib/types';
 interface InterviewViewProps {
   jobTitle: string;
   companyName: string;
+  poolId: string;
+  maxQuestions?: number;
 }
 
-export default function InterviewView({ jobTitle, companyName }: InterviewViewProps) {
-  const [status, setStatus] = useState<InterviewStatus>('idle');
+type PageStatus = 'loading' | InterviewStatus;
+
+export default function InterviewView({ jobTitle, companyName, poolId, maxQuestions = 15 }: InterviewViewProps) {
+  const [pageStatus, setPageStatus] = useState<PageStatus>('loading');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | null>(null);
   const [question, setQuestion] = useState('');
@@ -23,11 +27,28 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    getSessionStatus(poolId).then((status) => {
+      if (status.status === 'completed') {
+        setPageStatus('completed');
+      } else if (status.status === 'active') {
+        setSessionId(status.sessionId);
+        setResponseId(status.responseId);
+        setQuestion(status.question);
+        setQuestionIndex(status.sequence);
+        setPageStatus('active');
+      } else {
+        setPageStatus('idle');
+      }
+    });
+  }, [poolId]);
+
   const handleStart = useCallback(async (formData: FormData) => {
     setIsStarting(true);
     setQuestion('');
     setErrorMessage(null);
-    setStatus('active');
+
+    formData.append('poolId', poolId);
 
     try {
       const result = await startInterview(formData, (delta) => {
@@ -38,6 +59,7 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
       setResponseId(result.responseId);
       setQuestion(result.question);
       setQuestionIndex(1);
+      setPageStatus('active');
     } catch (err: any) {
       setErrorMessage(err.message || 'Impossible de démarrer l\'entretien.');
       setIsStarting(false);
@@ -45,10 +67,10 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
     } finally {
       setIsStarting(false);
     }
-  }, []);
+  }, [poolId]);
 
   const handleReset = useCallback(() => {
-    setStatus('idle');
+    setPageStatus('idle');
     setQuestion('');
     setQuestionIndex(0);
     setSessionId(null);
@@ -72,9 +94,11 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
         },
       );
 
-      if (result.completed) {
+      const isFinished = result.completed || questionIndex >= maxQuestions;
+
+      if (isFinished) {
         setResponseId(result.responseId);
-        setStatus('completed');
+        setPageStatus('completed');
       } else {
         setResponseId(result.responseId);
         setQuestion(result.question || '');
@@ -85,7 +109,16 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
     } finally {
       setIsSubmitting(false);
     }
-  }, [responseId, sessionId]);
+  }, [responseId, sessionId, questionIndex, maxQuestions]);
+
+  if (pageStatus === 'loading') {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-400">
+        <Loader2 className="w-6 h-6 animate-spin mr-2" />
+        Chargement...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#f4f4f4' }}>
@@ -104,7 +137,7 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
 
       <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 sm:py-12">
         <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-          {status === 'idle' && (
+          {pageStatus === 'idle' && (
             <>
               <div className="text-center mb-8">
                 <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-4 shadow-sm">
@@ -121,7 +154,7 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
             </>
           )}
 
-          {status === 'active' && (
+          {pageStatus === 'active' && (
             <>
               <div className="text-center mb-6">
                 <h1 className="text-lg font-bold text-gray-950 mb-1">
@@ -131,7 +164,7 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
               </div>
               <QASession
                 questionIndex={questionIndex}
-                totalQuestions={15}
+                totalQuestions={maxQuestions}
                 question={question}
                 onSubmit={handleAnswer}
                 isSubmitting={isSubmitting}
@@ -141,7 +174,7 @@ export default function InterviewView({ jobTitle, companyName }: InterviewViewPr
             </>
           )}
 
-          {status === 'completed' && (
+          {pageStatus === 'completed' && (
             <>
               <div className="text-center mb-6">
                 <h1 className="text-lg font-bold text-gray-950 mb-1">

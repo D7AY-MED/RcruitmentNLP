@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FileText,
   MapPin,
@@ -10,6 +10,7 @@ import {
   Building2,
   Search,
   LogIn,
+  User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +25,10 @@ export interface JobHeroProps {
   educationLevel?: string;
   sector?: string;
   publishDate?: string;
+  isAuthenticated?: boolean;
+  candidateName?: string;
+  candidateEmail?: string;
+  onProfile?: () => void;
   onConnexion?: () => void;
 }
 
@@ -57,8 +62,14 @@ export default function JobHeroSection({
   educationLevel,
   sector = 'Conseil & Audit',
   publishDate = 'Publiée il y a 18 jours',
+  isAuthenticated,
+  candidateName,
+  candidateEmail,
+  onProfile,
   onConnexion,
 }: JobHeroProps) {
+  const [showDropdown, setShowDropdown] = useState(false);
+
   return (
     <section className="relative bg-white border-b border-gray-200 overflow-hidden pb-12 sm:pb-14">
       {/* Blueprint grid background */}
@@ -96,16 +107,45 @@ export default function JobHeroSection({
           <button className="text-gray-400 hover:text-blue-600 transition-colors p-1" aria-label="Recherche">
             <Search className="w-5 h-5" />
           </button>
-          <Button
-            onClick={onConnexion}
-            className="h-10 px-5 text-[13px] font-bold rounded-xl text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5"
-            style={{
-              background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
-            }}
-          >
-            <LogIn className="w-4 h-4" />
-            Connexion
-          </Button>
+          {isAuthenticated ? (
+            <div
+              className="relative"
+              onMouseEnter={() => setShowDropdown(true)}
+              onMouseLeave={() => setShowDropdown(false)}
+            >
+              <button
+                onClick={onProfile}
+                className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors shadow-sm"
+                aria-label="Mon profil"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              {showDropdown && (
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-gray-200 bg-white shadow-xl z-50 p-4">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{candidateName || '—'}</p>
+                  <p className="text-xs text-gray-500 truncate mt-0.5">{candidateEmail || '—'}</p>
+                  <button
+                    onClick={onProfile}
+                    className="mt-3 w-full h-9 rounded-lg text-sm font-bold text-white transition-all active:scale-[0.98]"
+                    style={{ background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)' }}
+                  >
+                    Mon profil
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Button
+              onClick={onConnexion}
+              className="h-10 px-5 text-[13px] font-bold rounded-xl text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5"
+              style={{
+                background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
+              }}
+            >
+              <LogIn className="w-4 h-4" />
+              Connexion
+            </Button>
+          )}
         </div>
       </div>
 

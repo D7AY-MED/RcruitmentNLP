@@ -102,17 +102,19 @@ matching project/
 │   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
 │   │   ├── interview/         # AI Interview Engine (self-contained module)
 │   │   │   ├── __init__.py
-│   │   │   ├── router.py      # POST /api/v1/interview/start, POST /api/v1/interview/next (SSE)
+│   │   │   ├── router.py      # GET /api/v1/interview/session (status check), POST /api/v1/interview/start, POST /api/v1/interview/next (SSE)
 │   │   │   ├── openai_client.py   # AsyncOpenAI Responses API (streaming + non-streaming)
 │   │   │   ├── prompt.py      # Builds system prompt from template + CV
 │   │   │   ├── cv_parser.py   # PDF text extraction (pypdf) + plain text
-│   │   │   ├── session_store.py   # Supabase CRUD for interview_sessions table
+│   │   │   ├── session_store.py   # Supabase REST API CRUD (via supabase-py, HTTPS) — fallback from direct SQLAlchemy for IPv4-only environments; includes find_session_by_pool + get_current_unanswered_question for session resume
 │   │   │   ├── auth.py        # Supabase JWT verification (python-jose)
 │   │   │   └── interview_prompt.txt  # System prompt template with {{CV_CONTENT}}
 │   │   └── services/          # Business logic & AI services
 │   │       └── gemini_store_service.py  # Gemini File Search store CRUD
 │   ├── temp_gemini_store/     # Gemini file search test script
 │   │   └── test_store.py      # Standalone test (uses root .env)
+│   ├── migrations/             # SQL schema migrations
+│   │   └── 002_add_pool_id.sql # Adds pool_id column to interview_sessions for session-per-pool lookup
 │   ├── .env.example           # Backend env template
 │   └── requirements.txt       # Python dependencies
 ├── docu/                      # Documentation
@@ -241,21 +243,29 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │                                                                 │
 │  7. REAL-TIME DB SAVE                                           │
 │     └─> Each question INSERTED to interview_sessions table      │
-│         (answer initially null)                                 │
+│         (answer initially null, pool_id linked to job pool)     │
 │     └─> Each answer UPDATED on the corresponding question row   │
 │         └─> Full audit trail per candidate                     │
 │                                                                 │
 │  8. COMPLETION (Q15)                                            │
 │     └─> OpenAI returns [INTERVIEW_COMPLETE]                     │
-│     └─> session_status set to 'completed'                       │
-│     └─> "Entretien terminé — Merci pour votre temps"            │
+│     └─> All session rows marked session_status='completed'      │
+│     └─> "Félicitations — entretien terminé !"                   │
 │                                                                 │
-│  9. RECRUITER REVIEW                                            │
+│  9. SESSION PERSISTENCE                                         │
+│     └─> On revisit: GET /api/v1/interview/session?pool_id=xxx  │
+│         ├─> None → show CV upload form                          │
+│         ├─> Active → restore last unanswered question, continue │
+│         └─> Completed → show "already applied" screen           │
+│                                                                 │
+│  10. RECRUITER REVIEW                                           │
 │     └─> All Q&A visible in dashboard (future feature)           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 > **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate authentication via an in-modal signup/login flow. The shareable tokenized URL allows public candidate access. Both the header "Connexion" button and the sidebar "Postuler" button open the same `AuthRequiredModal`, which includes registration (name, email, phone, password) and login forms. Auth uses real Supabase Auth via `/api/candidate/{register,login,me}` server-side routes with the service role key, storing the JWT in localStorage under `candidate_token`. On success, candidates land at `/apply/interview/{token}` where they complete the full **15-question AI interview** (CV upload → streaming Q&A → completion). The interview is powered by FastAPI backend with OpenAI Responses API and SSE streaming.
+
+> **Error resilience (June 2026):** SSE generators in `router.py` wrap all DB calls in try/except, yielding structured SSE `error` events instead of crashing the stream on DB failure. Frontend `InterviewView` preserves accumulated question text and shows a retry button when the stream errors, instead of resetting to the CV upload form. `session_store.py` uses the Supabase REST API (HTTPS) rather than direct SQLAlchemy PostgreSQL connection, working around IPv6-only Supabase hosts that are unreachable from IPv4-only networks.
 
 ### Data Flow Diagram
 
@@ -310,7 +320,7 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 | **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, experience_range, seniority_level, languages, education_level, contract_type, location, created_at | Job pools/offers with unique tokenized links |
 | **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
 | **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
-| **Interview Session (interview_sessions)** | id, candidate_id, name, question, answer, sequence (1-15), timestamp, session_status (active/completed), phone, openai_session_id (OpenAI response_id), session_id (UUID grouping all 15 questions) | Per-question rows for each AI interview; 1 row per question, answer filled on next turn |
+| **Interview Session (interview_sessions)** | id, candidate_id, name, question, answer, sequence (1-15), timestamp, session_status (active/completed), phone, openai_session_id (OpenAI response_id), session_id (UUID grouping all 15 questions), pool_id | Per-question rows for each AI interview; 1 row per question, answer filled on next turn |
 
 ---
 
