@@ -1,17 +1,9 @@
 import logging
 from uuid import UUID
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer
-from jose import jwt, JWTError
-from supabase import create_client
 
-from app.config import (
-    SUPABASE_SERVICE_ROLE_KEY,
-    SUPABASE_URL,
-    SUPABASE_JWT_SECRET,
-    JWT_ALGORITHM,
-)
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.auth import get_current_recruiter, get_supabase, parse_datetime
 from app.schemas import (
     RecruiterSupabaseRegister,
     RecruiterSupabaseLogin,
@@ -23,78 +15,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/recruiter", tags=["recruiter-supabase-auth"])
 
-# Initialize Supabase client with Service Role Key to bypass RLS and use Admin Auth methods
-_supabase = (
-    create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-    else None
-)
-
-def _get_supabase_client():
-    if _supabase is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Supabase client not initialized.",
-        )
-    return _supabase
-
-recruiter_bearer = HTTPBearer()
-
-def _parse_datetime(val) -> datetime:
-    if val is None:
-        return datetime.now(timezone.utc)
-    if isinstance(val, datetime):
-        return val
-    if isinstance(val, str):
-        try:
-            return datetime.fromisoformat(val.replace("Z", "+00:00"))
-        except ValueError:
-            pass
-    return datetime.now(timezone.utc)
-
-async def get_current_recruiter(credentials=Depends(recruiter_bearer)) -> dict:
-    import httpx
-    credentials_error = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    token = credentials.credentials
-    try:
-        resp = httpx.get(
-            f"{SUPABASE_URL}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "apikey": SUPABASE_SERVICE_ROLE_KEY
-            },
-            timeout=10
-        )
-        if resp.status_code != 200:
-            raise credentials_error
-        user_data = resp.json()
-        recruiter_id = user_data.get("id")
-        if recruiter_id is None:
-            raise credentials_error
-    except Exception as e:
-        logger.warning("JWT verification failed: %s", e)
-        raise credentials_error
-        
-    client = _get_supabase_client()
-    
-    # Verify recruiter profile exists
-    result = client.table("hr_profiles").select("*").eq("id", recruiter_id).limit(1).execute()
-    if not result.data:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not a registered recruiter.",
-        )
-        
-    return result.data[0]
-
 @router.post("/register", response_model=RecruiterSupabaseToken, status_code=status.HTTP_201_CREATED)
 async def register(payload: RecruiterSupabaseRegister):
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Create the user in Supabase Auth via Admin API (pre-confirmed)
     try:
@@ -160,13 +83,13 @@ async def register(payload: RecruiterSupabaseRegister):
             email=payload.email,
             company_name=payload.company_name,
             phone=payload.phone,
-            created_at=_parse_datetime(getattr(created.user, "created_at", None))
+            created_at=parse_datetime(getattr(created.user, "created_at", None))
         )
     )
 
 @router.post("/login", response_model=RecruiterSupabaseToken)
 async def login(payload: RecruiterSupabaseLogin):
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Sign in via Supabase Auth
     try:
@@ -208,7 +131,7 @@ async def login(payload: RecruiterSupabaseLogin):
             email=profile["email"],
             company_name=profile["company_name"],
             phone=profile.get("phone"),
-            created_at=_parse_datetime(getattr(session.user, "created_at", None))
+            created_at=parse_datetime(getattr(session.user, "created_at", None))
         )
     )
 
@@ -220,5 +143,5 @@ async def me(current=Depends(get_current_recruiter)):
         email=current["email"],
         company_name=current["company_name"],
         phone=current.get("phone"),
-        created_at=_parse_datetime(current.get("created_at"))
+        created_at=parse_datetime(current.get("created_at"))
     )

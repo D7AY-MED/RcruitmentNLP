@@ -1,14 +1,10 @@
 import logging
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
 
-from app.config import SUPABASE_JWT_SECRET
+from app.auth import get_supabase, verify_token
 
 logger = logging.getLogger(__name__)
-
-security = HTTPBearer(auto_error=False)
 
 
 class CandidateAuth:
@@ -22,56 +18,24 @@ DEFAULT_RECRUITER_ID = None
 
 
 async def get_current_candidate(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
-) -> CandidateAuth | None:
-    if credentials is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated.",
-        )
-
-    token = credentials.credentials
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated.",
-        )
-
-    if not SUPABASE_JWT_SECRET:
-        logger.warning("SUPABASE_JWT_SECRET is not set; skipping JWT verification.")
-        return CandidateAuth(
-            candidate_id="dev-candidate-id",
-            name="Dev Candidate",
-            email="dev@example.com",
-        )
-
+    user_id: str = Depends(verify_token),
+) -> CandidateAuth:
+    client = get_supabase()
     try:
-        payload = jwt.decode(
-            token,
-            SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
-            options={"verify_aud": False},
-        )
-    except JWTError as e:
-        logger.warning("JWT verification failed: %s", e)
+        sb_user = client.auth.admin.get_user_by_id(user_id)
+    except Exception as e:
+        logger.warning("Failed to fetch candidate user: %s", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token.",
+            detail="Could not validate candidate.",
         )
 
-    candidate_id = payload.get("sub")
-    email = payload.get("email", "")
-    user_metadata = payload.get("user_metadata", {}) or {}
-    name = user_metadata.get("full_name", email.split("@")[0] if email else "Candidate")
-
-    if not candidate_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload.",
-        )
+    meta = (sb_user.user.user_metadata or {}) if sb_user else {}
+    email = sb_user.user.email if sb_user else ""
+    name = meta.get("full_name", email.split("@")[0] if email else "Candidate")
 
     return CandidateAuth(
-        candidate_id=candidate_id,
+        candidate_id=user_id,
         name=name,
         email=email,
     )

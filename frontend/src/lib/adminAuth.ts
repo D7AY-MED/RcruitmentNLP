@@ -1,11 +1,5 @@
-/**
- * Administrator authentication client.
- *
- * Talks to the FastAPI admin backend (/api/v1/admin/*).
- * Stores the JWT in localStorage under `admin_token`.
- */
+import { apiRequest, authHeader as sharedAuthHeader, getToken as getSharedToken, removeToken, setToken } from './auth';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
 const TOKEN_KEY = 'admin_token';
 
 export interface Admin {
@@ -21,44 +15,16 @@ interface TokenResponse {
   admin: Admin;
 }
 
-/** Call the backend and surface a clean error message on failure. */
-async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    const message =
-      typeof body.detail === 'string' ? body.detail : `Request failed (${res.status})`;
-    throw new Error(message);
-  }
-
-  return res.json() as Promise<T>;
-}
-
-// --- Token storage (localStorage) -----------------------------------------
-
 export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem(TOKEN_KEY);
-}
-
-function setToken(token: string): void {
-  window.localStorage.setItem(TOKEN_KEY, token);
+  return getSharedToken(TOKEN_KEY);
 }
 
 export function logout(): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.removeItem(TOKEN_KEY);
+  removeToken(TOKEN_KEY);
 }
 
-/** Authorization header for admin-protected API calls. Throws if signed out. */
 export function authHeader(): Record<string, string> {
-  const token = getToken();
-  if (!token) throw new Error('Not authenticated');
-  return { Authorization: `Bearer ${token}` };
+  return sharedAuthHeader(TOKEN_KEY);
 }
 
 export interface AdminRegisterPayload {
@@ -67,15 +33,13 @@ export interface AdminRegisterPayload {
   password: string;
 }
 
-// --- Auth actions ----------------------------------------------------------
-
 export async function registerAdmin(payload: AdminRegisterPayload, setupToken: string): Promise<Admin> {
   const data = await apiRequest<TokenResponse>('/api/v1/admin/register', {
     method: 'POST',
     headers: { 'x-admin-setup-token': setupToken },
     body: JSON.stringify(payload),
   });
-  setToken(data.access_token);
+  setToken(TOKEN_KEY, data.access_token);
   return data.admin;
 }
 
@@ -84,11 +48,10 @@ export async function loginAdmin(email: string, password: string): Promise<Admin
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  setToken(data.access_token);
+  setToken(TOKEN_KEY, data.access_token);
   return data.admin;
 }
 
-/** Fetch the currently authenticated administrator using the stored JWT. */
 export async function getCurrentAdmin(): Promise<Admin> {
   const token = getToken();
   if (!token) throw new Error('Not authenticated');

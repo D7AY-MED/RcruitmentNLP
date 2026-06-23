@@ -364,7 +364,11 @@ export default function CandidateApplyDynamicPage() {
       </footer>
 
       {/* ---------- AUTH REQUIRED MODAL ---------- */}
-      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} token={token} />
+      <AuthRequiredModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => navigate(`/apply/interview/${token}`)}
+      />
     </div>
   );
 }

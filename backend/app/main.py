@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import FRONTEND_ORIGINS
-from app.database import init_db
 from app.routers import pools
 from app.routers import recruiter_supabase
 from app.candidate import router as candidate_router
@@ -33,15 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-@app.on_event("startup")
-def on_startup():
-    # Create the `recruiters` table if it does not exist yet.
-    try:
-        init_db()
-    except Exception as e:
-        logger.warning("Database initialization skipped during startup: %s", e)
 
 
 @app.get("/health")

@@ -3,9 +3,8 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
-from supabase import create_client
 
-from app.config import SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL
+from app.auth import get_current_candidate, get_supabase, parse_datetime
 from app.schemas_candidate import (
     CandidateLogin,
     CandidateOut,
@@ -13,31 +12,17 @@ from app.schemas_candidate import (
     CandidateRegister,
     CandidateToken,
 )
-from app.security_candidate import create_candidate_token, get_current_candidate
-from app.supabase_auth import get_user, login_user, register_user
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
-
-_supabase = (
-    create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-    else None
-)
-
-
-def _get_profile_table():
-    if _supabase is None:
-        raise RuntimeError("Supabase client not initialized")
-    return _supabase.table("candidate_profiles")
 
 
 def _build_candidate_out(
     user_id: str,
     email: str,
     profile: dict | None,
-    created_at: str,
+    created_at: str | None = None,
 ) -> CandidateOut:
     return CandidateOut(
         id=uuid.UUID(user_id),
@@ -59,7 +44,7 @@ def _build_candidate_out(
         expected_salary_max=_to_float((profile or {}).get("expected_salary_max")),
         profile_picture_url=(profile or {}).get("profile_picture_url"),
         open_to_work=(profile or {}).get("open_to_work", True),
-        created_at=datetime.fromisoformat(created_at) if created_at else datetime.now(timezone.utc),
+        created_at=parse_datetime(created_at),
     )
 
 
@@ -73,7 +58,8 @@ def _to_float(v):
 
 
 def _fetch_profile(user_id: str) -> dict | None:
-    result = _get_profile_table().select("*").eq("id", user_id).limit(1).execute()
+    client = get_supabase()
+    result = client.table("candidate_profiles").select("*").eq("id", user_id).limit(1).execute()
     return result.data[0] if result.data else None
 
 
@@ -126,73 +112,123 @@ async def get_demo_offer():
 
 @router.post("/register", response_model=CandidateToken, status_code=status.HTTP_201_CREATED)
 def register(payload: CandidateRegister):
+    client = get_supabase()
+
     try:
-        sb_user = register_user(
-            email=payload.email,
-            password=payload.password,
-            full_name=payload.full_name,
-            phone=payload.phone,
+        created = client.auth.admin.create_user({
+            "email": payload.email,
+            "password": payload.password,
+            "email_confirm": True,
+            "user_metadata": {
+                "full_name": payload.full_name,
+                "phone": payload.phone or "",
+            },
+        })
+    except Exception as e:
+        msg = str(e)
+        is_duplicate = "already" in msg or "exist" in msg
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT if is_duplicate else status.HTTP_400_BAD_REQUEST,
+            detail="An account with this email already exists." if is_duplicate else msg,
         )
-    except RuntimeError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-    token = create_candidate_token(
-        candidate_id=sb_user["id"],
-        email=sb_user["email"],
-        full_name=(sb_user.get("user_metadata") or {}).get("full_name", payload.full_name),
-    )
+    user_id = created.user.id
 
-    profile = _fetch_profile(sb_user["id"])
+    try:
+        profile_data = {
+            "id": user_id,
+            "full_name": payload.full_name,
+            "email": payload.email,
+            "phone": payload.phone or None,
+        }
+        client.table("candidate_profiles").upsert(profile_data).execute()
+    except Exception as e:
+        try:
+            client.auth.admin.delete_user(user_id)
+        except Exception:
+            pass
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Profile creation failed: {e}",
+        )
+
+    try:
+        session = client.auth.sign_in_with_password({
+            "email": payload.email,
+            "password": payload.password,
+        })
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Account created, but sign-in failed. Please login. Details: {e}",
+        )
+
+    profile = _fetch_profile(user_id)
     return CandidateToken(
-        access_token=token,
+        access_token=session.session.access_token,
         candidate=_build_candidate_out(
-            user_id=sb_user["id"],
-            email=sb_user["email"],
+            user_id=user_id,
+            email=payload.email,
             profile=profile,
-            created_at=sb_user.get("created_at", ""),
+            created_at=getattr(created.user, "created_at", None),
         ),
     )
 
 
 @router.post("/login", response_model=CandidateToken)
 def login(payload: CandidateLogin):
+    client = get_supabase()
+
     try:
-        sb_session = login_user(email=payload.email, password=payload.password)
-    except RuntimeError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+        session = client.auth.sign_in_with_password({
+            "email": payload.email,
+            "password": payload.password,
+        })
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+        )
 
-    sb_user = sb_session.get("user", {})
-    meta = sb_user.get("user_metadata", {}) or {}
-    token = create_candidate_token(
-        candidate_id=sb_user["id"],
-        email=sb_user["email"],
-        full_name=meta.get("full_name", ""),
-    )
+    user_id = session.user.id
+    profile = _fetch_profile(user_id)
 
-    profile = _fetch_profile(sb_user["id"])
+    if not profile:
+        meta = session.user.user_metadata or {}
+        profile_data = {
+            "id": user_id,
+            "full_name": meta.get("full_name", ""),
+            "email": session.user.email,
+            "phone": meta.get("phone", None),
+        }
+        client.table("candidate_profiles").upsert(profile_data).execute()
+        profile = profile_data
+
     return CandidateToken(
-        access_token=token,
+        access_token=session.session.access_token,
         candidate=_build_candidate_out(
-            user_id=sb_user["id"],
-            email=sb_user["email"],
+            user_id=user_id,
+            email=session.user.email,
             profile=profile,
-            created_at=sb_user.get("created_at", ""),
+            created_at=getattr(session.user, "created_at", None),
         ),
     )
 
 
 @router.get("/me", response_model=CandidateOut)
 def me(current=Depends(get_current_candidate)):
-    sb_user = get_user(current["id"])
-    if sb_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
+    client = get_supabase()
+    sb_user = None
+    try:
+        sb_user = client.auth.admin.get_user_by_id(current["id"])
+    except Exception:
+        pass
     profile = _fetch_profile(current["id"])
     return _build_candidate_out(
         user_id=current["id"],
         email=current["email"],
         profile=profile,
-        created_at=sb_user.get("created_at", ""),
+        created_at=sb_user.user.created_at if sb_user else None,
     )
 
 
@@ -212,30 +248,30 @@ def update_profile(payload: CandidateProfileUpdate, current=Depends(get_current_
     base = _ensure_profile_base(current["id"], current["email"])
     base.update(update_data)
     base["id"] = current["id"]
-    _get_profile_table().upsert(base, on_conflict="id").execute()
+    get_supabase().table("candidate_profiles").upsert(base, on_conflict="id").execute()
 
-    sb_user = get_user(current["id"])
     profile = _fetch_profile(current["id"])
     return _build_candidate_out(
         user_id=current["id"],
         email=current["email"],
         profile=profile,
-        created_at=sb_user.get("created_at", "") if sb_user else "",
     )
 
 
 @router.post("/profile/picture", response_model=CandidateOut)
 def upload_profile_picture(file: UploadFile, current=Depends(get_current_candidate)):
+    from app.config import SUPABASE_URL
+
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File must be an image")
 
     ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
     object_path = f"candidates/{current['id']}/avatar.{ext}"
-
     file_bytes = file.file.read()
 
+    supabase = get_supabase()
     try:
-        _supabase.storage.from_("candidate-avatars").upload(
+        supabase.storage.from_("candidate-avatars").upload(
             path=object_path,
             file=file_bytes,
             file_options={"content-type": file.content_type, "upsert": "true"},
@@ -252,13 +288,11 @@ def upload_profile_picture(file: UploadFile, current=Depends(get_current_candida
     base = _ensure_profile_base(current["id"], current["email"])
     base["profile_picture_url"] = public_url
     base["id"] = current["id"]
-    _get_profile_table().upsert(base, on_conflict="id").execute()
+    supabase.table("candidate_profiles").upsert(base, on_conflict="id").execute()
 
-    sb_user = get_user(current["id"])
     profile = _fetch_profile(current["id"])
     return _build_candidate_out(
         user_id=current["id"],
         email=current["email"],
         profile=profile,
-        created_at=sb_user.get("created_at", "") if sb_user else "",
     )

@@ -1,21 +1,11 @@
 import logging
-from datetime import datetime, timezone
 from uuid import UUID
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header, status
-from fastapi.security import HTTPBearer
-from jose import jwt, JWTError
-from supabase import create_client
 
-from app.config import (
-    SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY,
-    SUPABASE_JWT_SECRET,
-    JWT_ALGORITHM,
-    ADMIN_SETUP_TOKEN,
-)
-from app.security import hash_password
+from app.auth import get_current_admin, get_supabase, parse_datetime
+from app.config import ADMIN_SETUP_TOKEN
 from app.schemas import (
     AdminLogin,
     AdminRegister,
@@ -27,74 +17,6 @@ from app.schemas import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
-
-_supabase = (
-    create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-    else None
-)
-
-def _get_supabase_client():
-    if _supabase is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Supabase client not initialized.",
-        )
-    return _supabase
-
-admin_bearer = HTTPBearer()
-
-def _parse_datetime(val) -> datetime:
-    if val is None:
-        return datetime.now(timezone.utc)
-    if isinstance(val, datetime):
-        return val
-    if isinstance(val, str):
-        try:
-            return datetime.fromisoformat(val.replace("Z", "+00:00"))
-        except ValueError:
-            pass
-    return datetime.now(timezone.utc)
-
-async def get_current_admin(credentials=Depends(admin_bearer)) -> dict:
-    import httpx
-    credentials_error = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    token = credentials.credentials
-    try:
-        resp = httpx.get(
-            f"{SUPABASE_URL}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "apikey": SUPABASE_SERVICE_ROLE_KEY
-            },
-            timeout=10
-        )
-        if resp.status_code != 200:
-            raise credentials_error
-        user_data = resp.json()
-        admin_id = user_data.get("id")
-        if admin_id is None:
-            raise credentials_error
-    except Exception as e:
-        logger.warning("JWT verification failed: %s", e)
-        raise credentials_error
-        
-    client = _get_supabase_client()
-    
-    # Query admin_profiles table to verify admin membership
-    result = client.table("admin_profiles").select("*").eq("id", admin_id).limit(1).execute()
-    if not result.data:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not an administrator.",
-        )
-        
-    return result.data[0]
 
 
 @router.get("/health")
@@ -133,7 +55,7 @@ async def capabilities():
 
 @router.post("/login", response_model=AdminToken)
 async def login(payload: AdminLogin):
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Sign in via Supabase Auth
     try:
@@ -166,7 +88,7 @@ async def login(payload: AdminLogin):
             id=UUID(admin_profile["id"]) if isinstance(admin_profile["id"], str) else admin_profile["id"],
             full_name=admin_profile["full_name"],
             email=admin_profile["email"],
-            created_at=_parse_datetime(admin_profile.get("created_at"))
+            created_at=parse_datetime(admin_profile.get("created_at"))
         )
     )
 
@@ -177,7 +99,7 @@ async def me(current=Depends(get_current_admin)):
         id=UUID(current["id"]) if isinstance(current["id"], str) else current["id"],
         full_name=current["full_name"],
         email=current["email"],
-        created_at=_parse_datetime(current.get("created_at"))
+        created_at=parse_datetime(current.get("created_at"))
     )
 
 
@@ -195,7 +117,7 @@ async def register(payload: AdminRegister, x_admin_setup_token: Optional[str] = 
             detail="Invalid setup token.",
         )
         
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Create auth user (email_confirm true)
     try:
@@ -218,18 +140,15 @@ async def register(payload: AdminRegister, x_admin_setup_token: Optional[str] = 
         
     user_id = created.user.id
     
-    # 2. Insert admin profile
+    # 2. Insert admin profile (no password hash — auth is via Supabase Auth)
     try:
-        password_hash = hash_password(payload.password)
         profile_data = {
             "id": user_id,
             "full_name": payload.full_name,
             "email": payload.email,
-            "password": password_hash
         }
         client.table("admin_profiles").upsert(profile_data).execute()
     except Exception as e:
-        # rollback
         try:
             client.auth.admin.delete_user(user_id)
         except Exception:
@@ -258,7 +177,7 @@ async def register(payload: AdminRegister, x_admin_setup_token: Optional[str] = 
             id=user_id,
             full_name=payload.full_name,
             email=payload.email,
-            created_at=_parse_datetime(getattr(created.user, "created_at", None))
+            created_at=parse_datetime(getattr(created.user, "created_at", None))
         )
     )
 
@@ -275,7 +194,7 @@ def _count_table(client, table: str, status_filter: Optional[bool] = None) -> in
 
 @router.get("/stats", response_model=AdminStats)
 async def get_stats(_current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     try:
         recruiters = _count_table(client, "hr_profiles")
         candidates = _count_table(client, "candidate_profiles")
@@ -298,14 +217,14 @@ async def get_stats(_current=Depends(get_current_admin)):
 
 @router.get("/candidates")
 async def list_candidates(_current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     res = client.table("candidate_profiles").select("*").order("created_at", desc=True).execute()
     return res.data
 
 
 @router.post("/candidates", status_code=status.HTTP_201_CREATED)
 async def create_candidate(payload: AdminRegister, phone: Optional[str] = None, _current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Create auth user
     try:
@@ -351,7 +270,7 @@ async def create_candidate(payload: AdminRegister, phone: Optional[str] = None, 
 
 @router.delete("/candidates/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_candidate(id: UUID, _current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     user_id = str(id)
     
     # Delete profile first (safe cascade)
@@ -376,14 +295,14 @@ async def delete_candidate(id: UUID, _current=Depends(get_current_admin)):
 
 @router.get("/recruiters")
 async def list_recruiters(_current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     res = client.table("hr_profiles").select("*").order("created_at", desc=True).execute()
     return res.data
 
 
 @router.post("/recruiters", status_code=status.HTTP_201_CREATED)
 async def create_recruiter(payload: AdminRegister, company_name: str, phone: Optional[str] = None, _current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     
     # 1. Create auth user
     try:
@@ -431,7 +350,7 @@ async def create_recruiter(payload: AdminRegister, company_name: str, phone: Opt
 
 @router.delete("/recruiters/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_recruiter(id: UUID, _current=Depends(get_current_admin)):
-    client = _get_supabase_client()
+    client = get_supabase()
     user_id = str(id)
     
     # Delete profile first

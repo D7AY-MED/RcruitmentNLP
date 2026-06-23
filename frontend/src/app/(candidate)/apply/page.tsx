@@ -278,6 +278,7 @@ export default function CandidateApplyPage() {
       <AuthRequiredModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+        onSuccess={() => window.alert('Connecté ! (Page démo)')}
       />
     </div>
   );

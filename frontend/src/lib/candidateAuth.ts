@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { apiRequest, getToken as getSharedToken, removeToken, setToken } from './auth';
+
 const TOKEN_KEY = 'candidate_token';
 
 export interface Candidate {
@@ -37,34 +38,12 @@ interface TokenResponse {
   candidate: Candidate;
 }
 
-async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    const message =
-      typeof body.detail === 'string' ? body.detail : `Request failed (${res.status})`;
-    throw new Error(message);
-  }
-
-  return res.json() as Promise<T>;
-}
-
 export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem(TOKEN_KEY);
-}
-
-function setToken(token: string): void {
-  window.localStorage.setItem(TOKEN_KEY, token);
+  return getSharedToken(TOKEN_KEY);
 }
 
 export function logout(): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.removeItem(TOKEN_KEY);
+  removeToken(TOKEN_KEY);
 }
 
 export async function registerCandidate(payload: RegisterPayload): Promise<Candidate> {
@@ -72,7 +51,7 @@ export async function registerCandidate(payload: RegisterPayload): Promise<Candi
     method: 'POST',
     body: JSON.stringify(payload),
   });
-  setToken(data.access_token);
+  setToken(TOKEN_KEY, data.access_token);
   return data.candidate;
 }
 
@@ -81,7 +60,7 @@ export async function loginCandidate(email: string, password: string): Promise<C
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  setToken(data.access_token);
+  setToken(TOKEN_KEY, data.access_token);
   return data.candidate;
 }
 
@@ -110,6 +89,7 @@ export async function uploadProfilePicture(file: File): Promise<Candidate> {
   const formData = new FormData();
   formData.append('file', file);
 
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const res = await fetch(`${API_URL}/api/candidate/profile/picture`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
