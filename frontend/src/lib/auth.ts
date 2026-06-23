@@ -27,8 +27,14 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const message =
-      typeof body.detail === 'string' ? body.detail : `Request failed (${res.status})`;
+    let message: string;
+    if (typeof body.detail === 'string') {
+      message = body.detail;
+    } else if (Array.isArray(body.detail)) {
+      message = body.detail.map((e: any) => `${e.loc?.slice(1).join('.') || ''}: ${e.msg}`).join('; ');
+    } else {
+      message = `Request failed (${res.status})`;
+    }
     throw new Error(message);
   }
   return res.json() as Promise<T>;
