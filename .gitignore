@@ -25,3 +25,13 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+
+# Secrets backup (contains live API keys)
+backups/
+
+# Dev scratch files
+temp_gemini_store/
+
+# OS junk
+.DS_Store
+Thumbs.db
