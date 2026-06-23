@@ -36,9 +36,9 @@ def test_capabilities():
     assert resp.status_code == 200
     body = resp.json()
     assert body["service"] == "admin"
-    # User-management actions are served by the Next.js BFF.
+    # User-management actions are served by FastAPI.
     um = body["user_management"]
-    assert um["served_by"] == "next-bff"
+    assert um["served_by"] == "fastapi"
     assert "create_recruiter" in um["actions"]
     assert "create_candidate" in um["actions"]
     assert "dashboard_stats" in um["actions"]

@@ -32,6 +32,9 @@ SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
+# --- Admin Setup ---
+ADMIN_SETUP_TOKEN = os.getenv("ADMIN_SETUP_TOKEN", "")
+
 # --- Interview ---
 # Number of questions in the interview (must match the prompt file).
 TOTAL_QUESTIONS = int(os.getenv("TOTAL_QUESTIONS", "15"))
@@ -40,6 +43,6 @@ TOTAL_QUESTIONS = int(os.getenv("TOTAL_QUESTIONS", "15"))
 # Comma-separated origins, e.g. "http://localhost:3000,https://app.example.com"
 FRONTEND_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:3000").split(",")
+    for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
     if origin.strip()
 ]
