@@ -22,8 +22,8 @@ export function authHeader(key: string): Record<string, string> {
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
