@@ -27,6 +27,24 @@ Shared module providing:
 | `get_current_admin()` | FastAPI dep — verifies token, checks `admin_profiles` table |
 | `parse_datetime()` | Safely converts string/datetime/None → datetime |
 
+### RLS gotcha: profile query after sign-in
+
+After `sign_in_with_password()`, the client's auth state switches from the service role key to the user's JWT. If the profile table has **Row Level Security (RLS)** enabled, the user-session client may be blocked from reading the profile row.
+
+This affects **admin login** (`admin_profiles` has RLS) — the fix is to use a **fresh** `get_supabase()` call for the profile query after sign-in:
+
+```python
+session = client.auth.sign_in_with_password({...})
+user_id = session.user.id
+
+# Fresh client with service role key bypasses RLS
+admin_client = get_supabase()
+result = admin_client.table("admin_profiles").select("*").eq("id", user_id).limit(1).execute()
+```
+
+`candidate_profiles` also has RLS, but candidate/login is safe because `_fetch_profile()` internally calls `get_supabase()` which returns a fresh service-role client.  
+`hr_profiles` (recruiter) has no RLS, so it works accidentally with the mutated client.
+
 ### Critical: `get_supabase()` must return a fresh client — no singleton
 
 **The bug:** Previously `_supabase` was created once at module import time:

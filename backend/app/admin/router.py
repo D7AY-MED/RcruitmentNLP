@@ -72,7 +72,10 @@ async def login(payload: AdminLogin):
     user_id = session.user.id
     
     # 2. Gate on admin_profiles table membership
-    result = client.table("admin_profiles").select("*").eq("id", user_id).limit(1).execute()
+    # Use a fresh service-role client — sign_in_with_password() above mutated
+    # client's auth state to the user JWT, and RLS blocks user-session selects.
+    admin_client = get_supabase()
+    result = admin_client.table("admin_profiles").select("*").eq("id", user_id).limit(1).execute()
     if not result.data:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
