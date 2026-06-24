@@ -8,7 +8,7 @@ from app.routers import pools
 from app.routers import recruiter_supabase
 from app.candidate import router as candidate_router
 from app.interview import router as interview_router
-from app.admin import router as admin_router
+from app.admin import router as admin_module
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,9 +21,9 @@ app.include_router(pools.job_pools_router) # New /api/v1/job-pools
 app.include_router(candidate_router.router) # Candidate API
 app.include_router(interview_router.router) # Interview API
 app.include_router(recruiter_supabase.router) # New recruiter supabase auth
-app.include_router(admin_router.router) # Admin API
+app.include_router(admin_module)  # Admin API (MVC module at /api/v1/admin)
 
-# Allow the Next.js frontend to call this API from the browser.
+# Allow the Vite (React) frontend to call this API from the browser.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,

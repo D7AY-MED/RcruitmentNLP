@@ -11,14 +11,10 @@ import JobPoolsPage from "./app/job-pools/page";
 import JobPoolDetailPage from "./app/job-pools/[id]/page";
 import RecruiterLoginPage from "./app/recruiter/login/page";
 import RecruiterRegisterPage from "./app/recruiter/register/page";
-import AdminLoginPage from "./app/admin/login/page";
-import AdminDashboardPage from "./app/admin/page";
-import AdminCandidatesPage from "./app/admin/candidates/page";
-import AdminRecruitersPage from "./app/admin/recruiters/page";
+import AdminApp from "./admin/AdminApp";
 
 import DashboardLayout from "./app/dashboard/layout";
 import JobPoolsLayout from "./app/job-pools/layout";
-import AdminLayout from "./app/admin/layout";
 import RootLayout from "./app/layout";
 
 export default function App() {
@@ -43,12 +39,8 @@ export default function App() {
             <Route path="/job-pools/:id" element={<JobPoolDetailPage />} />
           </Route>
           
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            <Route path="/admin/candidates" element={<AdminCandidatesPage />} />
-            <Route path="/admin/recruiters" element={<AdminRecruitersPage />} />
-          </Route>
+          {/* Admin module (self-contained MVC module under src/admin) */}
+          <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
       </RootLayout>
     </BrowserRouter>
