@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Briefcase, Plus } from 'lucide-react';
+import { AlertTriangle, Briefcase, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
@@ -19,17 +19,21 @@ export default function JobPoolsPage() {
   const { toast } = useToast();
   const [pools, setPools] = useState<JobPool[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const user = demoUser;
 
   const refresh = useCallback(async () => {
     setError('');
+    setLoading(true);
     try {
       const data = await listJobPools();
       setPools(data);
     } catch {
       setPools(listPoolsMock());
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -86,7 +90,12 @@ export default function JobPoolsPage() {
               </Button>
             </div>
 
-            {error ? (
+            {loading ? (
+              <div className="bg-white border border-gray-200 rounded-2xl p-12 card-shadow flex flex-col items-center text-center justify-center min-h-[300px]">
+                <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
+                <p className="text-sm font-medium text-gray-500">Loading your job pools...</p>
+              </div>
+            ) : error ? (
               <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 flex flex-col items-center text-center">
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Could not load job pools</h3>

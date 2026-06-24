@@ -1,5 +1,6 @@
 import { JobPool } from './types';
 import { getToken } from './recruiterAuth';
+import { listPublicPoolsMock } from './frontendData';
 
 const STATIC_HR_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -150,4 +151,22 @@ export async function getPublicJobPool(token: string): Promise<JobPool | null> {
     if (err.message?.includes('404')) return null;
     throw err;
   }
+}
+
+export async function listPublicJobPools(): Promise<JobPool[]> {
+  try {
+    const data = await apiFetch('/api/v1/job-pools/public/list');
+    return (data || []).map(mapDbRowToJobPool);
+  } catch (err: any) {
+    // Fallback to mock pools in case of error or dev setup without backend
+    return listPublicPoolsMock();
+  }
+}
+
+export async function listPoolApplications(poolId: string): Promise<any[]> {
+  return apiFetch(`/api/v1/job-pools/${poolId}/applications`);
+}
+
+export async function getPoolApplication(poolId: string, sessionId: string): Promise<any> {
+  return apiFetch(`/api/v1/job-pools/${poolId}/applications/${sessionId}`);
 }

@@ -233,6 +233,8 @@ schema, and the schema is frozen).
 ```
 
 > **Status — `/apply/[token]` page (June 2026):** fully dynamic, fetching job pool details directly from Supabase. It uses the Jobzyn-style layout, showing recruiter company name, dynamically rendered job sections (missions, required profile, benefits), and handles candidate CV upload and authentication using Supabase. The shareable tokenized URL allows public candidate access.
+>
+> **Status — `/job-pools/[id]` page (June 2026):** recruiter-facing pool details view integrated with a secure applicant management table. Displays candidates who applied to the pool (showing Candidate avatar/info, AI Match Score, progress bar, status, and last updated timestamp), sorted by score descending. Clicking a candidate opens a sliding drawer containing contact info, AI-generated summary, and complete interview Q&A transcript.
 
 ### Data Flow Diagram
 

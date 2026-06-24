@@ -12,7 +12,6 @@ import AppSidebar from '@/components/AppSidebar';
 export default function DashboardPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [searchId, setSearchId] = useState<string>('');
-  const [refreshBalance, setRefreshBalance] = useState(0);
   const [historyItems, setHistoryItems] = useState<SearchHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [openingHistoryId, setOpeningHistoryId] = useState<string | null>(null);
@@ -68,17 +67,16 @@ export default function DashboardPage() {
   const handleUnlockComplete = (
     unlockedCandidates: Array<Pick<Candidate, 'id'> & Partial<Pick<Candidate, 'name' | 'phone' | 'email' | 'cv_url'>>>
   ) => {
-    setRefreshBalance(prev => prev + 1);
     mergeCandidateDetails(unlockedCandidates);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <AppSidebar user={user} refreshBalance={refreshBalance} />
+      <AppSidebar user={user} />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <Toaster position="top-right" />
 
-        <AppHeader user={user} hrProfileId={hrProfileId} refreshBalance={refreshBalance} />
+        <AppHeader user={user} hrProfileId={hrProfileId} />
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

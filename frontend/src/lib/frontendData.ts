@@ -58,47 +58,9 @@ export const demoCandidates: Candidate[] = [
   },
 ];
 
-let pools: JobPool[] = [
-  {
-    id: 'pool-1',
-    public_slug: 'frontend-engineer',
-    title: 'Frontend Engineer',
-    company_name: 'xQuesty',
-    status: 'active',
-    created_at: '2026-06-01T10:00:00.000Z',
-    applicant_count: 2,
-    main_mission: 'Build polished recruiter-facing interfaces for candidate matching.',
-    location: 'Remote',
-    contract_type: 'Full-time',
-    experience_level: 'Mid-Level',
-    education_level: 'Bachelor preferred',
-    language: 'English',
-    salary_range: '$90k - $120k',
-    description: 'Own frontend workflows across search, job pools, and candidate review.',
-    required_skills: ['React', 'TypeScript', 'Next.js'],
-  },
-];
+let pools: JobPool[] = [];
 
-const applicants: Record<string, StudentApplicant[]> = {
-  'pool-1': [
-    {
-      id: 'app-1',
-      student_name: 'Maya Chen',
-      student_email: 'maya.chen@example.com',
-      status: 'reviewing',
-      interview_status: 'completed',
-      joined_at: '2026-06-08T14:30:00.000Z',
-    },
-    {
-      id: 'app-2',
-      student_name: 'Adam Rivera',
-      student_email: 'adam.rivera@example.com',
-      status: 'applied',
-      interview_status: 'in_progress',
-      joined_at: '2026-06-10T09:15:00.000Z',
-    },
-  ],
-};
+const applicants: Record<string, StudentApplicant[]> = {};
 
 export function getCreditBalance() {
   return 12;
@@ -142,7 +104,11 @@ export function getPool(poolId: string) {
 }
 
 export function getPublicPool(slug: string) {
-  return pools.find((pool) => pool.public_slug === slug) || pools[0] || null;
+  return pools.find((pool) => pool.public_slug === slug) || null;
+}
+
+export function listPublicPoolsMock() {
+  return pools.filter((pool) => pool.status === 'active');
 }
 
 export function listApplicants(poolId: string) {

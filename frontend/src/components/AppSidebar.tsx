@@ -2,16 +2,14 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, Briefcase, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
-import CreditBalance from '@/components/CreditBalance';
 import { logout } from '@/lib/recruiterAuth';
 import { AuthUser } from '@/lib/types';
 
 interface AppSidebarProps {
   user?: AuthUser | null;
-  refreshBalance?: number;
 }
 
-export default function AppSidebar({ user, refreshBalance = 0 }: AppSidebarProps) {
+export default function AppSidebar({ user }: AppSidebarProps) {
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
@@ -62,9 +60,6 @@ export default function AppSidebar({ user, refreshBalance = 0 }: AppSidebarProps
         })}
       </nav>
       <div className="p-4 border-t border-gray-200 shrink-0 mt-auto space-y-3">
-        {user && (
-          <CreditBalance hrProfileId={user.id} refreshTrigger={refreshBalance} isCollapsed={isCollapsed} />
-        )}
         <button
           onClick={handleLogout}
           title={isCollapsed ? 'Log out' : undefined}

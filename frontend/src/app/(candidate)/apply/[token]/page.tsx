@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowUp, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowUp, CheckCircle2, Loader2, AlertTriangle, Lock } from 'lucide-react';
 import JobHeroSection from '@/components/candidate/JobHeroSection';
 import JobSidebar from '@/components/candidate/JobSidebar';
 import AuthRequiredModal from '@/components/candidate/AuthRequiredModal';
@@ -49,7 +49,7 @@ export default function CandidateApplyDynamicPage() {
   }, [candidate, token, navigate]);
 
   const handleProfile = useCallback(() => {
-    navigate('/profile');
+    navigate('/candidate/profile');
   }, [navigate]);
 
   useEffect(() => {
@@ -100,23 +100,82 @@ export default function CandidateApplyDynamicPage() {
 
   if (error || !pool) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
-          <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4 border border-red-150">
-            <AlertTriangle className="w-6 h-6 text-red-500" aria-hidden="true" />
+      <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+        {/* Soft atmospheric gradients */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none" />
+
+        {/* ---------- HEADER ---------- */}
+        <header className="w-full z-50 relative py-4">
+          <div className="max-w-5xl w-[calc(100%-2rem)] mx-auto px-6 h-16 bg-white rounded-2xl border border-gray-150 shadow-sm flex items-center justify-between">
+            {/* Logo */}
+            <a href="/" className="text-xl font-bold tracking-tight" aria-label="PooLink home">
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)',
+                }}
+              >
+                PooLink
+              </span>
+            </a>
+            
+            {/* Nav Links */}
+            <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-600">
+              <a href="/offers" className="text-blue-600 transition-colors">
+                Emplois
+              </a>
+              <a href="/recruiter/login" className="hover:text-blue-600 transition-colors">
+                Recruteur
+              </a>
+            </nav>
+
+            {/* Actions */}
+            <div className="flex items-center gap-4">
+              <a
+                href="/recruiter/login"
+                className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-blue-600 transition-colors"
+              >
+                Connexion
+              </a>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-gray-950 mb-2">
-            {error?.title || 'Offre introuvable'}
-          </h1>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {error?.message || "Le lien d'application demandé est actuellement indisponible."}
-          </p>
-          <a
-            href="/"
-            className="mt-6 inline-flex items-center justify-center px-6 h-11 text-sm font-bold text-white bg-blue-600 hover:opacity-90 rounded-xl transition-all"
-          >
-            Retour à l'accueil
-          </a>
+        </header>
+
+        {/* ---------- MAIN CONTENT CARD ---------- */}
+        <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+          <div className="relative bg-white/85 backdrop-blur-md border border-slate-100 rounded-3xl shadow-2xl p-8 sm:p-12 max-w-lg w-full text-center overflow-hidden transition-all duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200/60 flex items-center justify-center mx-auto mb-6 shadow-inner animate-pulse">
+              <Lock className="w-7 h-7 text-amber-600" aria-hidden="true" />
+            </div>
+            
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+              Cette offre n'est plus active
+            </h1>
+            
+            <div className="w-16 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto rounded-full mb-6" />
+
+            <p className="text-base text-slate-600 leading-relaxed mb-6 max-w-md mx-auto">
+              Le processus de recrutement pour ce poste est désormais finalisé ou suspendu.
+            </p>
+
+            <div className="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100/50 mb-8 text-left">
+              <h4 className="text-sm font-bold text-indigo-900 mb-1">Ne laissez pas cette fermeture vous arrêter !</h4>
+              <p className="text-xs text-indigo-700 leading-relaxed">
+                Nous avons de nombreuses autres opportunités passionnantes en cours qui correspondent peut-être parfaitement à votre profil. Découvrez dès maintenant nos offres actives et trouvez celle qui propulsera votre carrière.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center justify-center">
+              <a
+                href="/offers"
+                className="w-full inline-flex items-center justify-center px-8 h-12 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all duration-200 gap-2"
+              >
+                Découvrir nos offres d'emploi
+                <span className="text-base">→</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -14,6 +14,7 @@ from ..services.gemini_store_service import GeminiStoreService
 from app.config import SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 from app.routers.recruiter_supabase import get_current_recruiter
 from app.schemas import JobPoolCreate, JobPoolUpdate, JobPoolOut
+from app.admin.services.application_service import ApplicationService
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +177,21 @@ async def get_public_job_pool(token: str):
     return row
 
 
+@job_pools_router.get("/public/list", response_model=List[JobPoolOut])
+async def list_public_job_pools():
+    client = _get_supabase_client()
+    
+    # Fetch active job pools joined with hr_profiles
+    result = client.table("job_pools").select("*, hr_profiles(*)").eq("status", True).order("created_at", desc=True).execute()
+    
+    out = []
+    for row in result.data:
+        hr_profile = row.get("hr_profiles") or {}
+        row["company_name"] = hr_profile.get("company_name")
+        out.append(row)
+    return out
+
+
 @job_pools_router.get("/{id}", response_model=JobPoolOut)
 async def get_job_pool(id: UUID, recruiter=Depends(get_current_recruiter)):
     client = _get_supabase_client()
@@ -228,4 +244,35 @@ async def delete_job_pool(id: UUID, recruiter=Depends(get_current_recruiter)):
         
     client.table("job_pools").delete().eq("id", str(id)).execute()
     return None
+
+
+@job_pools_router.get("/{id}/applications", response_model=List[dict])
+async def list_pool_applications(id: UUID, recruiter=Depends(get_current_recruiter)):
+    client = _get_supabase_client()
+    hr_id = recruiter["id"]
+    
+    # Check ownership
+    existing = client.table("job_pools").select("id").eq("id", str(id)).eq("hr_id", hr_id).limit(1).execute()
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Job pool not found.")
+        
+    return ApplicationService().list_applications(pool_id=str(id))
+
+
+@job_pools_router.get("/{id}/applications/{session_id}", response_model=dict)
+async def get_pool_application(id: UUID, session_id: str, recruiter=Depends(get_current_recruiter)):
+    client = _get_supabase_client()
+    hr_id = recruiter["id"]
+    
+    # Check ownership
+    existing = client.table("job_pools").select("id").eq("id", str(id)).eq("hr_id", hr_id).limit(1).execute()
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Job pool not found.")
+        
+    app = ApplicationService().get_application(session_id)
+    resolved_pool_id = app.get("pool_id") or (app.get("pool") or {}).get("id")
+    if not app or str(resolved_pool_id) != str(id):
+        raise HTTPException(status_code=404, detail="Application not found or access denied.")
+        
+    return app
 

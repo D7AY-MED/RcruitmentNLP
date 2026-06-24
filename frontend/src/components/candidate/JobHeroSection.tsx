@@ -24,6 +24,11 @@ export interface JobHeroProps {
   educationLevel?: string;
   sector?: string;
   publishDate?: string;
+  isAuthenticated?: boolean;
+  candidateName?: string;
+  candidateEmail?: string;
+  onProfile?: () => void;
+  onConnexion?: () => void;
 }
 
 function MetaTag({
@@ -56,6 +61,11 @@ export default function JobHeroSection({
   educationLevel,
   sector = 'Conseil & Audit',
   publishDate = 'Publiée il y a 18 jours',
+  isAuthenticated = false,
+  candidateName,
+  candidateEmail,
+  onProfile,
+  onConnexion,
 }: JobHeroProps) {
   return (
     <section className="relative bg-white border-b border-gray-200 overflow-hidden pb-12 sm:pb-14">
@@ -78,14 +88,11 @@ export default function JobHeroSection({
         
         {/* Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-600">
-          <a href="#" className="hover:text-blue-600 transition-colors">
+          <a href="/offers" className="hover:text-blue-600 transition-colors">
             Emplois
           </a>
-          <a href="#" className="hover:text-blue-600 transition-colors">
-            Entreprises
-          </a>
-          <a href="#" className="hover:text-blue-600 transition-colors">
-            Centre Carrière
+          <a href="/recruiter/login" className="hover:text-blue-600 transition-colors">
+            Recruteur
           </a>
         </nav>
 
@@ -94,15 +101,28 @@ export default function JobHeroSection({
           <button className="text-gray-400 hover:text-blue-600 transition-colors p-1" aria-label="Recherche">
             <Search className="w-5 h-5" />
           </button>
-          <Button
-            className="h-10 px-5 text-[13px] font-bold rounded-xl text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5"
-            style={{
-              background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
-            }}
-          >
-            <LogIn className="w-4 h-4" />
-            Connexion
-          </Button>
+          {isAuthenticated ? (
+            <button
+              onClick={onProfile}
+              className="h-10 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[13px] font-bold text-gray-700 flex items-center gap-2 transition-all shadow-sm"
+            >
+              <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-extrabold text-xs">
+                {candidateName ? candidateName.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <span>{candidateName || 'Mon Profil'}</span>
+            </button>
+          ) : (
+            <Button
+              onClick={onConnexion}
+              className="h-10 px-5 text-[13px] font-bold rounded-xl text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5"
+              style={{
+                background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
+              }}
+            >
+              <LogIn className="w-4 h-4" />
+              Connexion
+            </Button>
+          )}
         </div>
       </div>
 

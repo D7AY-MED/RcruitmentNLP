@@ -61,7 +61,7 @@ export default function ResultsComponent({
             disabled={isUnlocking}
             className="bg-green-600 text-white px-6 py-3 rounded-md font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
-            {isUnlocking ? 'Unlocking...' : 'Unlock 5 Profiles (1 Credit)'}
+            {isUnlocking ? 'Unlocking...' : 'Unlock 5 Profiles'}
           </button>
         )}
       </div>

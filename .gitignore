@@ -35,3 +35,7 @@ temp_gemini_store/
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Graphify
+graphify/
+graphify-out/

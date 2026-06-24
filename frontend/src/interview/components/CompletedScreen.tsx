@@ -30,7 +30,7 @@ export default function CompletedScreen() {
           Complétez votre profil pour maximiser vos chances d&apos;obtenir ce poste.
         </p>
         <Link
-          to="/profile"
+          to="/candidate/profile"
           className="mt-4 inline-flex items-center gap-2 h-11 px-6 rounded-xl text-white font-bold text-sm transition-all active:scale-[0.98]"
           style={{ background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)' }}
         >
