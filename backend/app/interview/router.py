@@ -226,6 +226,83 @@ async def handle_next(
                 except Exception as e:
                     logger.error("DB mark_completed failed: %s", e)
 
+                # Generate and save candidate summary
+                try:
+                    questions = session_store.get_session_questions(
+                        candidate.candidate_id, session_uuid
+                    )
+                    candidate_name = candidate.name
+                    phone = ""
+                    if questions:
+                        phone = questions[0].get("phone", "")
+                        candidate_name = questions[0].get("name", candidate.name)
+
+                    # Fetch pool details and gemini_store_name first
+                    pool_id = ""
+                    gemini_store_name = None
+                    job_details = "Not specified."
+                    if questions:
+                        for q in questions:
+                            if q.get("pool_id"):
+                                pool_id = q.get("pool_id")
+                                break
+                    if pool_id:
+                        gemini_store_name = session_store.get_pool_store_name(pool_id)
+                        pool_data = session_store.get_pool_details(pool_id)
+                        if pool_data:
+                            details_parts = []
+                            details_parts.append(f"Title: {pool_data.get('title')}")
+                            if pool_data.get("description"):
+                                details_parts.append(f"Description: {pool_data.get('description')}")
+                            if pool_data.get("main_mission"):
+                                details_parts.append(f"Main Mission: {pool_data.get('main_mission')}")
+                            if pool_data.get("must_have_skills"):
+                                details_parts.append(f"Must-Have Skills: {', '.join(pool_data.get('must_have_skills'))}")
+                            if pool_data.get("nice_to_have_skills"):
+                                details_parts.append(f"Nice-to-Have Skills: {', '.join(pool_data.get('nice_to_have_skills'))}")
+                            if pool_data.get("soft_skills"):
+                                details_parts.append(f"Soft Skills: {', '.join(pool_data.get('soft_skills'))}")
+                            if pool_data.get("deal_breakers"):
+                                details_parts.append(f"Deal-Breakers: {', '.join(pool_data.get('deal_breakers'))}")
+                            if pool_data.get("responsibilities"):
+                                details_parts.append(f"Responsibilities: {', '.join(pool_data.get('responsibilities'))}")
+                            job_details = "\n".join(details_parts)
+
+                    # Generate summary and score using OpenAI
+                    from app.interview.openai_client import generate_summary_and_score
+                    summary_text, score_text = await generate_summary_and_score(new_response_id, job_details)
+
+                    # Save summary and score to Supabase Candidate_summaries table (including gemini_store_name and score)
+                    session_store.save_candidate_summary(
+                        candidate_id=candidate.candidate_id,
+                        candidate_name=candidate_name,
+                        summary=summary_text,
+                        phone=phone,
+                        score=score_text,
+                        gemini_store_name=gemini_store_name,
+                    )
+                    logger.info("Successfully generated and saved database summary and score for candidate %s", candidate.candidate_id)
+
+                    # Upload summary to Gemini File Search Store if store name exists
+                    if gemini_store_name:
+                        try:
+                            from app.services.gemini_store_service import GeminiStoreService
+                            gemini_service = GeminiStoreService()
+                            gemini_service.upload_candidate_summary(
+                                store_name=gemini_store_name,
+                                candidate_name=candidate_name,
+                                candidate_id=str(candidate.candidate_id),
+                                summary_text=summary_text
+                            )
+                            logger.info("Successfully uploaded summary to Gemini store %s", gemini_store_name)
+                        except Exception as gem_err:
+                            logger.error("Failed to upload summary to Gemini File Search Store: %s", gem_err)
+                    else:
+                        logger.warning("No gemini_store_name found or pool_id missing for session %s", session_uuid)
+
+                except Exception as sum_err:
+                    logger.error("Failed to generate or save candidate summary: %s", sum_err)
+
                 yield ("done", {
                     "completed": True,
                     "responseId": new_response_id,

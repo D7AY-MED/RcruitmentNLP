@@ -55,6 +55,7 @@ function mapDbRowToJobPool(row: any): JobPool {
     deal_breakers: row.deal_breakers || [],
     responsibilities: row.responsibilities || [],
     notes: row.notes || undefined,
+    gemini_store_name: row.gemini_store_name || undefined,
   };
 }
 

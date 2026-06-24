@@ -82,6 +82,7 @@ export interface JobPool {
   deal_breakers?: string[];
   responsibilities?: string[];
   notes?: string;
+  gemini_store_name?: string;
 }
 
 export interface StudentApplicant {

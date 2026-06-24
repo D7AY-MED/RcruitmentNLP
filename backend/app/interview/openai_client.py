@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 from typing import AsyncGenerator
 
 from openai import AsyncOpenAI
@@ -149,3 +150,61 @@ async def continue_interview_stream(
             return
 
     raise RuntimeError("OpenAI stream ended before completion.")
+
+
+async def generate_summary(previous_response_id: str) -> str:
+    client = _get_client()
+    response = await client.responses.create(
+        model=OPENAI_MODEL,
+        store=True,
+        previous_response_id=previous_response_id,
+        input=(
+            "Generate a concise, fact-based summary of the candidate's profile, combining details from both their CV "
+            "and their interview answers. Focus strictly on key matching criteria (such as core skills, years of experience, "
+            "main achievements, mobility, availability, and specific project experience). Do not include any commentary, "
+            "evaluation, or extra conversational text (no overtalking). Output the summary as clean bullet points."
+        ),
+    )
+    return _extract_question(response)
+
+
+async def generate_summary_and_score(previous_response_id: str, job_details: str) -> tuple[str, str]:
+    client = _get_client()
+    prompt = (
+        f"Compare the candidate's CV and interview answers against the following job offer requirements:\n"
+        f"[JOB OFFER REQUIREMENTS]\n{job_details}\n\n"
+        f"Generate the following two items:\n"
+        f"1. A concise, fact-based summary of the candidate's profile, combining details from both their CV and their interview answers. Focus strictly on key matching criteria (such as core skills, years of experience, main achievements, mobility, availability, and specific project experience). Do not include any commentary, evaluation, or extra conversational text (no overtalking). Output the summary as clean bullet points.\n"
+        f"2. A highly precise, granular matching score from 0.00 to 100.00 representing how well the candidate matches the job requirements. "
+        f"Be extremely rigorous and selective: always output the score with exactly two decimal places (e.g., 85.34, 78.09, 89.00). Distinguish minor details (e.g., depth of experience, tool familiarity, communication nuance) to ensure unique, non-overlapping scores so candidates can be ranked accurately.\n\n"
+        f"You MUST output the result as a raw JSON object with exactly two keys: 'summary' (string) and 'score' (float or string representing the float). Do not add any backticks or markdown code wrappers."
+    )
+    response = await client.responses.create(
+        model=OPENAI_MODEL,
+        store=True,
+        previous_response_id=previous_response_id,
+        input=prompt,
+    )
+    output_text = _extract_question(response)
+    
+    try:
+        clean_text = output_text.strip()
+        if clean_text.startswith("```"):
+            lines = clean_text.splitlines()
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines[-1].startswith("```"):
+                lines = lines[:-1]
+            clean_text = "\n".join(lines).strip()
+            
+        data = json.loads(clean_text)
+        summary = data.get("summary", "").strip()
+        try:
+            score_val = float(data.get("score", 0.0))
+            score = f"{score_val:.2f}"
+        except Exception:
+            score = "0.00"
+        return summary, score
+    except Exception as e:
+        logger.error("Failed to parse summary and score JSON: %s. Raw output: %s", e, output_text)
+        return output_text, "0.00"

@@ -129,3 +129,43 @@ def get_current_unanswered_question(
         .limit(1) \
         .execute()
     return result.data[0] if result.data else None
+
+
+def save_candidate_summary(
+    candidate_id: str,
+    candidate_name: str,
+    summary: str,
+    phone: str | None = None,
+    score: str | None = None,
+    gemini_store_name: str | None = None,
+) -> dict:
+    if _supabase is None:
+        raise RuntimeError("Supabase client not initialized.")
+    data = {
+        "candidate_id": candidate_id,
+        "Candidate_name": candidate_name,
+        "summary": summary,
+        "phone": phone,
+        "score": score,
+        "gemini_store_name": gemini_store_name,
+    }
+    result = _supabase.table("Candidate_summaries").insert(data).execute()
+    return result.data[0] if result.data else {}
+
+
+def get_pool_store_name(pool_id: str) -> str | None:
+    if _supabase is None:
+        raise RuntimeError("Supabase client not initialized.")
+    result = _supabase.table("job_pools").select("gemini_store_name").eq("id", pool_id).limit(1).execute()
+    if result.data:
+        return result.data[0].get("gemini_store_name")
+    return None
+
+
+def get_pool_details(pool_id: str) -> dict | None:
+    if _supabase is None:
+        raise RuntimeError("Supabase client not initialized.")
+    result = _supabase.table("job_pools").select(
+        "title, main_mission, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, description"
+    ).eq("id", pool_id).limit(1).execute()
+    return result.data[0] if result.data else None

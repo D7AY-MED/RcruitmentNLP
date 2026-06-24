@@ -114,32 +114,49 @@ async def create_job_pool(payload: JobPoolCreate, recruiter=Depends(get_current_
     }
     client.table("hr_profiles").upsert(profile_data).execute()
     
-    # 2. Insert new job pool
+    # 2. Trigger Gemini store creation first
     pool_token = _generate_public_token(payload.title)
+    title_slug = _sanitise_name(payload.title)
+    recruiter_tag = str(hr_id)[:8]
+    display_name = f"pool-{title_slug}-{recruiter_tag}"
+    
+    try:
+        store = gemini_service.create_store(display_name)
+    except Exception as err:
+        logger.error("Gemini store creation failed in pool creation: %s", err)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Failed to create AI Vector Store: {str(err)}",
+        )
+
+    # 3. Insert new job pool including the gemini_store_name
     pool_data = payload.model_dump(exclude_none=True)
     pool_data["hr_id"] = hr_id
     pool_data["public_token"] = pool_token
     pool_data["status"] = payload.status if payload.status is not None else True
+    pool_data["gemini_store_name"] = store.name
     
     # Format dates
     if payload.deadline:
         pool_data["deadline"] = payload.deadline.isoformat()
         
-    res = client.table("job_pools").insert(pool_data).execute()
-    if not res.data:
-        raise HTTPException(status_code=500, detail="Failed to create job pool record.")
+    try:
+        res = client.table("job_pools").insert(pool_data).execute()
+        if not res.data:
+            raise RuntimeError("Database insert returned empty data.")
+    except Exception as db_err:
+        logger.error("Database insert failed: %s. Cleaning up Gemini store %s", db_err, store.name)
+        try:
+            gemini_service.delete_store(store.name)
+        except Exception as delete_err:
+            logger.error("Failed to delete Gemini store during cleanup: %s", delete_err)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create job pool record: {str(db_err)}"
+        )
         
     created_pool = res.data[0]
     created_pool["company_name"] = recruiter.get("company_name")
-    
-    # 3. Trigger Gemini store creation
-    try:
-        title_slug = _sanitise_name(created_pool["title"])
-        recruiter_tag = str(created_pool["hr_id"])[:8]
-        display_name = f"pool-{title_slug}-{recruiter_tag}"
-        gemini_service.create_store(display_name)
-    except Exception as err:
-        logger.warning("Gemini store creation skipped in pool creation: %s", err)
         
     return created_pool
 

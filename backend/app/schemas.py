@@ -190,5 +190,6 @@ class JobPoolOut(BaseModel):
     deal_breakers: Optional[List[str]] = None
     responsibilities: Optional[List[str]] = None
     notes: Optional[str] = None
+    gemini_store_name: Optional[str] = None
     created_at: datetime
 

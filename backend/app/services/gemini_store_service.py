@@ -35,3 +35,31 @@ class GeminiStoreService:
             raise RuntimeError("Gemini client not initialized: GOOGLE_API_KEY is missing")
         self.client.file_search_stores.delete(name=store_name)
         logger.info("Gemini store deleted: %s", store_name)
+
+    def upload_candidate_summary(self, store_name: str, candidate_name: str, candidate_id: str, summary_text: str):
+        if not self.client:
+            raise RuntimeError("Gemini client not initialized: GOOGLE_API_KEY is missing")
+            
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.txt', delete=False, encoding='utf-8') as temp_file:
+            temp_file.write(summary_text)
+            temp_file_path = temp_file.name
+            
+        try:
+            display_name = f"summary-{candidate_name.replace(' ', '_')}-{candidate_id}"
+            logger.info("Uploading summary to Gemini File Search Store: %s", store_name)
+            self.client.file_search_stores.upload_to_file_search_store(
+                file=temp_file_path,
+                file_search_store_name=store_name,
+                config={
+                    "display_name": display_name
+                }
+            )
+            logger.info("Successfully uploaded summary to store %s", store_name)
+        finally:
+            try:
+                os.remove(temp_file_path)
+            except Exception as cleanup_err:
+                logger.error("Failed to clean up temporary file %s: %s", temp_file_path, cleanup_err)
