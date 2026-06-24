@@ -3,67 +3,59 @@
 ## Project Structure
 
 ```
-matching project/
-├── frontend/                  # Next.js (React) application
-│   ├── app/                   # Next.js App Router pages & API routes
-│   │   ├── (candidate)/       # Candidate-scoped pages (route group → no URL prefix)
-│   │   │   └── apply/
-│   │   │       ├── [token]/
-│   │   │       │   └── page.tsx # Dynamic /apply/[token] candidate view (Supabase integration)
-│   │   │       └── page.tsx   # /apply static/demo layout page
-│   │   ├── api/
-│   │   │   ├── job-pools/     # Backend-for-frontend API (bypasses RLS with service key)
-│   │   │   │   ├── route.ts   # POST (verify recruiter + insert), GET (list)
-│   │   │   │   ├── [id]/route.ts  # GET (single), PATCH (status), DELETE
-│   │   │   │   └── public/route.ts# GET public pool by token (joins hr_profiles)
-│   │   │   └── recruiter/     # Recruiter authentication endpoints
-│   │   │       ├── login/route.ts # POST login
-│   │   │       ├── register/route.ts # POST register
-│   │   │       └── me/route.ts    # GET current session user
-│   │   ├── dashboard/         # Recruiter authenticated dashboard
-│   │   │   ├── layout.tsx     # RequireRecruiter guard & sidebar wrapper
-│   │   │   └── page.tsx       # List created pools, metrics, actions
-│   │   ├── recruiter/         # Auth pages
-│   │   │   ├── login/page.tsx # Recruiter login view
-│   │   │   └── register/page.tsx # Recruiter register view
-│   │   ├── job-pools/         # (Legacy/Reference) HR dashboard pages
-│   │   ├── pool/              # (Legacy/Reference) Public application pages
-│   │   └── page.tsx           # Home page (search & match)
-│   ├── components/            # React components (ui, job-pools, candidate, etc.)
-│   │   ├── candidate/         # Candidate-facing reusable components
-│   │   │   ├── AuthRequiredModal.tsx # Dialog prompted before candidate applies
-│   │   │   ├── JobHeroSection.tsx  # Hero with title, company badge, metadata, CTAs
-│   │   │   └── JobSidebar.tsx      # Sticky sidebar: company card, CTA, info
-│   │   ├── AppSidebar.tsx     # Navigation sidebar for recruiter dashboard
-│   │   └── RequireRecruiter.tsx # Auth protection wrapper for pages/layouts
-│   ├── lib/                   # Utilities, types, services
-│   │   ├── frontendData.ts    # Mock data + helper functions
-│   │   ├── jobPoolService.ts  # CRUD / API fetch wrappers with JWT Auth header
-│   │   ├── recruiterAuth.ts   # Client-side session and cookie helpers
-│   │   ├── supabaseAdmin.ts   # Supabase client using service role key
-│   │   ├── types.ts           # Shared TypeScript types
-│   │   └── utils.ts           # Helpers (cn, formatDate, initials)
-│   ├── .env                   # Frontend env (NEXT_PUBLIC_SUPABASE_*, SUPABASE_SERVICE_ROLE_KEY)
-│   ├── next.config.ts
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── tailwind.config.ts
-├── backend/                   # Python FastAPI application
+RcruitmentNLP/
+├── frontend/                  # Vite + React 19 SPA (TypeScript, Tailwind, react-router v6)
+│   ├── index.html             # Vite entry HTML
+│   ├── vite.config.ts         # envDir → project root (single shared .env); dev port 5173
+│   ├── package.json           # react, react-router-dom, @supabase/supabase-js, recharts, tailwind
+│   ├── tsconfig.json          # path alias "@" → ./src
+│   ├── tailwind.config.ts
+│   ├── supabase/migrations/   # SQL migrations (candidate_profiles, admin_profiles, job_pools)
+│   └── src/
+│       ├── App.tsx            # react-router route table (mounts /admin/* → AdminApp)
+│       ├── main.tsx           # React entry
+│       ├── admin/             # ★ Admin Dashboard — isolated MVC module (see "Admin Dashboard")
+│       │   ├── AdminApp.tsx       # providers + lazy-loaded route table
+│       │   ├── pages/             # Login, Dashboard, Users, Companies, Jobs, Applications, Reports, Settings
+│       │   ├── components/        # layout/ ui/ charts/ + per-feature detail drawers
+│       │   ├── services/          # typed API access + SWR request cache (client.ts, cache.ts)
+│       │   ├── hooks/             # useQuery (cached fetch), useDebounce, useToast
+│       │   ├── context/           # AdminAuthContext
+│       │   └── types.ts
+│       ├── app/               # Candidate + recruiter pages (folder-per-route)
+│       │   ├── (candidate)/apply/…   # Tokenized public application + interview
+│       │   ├── dashboard/         # Recruiter dashboard (RequireRecruiter)
+│       │   ├── job-pools/         # Pool list + detail
+│       │   ├── recruiter/         # Recruiter login / register
+│       │   └── page.tsx           # Landing page
+│       ├── components/        # Shared UI (ui/, candidate/, job-pools/, AppSidebar, …)
+│       ├── interview/         # Candidate interview UI + lib
+│       ├── lib/               # auth.ts, candidateAuth.ts, recruiterAuth.ts, jobPoolService.ts,
+│       │                      #   supabase.ts (anon client), utils.ts, types.ts
+│       └── styles/globals.css
+├── backend/                   # Python FastAPI application (Supabase service-role data + auth)
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py            # FastAPI entrypoint (registers routers)
-│   │   ├── routers/           # API route modules
-│   │   │   └── pools.py       # POST /api/v1/pools/gemini-store
-│   │   ├── candidate/         # Candidate-scoped package (mirrors frontend (candidate)/)
-│   │   │   ├── router.py      # GET /api/v1/candidate/health, GET /offer/demo
-│   │   │   └── test_router.py # Hermetic TestClient tests (no DB/env required)
-│   │   ├── models/            # Pydantic / SQLAlchemy models (empty)
-│   │   └── services/          # Business logic & AI services
-│   │       └── gemini_store_service.py  # Gemini File Search store CRUD
-│   ├── temp_gemini_store/     # Gemini file search test script
-│   │   └── test_store.py      # Standalone test (uses root .env)
-│   ├── .env.example           # Backend env template
-│   └── requirements.txt       # Python dependencies
+│   │   ├── main.py            # FastAPI entrypoint (registers all routers)
+│   │   ├── config.py          # loads root .env then backend/.env
+│   │   ├── auth.py            # Supabase JWT verification + role dependencies (recruiter/candidate/admin)
+│   │   ├── schemas.py, schemas_candidate.py
+│   │   ├── admin/             # ★ Admin module — strict MVC (mounted at /api/v1/admin)
+│   │   │   ├── router.py          # aggregates sub-routers
+│   │   │   ├── repositories/      # Model — one class per table + AuthRepository (GoTrue)
+│   │   │   ├── services/          # Controller — dashboard, user, company, job, application, report, settings, auth
+│   │   │   ├── routers/           # View — thin HTTP endpoints
+│   │   │   ├── schemas/           # pydantic request/response contracts
+│   │   │   ├── permissions.py     # admin auth dependency (local JWKS verify + cached lookup)
+│   │   │   ├── security.py        # local ES256/JWKS token verification (perf)
+│   │   │   ├── cache.py           # tiny TTL cache + memoize decorator (perf)
+│   │   │   ├── validators.py
+│   │   │   └── tests/             # unit tests (pytest, no live DB)
+│   │   ├── candidate/router.py    # Candidate API (/api/candidate)
+│   │   ├── interview/             # Interview engine (router, OpenAI client, session_store, prompts)
+│   │   ├── routers/               # pools.py (job-pools), recruiter_supabase.py (recruiter auth)
+│   │   └── services/              # gemini_store_service.py (Gemini File Search)
+│   └── requirements.txt
+├── .env                       # Single root env, shared by both apps (gitignored)
 ├── PROJECT_MAP.md             # This file
 ├── README.md
 └── .gitignore
@@ -75,12 +67,61 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 
 ---
 
+## Admin Dashboard
+
+A self-contained administration console at **`/admin`** (login at
+`/admin/login`). It is built as a strict **MVC module** on both sides and adapts
+to the **existing database only** — it creates no tables and changes no schema.
+
+```
+Browser (React)                         FastAPI (/api/v1/admin)
+  pages / components  ─uses─▶ hooks/context ─▶ services ──fetch──▶ routers (View)
+        (View)               (Controller)     (Model: API)            │
+                                                                      ▼
+                                                            services (Controller)
+                                                                      │
+                                                                      ▼
+                                                          repositories (Model) ─▶ Supabase
+```
+
+| Layer | Backend (`backend/app/admin/`) | Frontend (`frontend/src/admin/`) |
+|-------|--------------------------------|----------------------------------|
+| **Model** | `repositories/` (one per table) | `services/` + `types.ts` (typed API access) |
+| **Controller** | `services/` (business rules) | `hooks/` + `context/` (`useQuery`, auth) |
+| **View** | `routers/` (thin endpoints) | `pages/` + `components/` |
+
+**Features**
+
+| Area | Source table(s) | Capabilities |
+|------|-----------------|--------------|
+| Dashboard | all six | KPI cards, growth/status/pool charts, recent activity, quick actions |
+| Users | `candidate_profiles` + `hr_profiles` | unified list, search, filter, view/edit drawer, disable (Supabase ban), delete, server-side pagination. Admins excluded |
+| Companies | `hr_profiles` (derived) | aggregated by `company_name`; recruiters, jobs, editable company profile |
+| Jobs | `job_pools` | list/search/filter, detail, activate/deactivate, archive, edit, delete |
+| Applications | `interview_sessions` (+ `Candidate_summaries`) | sessions as applications: progress, status, transcript, AI summary |
+| Reports | all six | analytics summary + CSV/Excel export |
+| Settings | `admin_profiles` | admin users (the only admin-management surface), profile, security; reached via the profile dropdown, not the sidebar |
+
+**Auth & performance.** Admin endpoints reuse the platform's Supabase JWT.
+Verification is done **locally** against Supabase's JWKS (ES256) and cached,
+instead of a network call per request — the key optimization that took the
+dashboard load from ~27 s to ~30 ms. Read-only aggregates are TTL-cached, the
+Users list is column-projected and paginated, and the frontend uses a
+stale-while-revalidate request cache with skeleton loaders. Disable/enable a user
+is implemented via a Supabase Auth **ban** (no status column exists in the
+schema, and the schema is frozen).
+
+---
+
 ## Tech Stack
 
 ### Frontend
 | Technology | Purpose |
 |---|---|
-| **ReactJS** | Dynamic user interface, reusable components, mature ecosystem |
+| **React 19 + Vite** | Dynamic SPA, fast dev/build, reusable components |
+| **react-router v6** | Client-side routing (candidate, recruiter, admin areas) |
+| **Tailwind CSS** | Utility-first styling and the admin design system |
+| **Recharts** | Admin dashboard / reports charts |
 
 ### Backend
 | Technology | Purpose |
@@ -120,9 +161,9 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 │     └─> ReactJS frontend loads recruiter dashboard              │
 │                                                                 │
 │  3. CREATE POOL                                                 │
-│     └─> POST /api/job-pools (via Next.js BFF)                   │
+│     └─> POST /api/v1/job-pools (FastAPI backend)                │
 │         ├─> Supabase PostgreSQL: pool record created            │
-│         └─> POST /api/v1/pools/gemini-store (FastAPI backend)   │
+│         └─> Gemini File Search store created & linked           │
 │             └─> Gemini File Search store created & linked       │
 │                 (naming: pool-{title}-{recruiter_id_prefix})    │
 │                                                                 │
@@ -228,15 +269,24 @@ xQuesty "Link" is an AI-powered recruitment platform feature that enables recrui
 
 ---
 
-## Database Schema (Simplified)
+## Database Schema (existing tables — source of truth)
 
-| Entity | Key Fields | Description |
+The platform uses six Supabase (PostgreSQL) tables. The Admin module adapts to
+these exactly; **no schema changes** are made by it.
+
+| Table | Key fields | Description |
 |---|---|---|
-| **Recruiter (hr_profiles)** | id, full_name, email, company_name, phone | Recruiter profiles mapping to Auth users |
-| **Pool / Offer (job_pools)** | id, hr_id (FK), title, description, must_have_skills, nice_to_have_skills, soft_skills, deal_breakers, responsibilities, notes, public_token, status, years_experience, experience_range, seniority_level, languages, education_level, contract_type, location, created_at | Job pools/offers with unique tokenized links |
-| **Candidate / Application** | id, candidate_id, pool_id, matching_score, status, created_at | Candidate application records mapping candidates to pools |
-| **Embedding** | id, candidate_id, pool_id, embedding_vector, ai_summary | Vector storage for intelligent CV matching |
-| **Q&A** | id, application_id, question, answer, created_at | Chat transcript per candidate application |
+| **admin_profiles** | id (uuid→auth.users), full_name, email, created_at | Administrator accounts (auth via Supabase) |
+| **candidate_profiles** | id, full_name, email, phone, title, linkedin_url, current_job_title, current_company, years_of_experience, city, education_level, university_name, field_of_study, languages[], expected_salary_min/max, profile_picture_url, open_to_work, created_at | Candidate profiles mapping to Auth users |
+| **hr_profiles** | id, full_name, email, phone, company_name, company_description, company_industry, company_size, company_website, company_linkedin_url, company_email, company_phone, company_address, company_founded_year, created_at | Recruiter profiles + the company data "Companies" is derived from |
+| **job_pools** | id, hr_id (FK→hr_profiles), title, description, public_token, status, archived, main_mission, must_have_skills[], nice_to_have_skills[], soft_skills[], deal_breakers[], responsibilities[], languages[], years_experience, experience_range, seniority_level, education_level, contract_type, location, generated_jd, gemini_store_name, notes, created_at | Job pools/offers with unique tokenized links |
+| **interview_sessions** | id, candidate_id (FK→candidate_profiles), session_id (uuid), pool_id, name, phone, question, answer, sequence, session_status, openai_session_id, timestamp | Interview Q&A — one row per question; grouped by `session_id` into an "application" |
+| **Candidate_summaries** | id, candidate_id (FK→candidate_profiles), Candidate_name, summary, score, phone, last_updated | AI-generated interview summary + score per candidate |
+
+> The conceptual "Application", "Embedding" and "Q&A" entities map onto
+> `interview_sessions` (transcript/status) and `Candidate_summaries` (AI summary
+> + score); vector indexing for matching is handled by the Gemini File Search
+> store referenced by `job_pools.gemini_store_name`.
 
 ---
 
