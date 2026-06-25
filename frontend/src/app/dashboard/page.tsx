@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import SearchComponent from '@/components/SearchComponent';
 import ResultsComponent from '@/components/ResultsComponent';
 import { Candidate, SearchHistoryItem } from '@/lib/types';
-import { getSearchHistory, getSearchHistoryDetails } from '@/lib/frontendData';
+import { listSearchHistory, getSearchHistoryDetails } from '@/lib/jobPoolService';
 import { useRecruiter, useRecruiterContext } from '@/lib/recruiter-context';
 import AppHeader from '@/components/AppHeader';
 import AppSidebar from '@/components/AppSidebar';
@@ -22,16 +22,28 @@ export default function DashboardPage() {
 
   const fetchSearchHistory = async () => {
     setHistoryLoading(true);
-    setHistoryItems(getSearchHistory());
-    setHistoryLoading(false);
+    try {
+      const history = await listSearchHistory();
+      // Map any missing pool_title or fields
+      setHistoryItems(history);
+    } catch (error) {
+      console.error('Failed to fetch search history', error);
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const handleOpenHistory = async (item: SearchHistoryItem) => {
     setOpeningHistoryId(item.id);
-    const data = getSearchHistoryDetails(item.id);
-    setSearchId(data.searchId || item.id);
-    setCandidates(Array.isArray(data.candidates) ? data.candidates : []);
-    setOpeningHistoryId(null);
+    try {
+      const data = await getSearchHistoryDetails(item.id);
+      setSearchId(data.searchId || item.id);
+      setCandidates(Array.isArray(data.candidates) ? data.candidates : []);
+    } catch (error) {
+      console.error('Failed to open search history details', error);
+    } finally {
+      setOpeningHistoryId(null);
+    }
   };
 
   useEffect(() => {
@@ -119,7 +131,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
-                    {historyItems.map((item) => {
+                    {historyItems.map((item: any) => {
                       const isActive = item.id === searchId;
                       return (
                         <article
@@ -128,14 +140,19 @@ export default function DashboardPage() {
                             isActive ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-start justify-between gap-2 mb-1">
                             <p className="text-xs text-gray-500">
                               {new Date(item.createdAt).toLocaleString()}
                             </p>
-                            <span className="text-[10px] px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                              {item.unlockedCount}/{item.topCount} unlocked
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">
+                              {item.topCount} candidates
                             </span>
                           </div>
+                          {item.pool_title && (
+                            <p className="text-xs font-semibold text-blue-600 mb-1">
+                              Pool: {item.pool_title}
+                            </p>
+                          )}
                           <p className="text-sm text-gray-800 line-clamp-3 mb-3">
                             {item.queryDescription}
                           </p>

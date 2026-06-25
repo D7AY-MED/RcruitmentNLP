@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import FRONTEND_ORIGINS
 from app.routers import pools
 from app.routers import recruiter_supabase
+from app.routers import matchier
 from app.candidate import router as candidate_router
 from app.interview import router as interview_router
 from app.admin import router as admin_module
@@ -18,6 +19,7 @@ app = FastAPI(title="xQuesty Link API", version="0.1.0")
 # Register routers
 app.include_router(pools.router)          # Legacy /api/v1/pools
 app.include_router(pools.job_pools_router) # New /api/v1/job-pools
+app.include_router(matchier.router)        # Intelligent candidate matching API
 app.include_router(candidate_router.router) # Candidate API
 app.include_router(interview_router.router) # Interview API
 app.include_router(recruiter_supabase.router) # New recruiter supabase auth

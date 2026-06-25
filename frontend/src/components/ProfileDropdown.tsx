@@ -21,15 +21,19 @@ export default function ProfileDropdown({ user, onProfileSaved }: ProfileDropdow
 
   // Close dropdown on outside click
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [isOpen]);
 
   // Close dropdown on Escape
@@ -100,7 +104,7 @@ export default function ProfileDropdown({ user, onProfileSaved }: ProfileDropdow
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+          <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-50 animate-slide-in">
             {/* User info header */}
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
               <p className="text-sm font-semibold text-gray-900 truncate">

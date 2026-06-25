@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Candidate } from '@/lib/types';
-import { searchCandidates } from '@/lib/frontendData';
+import { Candidate, JobPool } from '@/lib/types';
+import { listJobPools, searchCandidates } from '@/lib/jobPoolService';
 
 interface SearchComponentProps {
   hrProfileId: string;
@@ -11,18 +11,45 @@ interface SearchComponentProps {
 }
 
 export default function SearchComponent({ hrProfileId, onSearchComplete }: SearchComponentProps) {
+  const [pools, setPools] = useState<JobPool[]>([]);
+  const [selectedPoolId, setSelectedPoolId] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingPools, setIsLoadingPools] = useState(false);
+
+  // Fetch job pools on mount
+  useEffect(() => {
+    async function fetchPools() {
+      setIsLoadingPools(true);
+      try {
+        const list = await listJobPools();
+        setPools(list);
+        if (list.length > 0) {
+          setSelectedPoolId(list[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to fetch job pools', error);
+        toast.error('Failed to load job pools');
+      } finally {
+        setIsLoadingPools(false);
+      }
+    }
+    fetchPools();
+  }, []);
 
   const handleSearch = async () => {
+    if (!selectedPoolId) {
+      toast.error('Please select a job pool');
+      return;
+    }
     if (!jobDescription.trim()) {
-      toast.error('Please enter a job description');
+      toast.error('Please enter a search query');
       return;
     }
 
     setIsSearching(true);
     try {
-      const data = searchCandidates(jobDescription);
+      const data = await searchCandidates(selectedPoolId, jobDescription);
       onSearchComplete(data.candidates, data.searchId);
       toast.success('Search completed successfully!');
     } catch (error) {
@@ -33,29 +60,55 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <div className="bg-white rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Search Candidates</h2>
       <div className="space-y-4">
         <div>
+          <label htmlFor="poolSelect" className="block text-sm font-medium text-gray-700 mb-2">
+            Select Job Pool
+          </label>
+          {isLoadingPools ? (
+            <div className="text-sm text-gray-500 py-2">Loading job pools...</div>
+          ) : pools.length === 0 ? (
+            <div className="text-sm text-red-500 py-2">No active job pools found. Please create a job pool first.</div>
+          ) : (
+            <select
+              id="poolSelect"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+              value={selectedPoolId}
+              onChange={(e) => setSelectedPoolId(e.target.value)}
+              disabled={isSearching}
+            >
+              {pools.map((pool) => (
+                <option key={pool.id} value={pool.id}>
+                  {pool.title} {pool.gemini_store_name ? '' : '(No vector store)'}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        <div>
           <label htmlFor="jobDescription" className="block text-sm font-medium text-gray-700 mb-2">
-            Job Description
+            Search Query / Criteria
           </label>
           <textarea
             id="jobDescription"
             rows={6}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter the job description to find matching candidates..."
+            placeholder="Describe the profile you are looking for (e.g., 'React developer with 3 years of experience' or 'Python FastAPI backend engineer')..."
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            disabled={isSearching}
+            disabled={isSearching || pools.length === 0}
           />
         </div>
+        
         <button
           onClick={handleSearch}
-          disabled={isSearching}
+          disabled={isSearching || pools.length === 0}
           className="w-full bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {isSearching ? 'Searching...' : 'Search Candidates'}
+          {isSearching ? 'Searching Store...' : 'Search Candidates'}
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { JobPool } from './types';
+import { JobPool, Candidate, SearchHistoryItem } from './types';
 import { getToken } from './recruiterAuth';
 import { listPublicPoolsMock } from './frontendData';
 
@@ -169,4 +169,19 @@ export async function listPoolApplications(poolId: string): Promise<any[]> {
 
 export async function getPoolApplication(poolId: string, sessionId: string): Promise<any> {
   return apiFetch(`/api/v1/job-pools/${poolId}/applications/${sessionId}`);
+}
+
+export async function searchCandidates(poolId: string, query: string): Promise<{ searchId: string; candidates: Candidate[] }> {
+  return apiFetch('/api/v1/matchier/search', {
+    method: 'POST',
+    body: JSON.stringify({ pool_id: poolId, query }),
+  });
+}
+
+export async function listSearchHistory(): Promise<SearchHistoryItem[]> {
+  return apiFetch('/api/v1/matchier/history');
+}
+
+export async function getSearchHistoryDetails(searchId: string): Promise<{ searchId: string; candidates: Candidate[] }> {
+  return apiFetch(`/api/v1/matchier/history/${searchId}`);
 }

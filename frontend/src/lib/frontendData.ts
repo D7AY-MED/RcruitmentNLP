@@ -68,31 +68,18 @@ export function getCreditBalance() {
 
 export function searchCandidates(jobDescription: string) {
   const searchId = `search-${Date.now()}`;
-  const query = jobDescription.trim();
-
   return {
     searchId,
-    candidates: demoCandidates.map((candidate) => ({
-      ...candidate,
-      matchDescription: candidate.matchDescription || `Relevant to: ${query}`,
-    })),
+    candidates: [],
   };
 }
 
 export function getSearchHistory(): SearchHistoryItem[] {
-  return [
-    {
-      id: 'demo-search-1',
-      queryDescription: 'Frontend engineer with React, TypeScript, dashboard, and UX experience.',
-      createdAt: '2026-06-12T11:20:00.000Z',
-      topCount: 5,
-      unlockedCount: 5,
-    },
-  ];
+  return [];
 }
 
 export function getSearchHistoryDetails(searchId: string) {
-  return { searchId, candidates: demoCandidates };
+  return { searchId, candidates: [] };
 }
 
 export function listPools() {

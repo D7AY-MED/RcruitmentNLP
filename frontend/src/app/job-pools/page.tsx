@@ -23,6 +23,7 @@ export default function JobPoolsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(6);
   const user = useRecruiter();
   const { refreshUser } = useRecruiterContext();
 
@@ -119,17 +120,31 @@ export default function JobPoolsPage() {
                 </Button>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {pools.map((pool) => (
-                  <JobPoolCard
-                    key={pool.id}
-                    pool={pool}
-                    busy={busyId === pool.id}
-                    onView={() => navigate(`/job-pools/${pool.id}`)}
-                    onStatusChange={(status) => handleStatusChange(pool, status)}
-                    onDelete={() => handleDelete(pool)}
-                  />
-                ))}
+              <div className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {pools.slice(0, visibleCount).map((pool) => (
+                    <JobPoolCard
+                      key={pool.id}
+                      pool={pool}
+                      busy={busyId === pool.id}
+                      onView={() => navigate(`/job-pools/${pool.id}`)}
+                      onStatusChange={(status) => handleStatusChange(pool, status)}
+                      onDelete={() => handleDelete(pool)}
+                    />
+                  ))}
+                </div>
+
+                {pools.length > visibleCount && (
+                  <div className="flex justify-center pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setVisibleCount((prev) => prev + 6)}
+                      className="px-6 py-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 transition-all rounded-xl font-medium"
+                    >
+                      Load more
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
