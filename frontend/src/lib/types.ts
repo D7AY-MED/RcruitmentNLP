@@ -39,6 +39,17 @@ export interface AuthUser {
   email: string;
   fullName?: string;
   companyName?: string;
+  phone?: string;
+  companyDescription?: string;
+  companyIndustry?: string;
+  companySize?: string;
+  companyWebsite?: string;
+  companyLinkedinUrl?: string;
+  companyEmail?: string;
+  companyPhone?: string;
+  companyAddress?: string;
+  companyFoundedYear?: number;
+  avatarUrl?: string;
 }
 
 export interface Candidate {

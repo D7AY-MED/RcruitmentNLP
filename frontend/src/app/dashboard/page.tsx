@@ -5,7 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import SearchComponent from '@/components/SearchComponent';
 import ResultsComponent from '@/components/ResultsComponent';
 import { Candidate, SearchHistoryItem } from '@/lib/types';
-import { demoUser, getSearchHistory, getSearchHistoryDetails } from '@/lib/frontendData';
+import { getSearchHistory, getSearchHistoryDetails } from '@/lib/frontendData';
+import { useRecruiter, useRecruiterContext } from '@/lib/recruiter-context';
 import AppHeader from '@/components/AppHeader';
 import AppSidebar from '@/components/AppSidebar';
 
@@ -15,7 +16,8 @@ export default function DashboardPage() {
   const [historyItems, setHistoryItems] = useState<SearchHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [openingHistoryId, setOpeningHistoryId] = useState<string | null>(null);
-  const user = demoUser;
+  const user = useRecruiter();
+  const { refreshUser } = useRecruiterContext();
   const hrProfileId = user.id;
 
   const fetchSearchHistory = async () => {
@@ -76,7 +78,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <Toaster position="top-right" />
 
-        <AppHeader user={user} hrProfileId={hrProfileId} />
+        <AppHeader user={user} hrProfileId={hrProfileId} onProfileSaved={refreshUser} />
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

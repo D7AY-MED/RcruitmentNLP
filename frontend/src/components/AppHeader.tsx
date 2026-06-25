@@ -1,15 +1,18 @@
 'use client';
 import { AuthUser } from '@/lib/types';
+import ProfileDropdown from './ProfileDropdown';
 
 export default function AppHeader({ 
   user, 
   hrProfileId, 
   refreshBalance = 0,
+  onProfileSaved,
   children
 }: { 
   user: AuthUser; 
   hrProfileId: string; 
   refreshBalance?: number;
+  onProfileSaved?: () => void;
   children?: React.ReactNode;
 }) {
   return (
@@ -22,20 +25,7 @@ export default function AppHeader({
           
           <div className="flex items-center gap-4">
             {children}
-            <div className="flex items-center gap-3 border-l pl-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.fullName || user?.email}</p>
-                {user?.companyName && (
-                  <p className="text-xs text-gray-500">{user.companyName}</p>
-                )}
-              </div>
-              <button
-                type="button"
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-              >
-                Frontend Demo
-              </button>
-            </div>
+            <ProfileDropdown user={user} onProfileSaved={onProfileSaved} />
           </div>
         </div>
       </div>
