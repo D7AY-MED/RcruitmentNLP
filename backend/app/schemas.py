@@ -192,4 +192,6 @@ class JobPoolOut(BaseModel):
     notes: Optional[str] = None
     gemini_store_name: Optional[str] = None
     created_at: datetime
+    applicant_count: Optional[int] = None
+
 

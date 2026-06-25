@@ -40,8 +40,8 @@ function mapDbRowToJobPool(row: any): JobPool {
     main_mission: row.main_mission || undefined,
     description: row.description || undefined,
     required_skills: row.must_have_skills || [],
-    company_name: profile?.company_name || undefined,
-    applicant_count: undefined,
+    company_name: profile?.company_name || row.company_name || undefined,
+    applicant_count: row.applicant_count ?? 0,
     location: row.location || undefined,
     contract_type: row.contract_type || undefined,
     experience_level: row.experience_range

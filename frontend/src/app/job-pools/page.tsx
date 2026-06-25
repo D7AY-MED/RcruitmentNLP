@@ -6,7 +6,8 @@ import { AlertTriangle, Briefcase, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { deletePool as deletePoolMock, demoUser, listPools as listPoolsMock, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { deletePool as deletePoolMock, listPools as listPoolsMock, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { useRecruiter, useRecruiterContext } from '@/lib/recruiter-context';
 import { listJobPools, updateJobPoolStatus, deleteJobPool } from '@/lib/jobPoolService';
 import { JobPool } from '@/lib/types';
 import JobPoolCard from '@/components/job-pools/JobPoolCard';
@@ -22,7 +23,8 @@ export default function JobPoolsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const user = demoUser;
+  const user = useRecruiter();
+  const { refreshUser } = useRecruiterContext();
 
   const refresh = useCallback(async () => {
     setError('');
@@ -78,7 +80,7 @@ export default function JobPoolsPage() {
     <div className="flex min-h-screen bg-gray-50">
       <AppSidebar user={user} />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <AppHeader user={user} hrProfileId={user.id} />
+        <AppHeader user={user} hrProfileId={user.id} onProfileSaved={refreshUser} />
 
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="mx-auto w-full max-w-5xl space-y-5">

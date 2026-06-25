@@ -92,10 +92,29 @@ async def list_job_pools(recruiter=Depends(get_current_recruiter)):
     hr_id = recruiter["id"]
     
     result = client.table("job_pools").select("*").eq("hr_id", hr_id).order("created_at", desc=True).execute()
+    
+    # Calculate applicant counts for each pool
+    pool_ids = [str(row["id"]) for row in result.data]
+    sessions_map = {}
+    if pool_ids:
+        try:
+            # Fetch pool_id and session_id from interview_sessions to count unique sessions per pool
+            sessions_res = client.table("interview_sessions").select("pool_id, session_id").in_("pool_id", pool_ids).execute()
+            for s_row in (sessions_res.data or []):
+                pid = s_row.get("pool_id")
+                sid = s_row.get("session_id")
+                if pid and sid:
+                    if pid not in sessions_map:
+                        sessions_map[pid] = set()
+                    sessions_map[pid].add(sid)
+        except Exception as e:
+            logger.error("Failed to fetch applicant counts: %s", e)
+
     # Map raw rows to output schemas, adding company_name from current recruiter context
     out = []
     for row in result.data:
         row["company_name"] = recruiter.get("company_name")
+        row["applicant_count"] = len(sessions_map.get(str(row["id"]), set()))
         out.append(row)
     return out
 
@@ -203,6 +222,16 @@ async def get_job_pool(id: UUID, recruiter=Depends(get_current_recruiter)):
         
     row = result.data[0]
     row["company_name"] = recruiter.get("company_name")
+    
+    # Count unique applicants (sessions) for this pool
+    row["applicant_count"] = 0
+    try:
+        sessions_res = client.table("interview_sessions").select("session_id").eq("pool_id", str(id)).execute()
+        unique_sessions = {s.get("session_id") for s in (sessions_res.data or []) if s.get("session_id")}
+        row["applicant_count"] = len(unique_sessions)
+    except Exception as e:
+        logger.error("Failed to fetch applicant count for pool %s: %s", id, e)
+        
     return row
 
 
