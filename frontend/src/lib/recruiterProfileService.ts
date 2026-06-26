@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { apiFetch } from './jobPoolService';
 
 export interface RecruiterProfileData {
   full_name?: string;
@@ -27,19 +28,15 @@ export interface RecruiterProfileRow extends RecruiterProfileData {
 export async function fetchRecruiterProfile(
   userId: string
 ): Promise<RecruiterProfileRow | null> {
-  if (!supabase) return null;
-
-  const { data, error } = await supabase
-    .from('hr_profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
-
-  if (error) {
-    console.error('fetchRecruiterProfile error:', error.message);
+  try {
+    const data = await apiFetch('/api/v1/recruiter/profile', {
+      method: 'GET',
+    });
+    return data as RecruiterProfileRow;
+  } catch (err: any) {
+    console.error('fetchRecruiterProfile error:', err.message || err);
     return null;
   }
-  return data as RecruiterProfileRow;
 }
 
 /**
@@ -49,20 +46,69 @@ export async function updateRecruiterProfile(
   userId: string,
   updates: RecruiterProfileData
 ): Promise<RecruiterProfileRow | null> {
+  const data = await apiFetch('/api/v1/recruiter/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+  return data as RecruiterProfileRow;
+}
+
+/**
+ * Upload a company logo / avatar to the recruiter_avatar bucket.
+ * Overwrites any previous avatar for this user.
+/**
+ * Delete any company logo / avatar for this user.
+ */
+export async function deleteAvatar(userId: string): Promise<void> {
+  if (!supabase) return;
+
+  try {
+    const { data: files, error: listError } = await supabase.storage
+      .from('recruiter_avatar')
+      .list(userId);
+
+    if (listError) throw listError;
+
+    if (files && files.length > 0) {
+      const pathsToDelete = files.map((file) => `${userId}/${file.name}`);
+      const { error: deleteError } = await supabase.storage
+        .from('recruiter_avatar')
+        .remove(pathsToDelete);
+
+      if (deleteError) throw deleteError;
+    }
+  } catch (err: any) {
+    console.error('deleteAvatar error:', err.message || err);
+  }
+}
+
+/**
+ * Retrieve the public URL of the user's avatar from the recruiter_avatar bucket using naming convention.
+ * Returns null if no avatar is found.
+ */
+export async function getAvatarUrl(userId: string): Promise<string | null> {
   if (!supabase) return null;
 
-  const { data, error } = await supabase
-    .from('hr_profiles')
-    .update(updates)
-    .eq('id', userId)
-    .select()
-    .single();
+  try {
+    const { data: files, error } = await supabase.storage
+      .from('recruiter_avatar')
+      .list(userId);
 
-  if (error) {
-    console.error('updateRecruiterProfile error:', error.message);
-    throw new Error(error.message);
+    if (error) throw error;
+
+    if (files && files.length > 0) {
+      const avatarFile = files.find((f) => f.name.startsWith('avatar.'));
+      if (avatarFile) {
+        const { data: urlData } = supabase.storage
+          .from('recruiter_avatar')
+          .getPublicUrl(`${userId}/${avatarFile.name}`);
+        return urlData.publicUrl;
+      }
+    }
+  } catch (err) {
+    console.error('getAvatarUrl error:', err);
   }
-  return data as RecruiterProfileRow;
+  return null;
 }
 
 /**
@@ -79,10 +125,13 @@ export async function uploadAvatar(
     return URL.createObjectURL(file);
   }
 
+  // 1. Delete any existing files in the user's directory first
+  await deleteAvatar(userId);
+
   const ext = file.name.split('.').pop() || 'png';
   const filePath = `${userId}/avatar.${ext}`;
 
-  // Upload (upsert overwrites any previous avatar)
+  // 2. Upload
   const { error: uploadError } = await supabase.storage
     .from('recruiter_avatar')
     .upload(filePath, file, { upsert: true, contentType: file.type });
@@ -92,7 +141,7 @@ export async function uploadAvatar(
     throw new Error(uploadError.message);
   }
 
-  // Get the public URL
+  // 3. Get the public URL
   const { data: urlData } = supabase.storage
     .from('recruiter_avatar')
     .getPublicUrl(filePath);

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, User, Building2, Upload, Loader2, Globe, Link2, Mail, Phone, MapPin, Calendar, FileText, Briefcase, Trash2 } from 'lucide-react';
 import { AuthUser } from '@/lib/types';
-import { updateRecruiterProfile, uploadAvatar, RecruiterProfileData } from '@/lib/recruiterProfileService';
+import { updateRecruiterProfile, uploadAvatar, deleteAvatar, RecruiterProfileData } from '@/lib/recruiterProfileService';
 import toast from 'react-hot-toast';
 
 interface RecruiterProfileModalProps {
@@ -109,15 +109,14 @@ export default function RecruiterProfileModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Upload avatar first if a new file was selected, or handle removal
-      let newAvatarUrl = user.avatarUrl;
+      // Handle avatar upload or removal
       if (avatarFile) {
-        newAvatarUrl = await uploadAvatar(user.id, avatarFile);
+        await uploadAvatar(user.id, avatarFile);
       } else if (avatarPreview === null) {
-        newAvatarUrl = ''; // Mark for removal
+        await deleteAvatar(user.id);
       }
 
-      const updates: RecruiterProfileData & { avatar_url?: string } = {
+      const updates: RecruiterProfileData = {
         full_name: fullName || undefined,
         phone: phone || undefined,
         company_name: companyName || undefined,
@@ -130,7 +129,6 @@ export default function RecruiterProfileModal({
         company_phone: companyPhone || undefined,
         company_address: companyAddress || undefined,
         company_founded_year: companyFoundedYear ? parseInt(companyFoundedYear, 10) : undefined,
-        avatar_url: newAvatarUrl,
       };
 
       await updateRecruiterProfile(user.id, updates);

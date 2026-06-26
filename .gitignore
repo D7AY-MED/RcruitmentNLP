@@ -39,3 +39,15 @@ Thumbs.db
 # Graphify
 graphify/
 graphify-out/
+
+# AI Agent & Workspace configs
+.agents/
+.claude/
+.cursor/
+.impeccable/
+.gemini/
+
+# Project docs and handovers
+MIGRATION_HANDOVER.md
+PRODUCT.md
+docu/

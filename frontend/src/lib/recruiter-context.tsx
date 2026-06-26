@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { AuthUser } from '@/lib/types';
 import { getToken, getCurrentRecruiter, logout } from '@/lib/recruiterAuth';
-import { fetchRecruiterProfile } from '@/lib/recruiterProfileService';
+import { fetchRecruiterProfile, getAvatarUrl } from '@/lib/recruiterProfileService';
 
 interface RecruiterContextValue {
   user: AuthUser | null;
@@ -53,6 +53,11 @@ export function RecruiterProvider({ children }: { children: ReactNode }) {
         baseUser.companyPhone = profile.company_phone || undefined;
         baseUser.companyAddress = profile.company_address || undefined;
         baseUser.companyFoundedYear = profile.company_founded_year || undefined;
+      }
+
+      const avatarUrl = await getAvatarUrl(r.id);
+      if (avatarUrl) {
+        baseUser.avatarUrl = avatarUrl;
       }
 
       setUser(baseUser);

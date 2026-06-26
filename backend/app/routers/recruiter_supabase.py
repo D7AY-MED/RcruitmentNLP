@@ -1,5 +1,6 @@
 import logging
 from uuid import UUID
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -145,3 +146,41 @@ async def me(current=Depends(get_current_recruiter)):
         phone=current.get("phone"),
         created_at=parse_datetime(current.get("created_at"))
     )
+
+from pydantic import BaseModel
+
+class RecruiterProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company_name: Optional[str] = None
+    company_description: Optional[str] = None
+    company_industry: Optional[str] = None
+    company_size: Optional[str] = None
+    company_website: Optional[str] = None
+    company_linkedin_url: Optional[str] = None
+    company_email: Optional[str] = None
+    company_phone: Optional[str] = None
+    company_address: Optional[str] = None
+    company_founded_year: Optional[int] = None
+
+@router.get("/profile", response_model=dict)
+async def get_profile(current=Depends(get_current_recruiter)):
+    return current
+
+@router.patch("/profile", response_model=dict)
+async def update_profile(payload: RecruiterProfileUpdate, current=Depends(get_current_recruiter)):
+    client = get_supabase()
+    user_id = str(current["id"])
+    
+    update_data = payload.model_dump(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+        
+    try:
+        result = client.table("hr_profiles").update(update_data).eq("id", user_id).execute()
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Recruiter profile not found")
+        return result.data[0]
+    except Exception as e:
+        logger.error("Failed to update recruiter profile: %s", e)
+        raise HTTPException(status_code=500, detail=f"Database update failed: {str(e)}")

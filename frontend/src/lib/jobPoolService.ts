@@ -67,7 +67,7 @@ function apiUrl(path: string) {
   return `${API_URL}${path}`;
 }
 
-async function apiFetch(path: string, options?: RequestInit) {
+export async function apiFetch(path: string, options?: RequestInit) {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
