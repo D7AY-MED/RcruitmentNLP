@@ -1,1 +1,24 @@
--r ../backend/requirements.txt
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-dotenv==1.0.1
+supabase>=2.0.0
+google-genai>=1.0.0
+
+# --- Recruiter authentication stack ---
+SQLAlchemy>=2.0.36               # ORM / database layer
+psycopg[binary]>=3.2             # PostgreSQL driver (psycopg3 — has wheels for new Python)
+bcrypt>=4.1                      # Password hashing (used directly; passlib is unmaintained)
+python-jose[cryptography]>=3.3   # JWT encode/decode
+email-validator>=2.2             # Required by Pydantic EmailStr
+
+# --- Interview engine ---
+openai>=1.0.0                    # OpenAI Responses API
+pypdf>=5.0.0                     # PDF text extraction
+python-multipart>=0.0.32         # FastAPI Form / File upload parsing
+
+# --- Admin module: reporting + docs/screenshots ---
+openpyxl>=3.1                    # Excel (.xlsx) report export
+playwright>=1.40                 # Screenshots + HTML->PDF for docs (run `playwright install chromium`)
+
+# --- Testing ---
+pytest>=8.0                      # Admin module unit tests (app/admin/tests)
