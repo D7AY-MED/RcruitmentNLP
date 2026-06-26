@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node -e \"const fs = require('fs'); if (fs.existsSync('../backend/app')) fs.cpSync('../backend/app', './app', { recursive: true });\" && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
