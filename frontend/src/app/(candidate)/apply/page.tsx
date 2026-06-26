@@ -113,8 +113,7 @@ export default function CandidateApplyPage() {
                 {MISSIONS.map((m) => (
                   <li key={m} className="flex items-start gap-3 text-sm text-gray-700">
                     <span
-                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                      style={{ background: '#2563EB' }}
+                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-brand"
                       aria-hidden="true"
                     />
                     <span className="leading-relaxed">{m}</span>
@@ -132,7 +131,7 @@ export default function CandidateApplyPage() {
                 {PROFILE.map((p) => (
                   <li key={p} className="flex items-start gap-3 text-sm text-gray-700">
                     <CheckCircle2
-                      className="w-4 h-4 text-blue-600 mt-0.5 shrink-0"
+                      className="w-4 h-4 text-brand mt-0.5 shrink-0"
                       aria-hidden="true"
                     />
                     <span className="leading-relaxed">{p}</span>
@@ -150,8 +149,7 @@ export default function CandidateApplyPage() {
                 {BENEFITS.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-sm text-gray-700">
                     <span
-                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-                      style={{ background: '#2563EB' }}
+                      className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-brand"
                       aria-hidden="true"
                     />
                     <span className="leading-relaxed">{b}</span>
@@ -169,11 +167,7 @@ export default function CandidateApplyPage() {
                 {PROCESS.map(({ step, label }) => (
                   <li key={step} className="flex items-start gap-4">
                     <span
-                      className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-semibold shrink-0"
-                      style={{
-                        background:
-                          'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
-                      }}
+                      className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-semibold shrink-0 bg-brand shadow-sm"
                     >
                       {step}
                     </span>
@@ -197,31 +191,25 @@ export default function CandidateApplyPage() {
       </main>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="border-t border-gray-200/80 bg-white/90" style={{ backdropFilter: 'blur(16px)' }}>
+      <footer className="border-t border-border-brand bg-white/90" style={{ backdropFilter: 'blur(16px)' }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col gap-6">
           {/* Top row */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-6 flex-wrap">
               {/* Logo text */}
               <a href="/" className="text-xl font-bold tracking-tight" aria-label="PooLink home">
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(to right, #2563EB, #60A5FA)',
-                  }}
-                >
+                <span className="text-brand">
                   PooLink
                 </span>
               </a>
               <nav className="flex items-center gap-5 text-[0.85rem] font-medium text-gray-700">
-                <a href="#" className="hover:text-blue-600 transition-colors">
+                <a href="#" className="hover:text-brand transition-colors">
                   Offres
                 </a>
-                <a href="#" className="hover:text-blue-600 transition-colors">
+                <a href="#" className="hover:text-brand transition-colors">
                   Entreprises
                 </a>
-                <a href="#" className="hover:text-blue-600 transition-colors">
+                <a href="#" className="hover:text-brand transition-colors">
                   Nous contacter
                 </a>
               </nav>
@@ -229,7 +217,7 @@ export default function CandidateApplyPage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-brand bg-white px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 hover:bg-brand-light hover:border-brand/35 transition-colors"
               >
                 Newsletter
               </button>
@@ -237,14 +225,14 @@ export default function CandidateApplyPage() {
                 <a
                   href="#"
                   aria-label="LinkedIn"
-                  className="h-9 w-9 rounded-lg border border-black/10 bg-white flex items-center justify-center text-gray-500 text-xs font-semibold hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-500 text-xs font-semibold hover:bg-brand-light hover:border-brand/35 transition-colors"
                 >
                   in
                 </a>
                 <button
                   type="button"
                   aria-label="Retour en haut"
-                  className="h-9 w-9 rounded-lg border border-black/10 bg-white flex items-center justify-center text-gray-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-600 hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   <ArrowUp className="w-4 h-4" aria-hidden="true" />
@@ -254,19 +242,19 @@ export default function CandidateApplyPage() {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gray-200/70" />
+          <div className="h-px bg-border-brand" />
 
           {/* Bottom row */}
           <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-3 text-[0.75rem] text-gray-500">
             <p>© {new Date().getFullYear()} PooLink. Tous droits réservés.</p>
             <nav className="flex items-center gap-4">
-              <a href="#" className="hover:text-blue-600 transition-colors">
+              <a href="#" className="hover:text-brand transition-colors">
                 Cookies
               </a>
-              <a href="#" className="hover:text-blue-600 transition-colors">
+              <a href="#" className="hover:text-brand transition-colors">
                 Conditions générales
               </a>
-              <a href="#" className="hover:text-blue-600 transition-colors">
+              <a href="#" className="hover:text-brand transition-colors">
                 Mentions légales
               </a>
             </nav>

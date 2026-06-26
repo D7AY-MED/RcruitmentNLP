@@ -151,8 +151,8 @@ export default function CandidateProfilePage() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center bg-brand-light/35">
+        <Loader2 className="w-8 h-8 animate-spin text-brand" />
       </div>
     );
   }
@@ -160,14 +160,13 @@ export default function CandidateProfilePage() {
   if (!candidate) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-brand-light/35">
       {/* Header */}
-      <header className="border-b border-gray-200/80 bg-white/90 sticky top-0 z-40"
+      <header className="border-b border-border-brand bg-white/90 sticky top-0 z-40"
         style={{ backdropFilter: 'blur(16px)' }}>
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold tracking-tight">
-            <span className="bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)' }}>
+            <span className="text-brand">
               PooLink
             </span>
           </a>
@@ -176,15 +175,14 @@ export default function CandidateProfilePage() {
               <>
                 <button
                   onClick={startEdit}
-                  className="h-9 px-4 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center gap-1.5"
-                  style={{ background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)' }}
+                  className="h-9 px-4 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98] flex items-center gap-1.5"
                 >
                   <Pencil className="w-4 h-4" />
                   Modifier
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="h-9 px-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+                  className="h-9 px-4 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-4 h-4" />
                   Déconnexion
@@ -195,8 +193,7 @@ export default function CandidateProfilePage() {
                 <button
                   onClick={saveEdit}
                   disabled={saving}
-                  className="h-9 px-4 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50"
-                  style={{ background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)' }}
+                  className="h-9 px-4 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   Enregistrer
@@ -204,7 +201,7 @@ export default function CandidateProfilePage() {
                 <button
                   onClick={cancelEdit}
                   disabled={saving}
-                  className="h-9 px-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+                  className="h-9 px-4 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
                 >
                   <X className="w-4 h-4" />
                   Annuler
@@ -228,12 +225,12 @@ export default function CandidateProfilePage() {
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 sm:py-12">
         {/* Profile Header Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm mb-6">
+        <div className="rounded-2xl border border-border-brand bg-white p-6 sm:p-8 shadow-sm mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             <div className="relative shrink-0">
               <div
-                className="w-20 h-20 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center overflow-hidden shadow-sm cursor-pointer group"
+                className="w-20 h-20 rounded-full bg-brand-light border-2 border-brand/20 flex items-center justify-center overflow-hidden shadow-sm cursor-pointer group"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {candidate.profile_picture_url ? (
@@ -243,7 +240,7 @@ export default function CandidateProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-2xl font-bold text-brand">
                     {initials(candidate.full_name)}
                   </span>
                 )}
@@ -260,18 +257,18 @@ export default function CandidateProfilePage() {
               />
               {uploading && (
                 <div className="absolute inset-0 bg-white/60 rounded-full flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                  <Loader2 className="w-6 h-6 animate-spin text-brand" />
                 </div>
               )}
             </div>
 
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-2xl font-extrabold text-gray-900">
+              <h1 className="text-2xl font-extrabold text-ink">
                 {candidate.full_name || '---'}
               </h1>
               {candidate.title && (
-                <p className="text-base text-gray-500 mt-1">{candidate.title}</p>
+                <p className="text-base text-gray-550 mt-1">{candidate.title}</p>
               )}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                 {candidate.open_to_work !== false && (
@@ -299,10 +296,10 @@ export default function CandidateProfilePage() {
 
         {/* Open to work toggle at bottom */}
         {mode === 'edit' && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm mt-6">
+          <div className="rounded-2xl border border-border-brand bg-white p-6 shadow-sm mt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-bold text-gray-900">Open to work</p>
+                <p className="text-sm font-bold text-ink">Open to work</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Indiquer que vous êtes ouvert aux opportunités
                 </p>
@@ -310,7 +307,7 @@ export default function CandidateProfilePage() {
               <button
                 onClick={() => setDraftField('open_to_work', !draft.open_to_work)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${
-                  draft.open_to_work !== false ? 'bg-blue-600' : 'bg-gray-300'
+                  draft.open_to_work !== false ? 'bg-brand' : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -333,7 +330,7 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
       {/* Personal Info */}
-      <SectionCard title="Informations personnelles" icon={<User className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Informations personnelles" icon={<User className="w-4 h-4 text-brand" />}>
         <Field label="Nom complet" value={candidate.full_name} />
         <Field label="Email" value={candidate.email} icon={<Mail className="w-3.5 h-3.5 text-gray-400" />} />
         <Field label="Téléphone" value={candidate.phone} icon={<Phone className="w-3.5 h-3.5 text-gray-400" />} />
@@ -341,7 +338,7 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
       </SectionCard>
 
       {/* Professional */}
-      <SectionCard title="Informations professionnelles" icon={<Briefcase className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Informations professionnelles" icon={<Briefcase className="w-4 h-4 text-brand" />}>
         <Field label="Poste actuel" value={candidate.current_job_title} />
         <Field label="Entreprise actuelle" value={candidate.current_company} icon={<Building2 className="w-3.5 h-3.5 text-gray-400" />} />
         <Field label="Titre" value={candidate.title} />
@@ -352,14 +349,14 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
       </SectionCard>
 
       {/* Education */}
-      <SectionCard title="Formation" icon={<GraduationCap className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Formation" icon={<GraduationCap className="w-4 h-4 text-brand" />}>
         <Field label="Niveau d'études" value={candidate.education_level} />
         <Field label="Université" value={candidate.university_name} />
         <Field label="Domaine d'études" value={candidate.field_of_study} />
       </SectionCard>
 
       {/* Links & Salary */}
-      <SectionCard title="Liens & Langues" icon={<Globe className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Liens & Langues" icon={<Globe className="w-4 h-4 text-brand" />}>
         <Field
           label="LinkedIn"
           value={candidate.linkedin_url}
@@ -387,10 +384,10 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
 
 function SectionCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+    <div className="rounded-2xl border border-border-brand bg-white p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-105">
         {icon}
-        <h2 className="text-sm font-bold text-gray-900">{title}</h2>
+        <h2 className="text-sm font-bold text-ink">{title}</h2>
       </div>
       <div className="space-y-3">
         {children}
@@ -402,12 +399,12 @@ function SectionCard({ title, icon, children }: { title: string; icon: React.Rea
 function Field({ label, value, icon, isLink }: { label: string; value: string | null | undefined; icon?: React.ReactNode; isLink?: boolean }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-0.5">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-450 mb-0.5">{label}</p>
       {value ? (
-        <p className="text-sm font-medium text-gray-900 flex items-center gap-1.5">
+        <p className="text-sm font-medium text-ink flex items-center gap-1.5">
           {icon}
           {isLink ? (
-            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline truncate">
               {value}
             </a>
           ) : (
@@ -433,7 +430,7 @@ function EditMode({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
       {/* Personal Info */}
-      <SectionCard title="Informations personnelles" icon={<User className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Informations personnelles" icon={<User className="w-4 h-4 text-brand" />}>
         <InputField label="Nom complet" value={draft.full_name || ''} onChange={(v) => onChange('full_name', v)} />
         <InputField label="Email" value={draft.email || ''} onChange={(v) => onChange('email', v)} disabled />
         <InputField label="Téléphone" value={draft.phone || ''} onChange={(v) => onChange('phone', v)} />
@@ -441,7 +438,7 @@ function EditMode({
       </SectionCard>
 
       {/* Professional */}
-      <SectionCard title="Informations professionnelles" icon={<Briefcase className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Informations professionnelles" icon={<Briefcase className="w-4 h-4 text-brand" />}>
         <InputField label="Poste actuel" value={draft.current_job_title || ''} onChange={(v) => onChange('current_job_title', v)} />
         <InputField label="Entreprise actuelle" value={draft.current_company || ''} onChange={(v) => onChange('current_company', v)} />
         <InputField label="Titre" value={draft.title || ''} onChange={(v) => onChange('title', v)} />
@@ -449,14 +446,14 @@ function EditMode({
       </SectionCard>
 
       {/* Education */}
-      <SectionCard title="Formation" icon={<GraduationCap className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Formation" icon={<GraduationCap className="w-4 h-4 text-brand" />}>
         <InputField label="Niveau d'études" value={draft.education_level || ''} onChange={(v) => onChange('education_level', v)} />
         <InputField label="Université" value={draft.university_name || ''} onChange={(v) => onChange('university_name', v)} />
         <InputField label="Domaine d'études" value={draft.field_of_study || ''} onChange={(v) => onChange('field_of_study', v)} />
       </SectionCard>
 
       {/* Links & Salary */}
-      <SectionCard title="Liens & Langues" icon={<Globe className="w-4 h-4 text-blue-600" />}>
+      <SectionCard title="Liens & Langues" icon={<Globe className="w-4 h-4 text-brand" />}>
         <InputField label="LinkedIn URL" value={draft.linkedin_url || ''} onChange={(v) => onChange('linkedin_url', v)} type="url" />
         <InputField label="Langues (séparées par des virgules)" value={draft.languages?.join(', ') || ''} onChange={(v) => onChange('languages', v ? v.split(',').map((s) => s.trim()).filter(Boolean) : null as any)} />
         <InputField label="Salaire min (€)" value={draft.expected_salary_min?.toString() || ''} onChange={(v) => { const n = parseFloat(v); onChange('expected_salary_min', v && !isNaN(n) ? n : null as any); }} type="number" />
@@ -481,7 +478,7 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1 block">
+      <label className="text-xs font-semibold uppercase tracking-wider text-gray-450 mb-1 block">
         {label}
       </label>
       <input
@@ -489,7 +486,7 @@ function InputField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-400"
+        className="w-full h-10 px-3 rounded-xl border border-border-brand bg-white text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand transition-all disabled:bg-gray-50 disabled:text-gray-400"
       />
     </div>
   );

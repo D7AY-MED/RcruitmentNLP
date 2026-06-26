@@ -78,7 +78,7 @@ export default function JobPoolsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-brand-light/40">
       <AppSidebar user={user} />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <AppHeader user={user} hrProfileId={user.id} onProfileSaved={refreshUser} />
@@ -86,35 +86,35 @@ export default function JobPoolsPage() {
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="mx-auto w-full max-w-5xl space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Job Pools</h2>
-              <Button size="sm" onClick={() => setModalOpen(true)}>
+              <h2 className="text-2xl font-bold text-ink">Job Pools</h2>
+              <Button size="sm" onClick={() => setModalOpen(true)} className="bg-brand hover:bg-brand-hover text-white rounded-xl">
                 <Plus className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
                 <span className="hidden sm:inline">Create New Pool</span>
               </Button>
             </div>
 
             {loading ? (
-              <div className="bg-white border border-gray-200 rounded-2xl p-12 card-shadow flex flex-col items-center text-center justify-center min-h-[300px]">
-                <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
+              <div className="bg-white border border-border-brand rounded-2xl p-12 card-shadow flex flex-col items-center text-center justify-center min-h-[300px]">
+                <Loader2 className="w-10 h-10 animate-spin text-brand mb-4" />
                 <p className="text-sm font-medium text-gray-500">Loading your job pools...</p>
               </div>
             ) : error ? (
-              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 flex flex-col items-center text-center">
+              <div className="bg-white border border-border-brand rounded-2xl shadow-sm p-8 flex flex-col items-center text-center">
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Could not load job pools</h3>
+                <h3 className="text-lg font-semibold text-ink mb-2">Could not load job pools</h3>
                 <p className="text-gray-500 mb-6">{error}</p>
-                <Button variant="outline" onClick={refresh}>Retry</Button>
+                <Button variant="outline" onClick={refresh} className="rounded-xl border-border-brand">Retry</Button>
               </div>
             ) : pools.length === 0 ? (
-              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-12 flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
-                  <Briefcase className="w-8 h-8 text-indigo-600" />
+              <div className="bg-white border border-border-brand rounded-2xl shadow-sm p-12 flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-brand-light rounded-full flex items-center justify-center mb-6">
+                  <Briefcase className="w-8 h-8 text-brand" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No job pools yet</h3>
-                <p className="text-gray-500 max-w-md mb-8">
+                <h3 className="text-xl font-bold text-ink mb-2">No job pools yet</h3>
+                <p className="text-gray-505 max-w-md mb-8 leading-relaxed text-sm">
                   Create your first pool to generate a public application link you can preview.
                 </p>
-                <Button onClick={() => setModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                <Button onClick={() => setModalOpen(true)} className="bg-brand hover:bg-brand-hover text-white rounded-xl">
                   <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
                   Create New Pool
                 </Button>
@@ -139,7 +139,7 @@ export default function JobPoolsPage() {
                     <Button 
                       variant="outline" 
                       onClick={() => setVisibleCount((prev) => prev + 6)}
-                      className="px-6 py-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 transition-all rounded-xl font-medium"
+                      className="px-6 py-2 border-border-brand hover:border-brand/40 text-gray-700 hover:bg-brand-light/50 transition-all rounded-xl font-semibold"
                     >
                       Load more
                     </Button>

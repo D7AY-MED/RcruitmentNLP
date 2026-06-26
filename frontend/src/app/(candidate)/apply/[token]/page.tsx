@@ -91,8 +91,8 @@ export default function CandidateApplyDynamicPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mr-2" />
+      <div className="flex min-h-screen items-center justify-center bg-brand-light/35 text-gray-500">
+        <Loader2 className="w-8 h-8 animate-spin text-brand mr-2" />
         Chargement de l'offre d'emploi...
       </div>
     );
@@ -100,32 +100,26 @@ export default function CandidateApplyDynamicPage() {
 
   if (error || !pool) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+      <div className="min-h-screen bg-brand-light/20 flex flex-col relative overflow-hidden">
         {/* Soft atmospheric gradients */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-light/40 rounded-full blur-3xl pointer-events-none" />
 
         {/* ---------- HEADER ---------- */}
         <header className="w-full z-50 relative py-4">
-          <div className="max-w-5xl w-[calc(100%-2rem)] mx-auto px-6 h-16 bg-white rounded-2xl border border-gray-150 shadow-sm flex items-center justify-between">
+          <div className="max-w-5xl w-[calc(100%-2rem)] mx-auto px-6 h-16 bg-white rounded-2xl border border-border-brand shadow-sm flex items-center justify-between">
             {/* Logo */}
             <a href="/" className="text-xl font-bold tracking-tight" aria-label="PooLink home">
-              <span
-                className="bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)',
-                }}
-              >
+              <span className="text-brand">
                 PooLink
               </span>
             </a>
             
             {/* Nav Links */}
             <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-600">
-              <a href="/offers" className="text-blue-600 transition-colors">
+              <a href="/offers" className="text-brand transition-colors">
                 Emplois
               </a>
-              <a href="/recruiter/login" className="hover:text-blue-600 transition-colors">
+              <a href="/recruiter/login" className="hover:text-brand transition-colors">
                 Recruteur
               </a>
             </nav>
@@ -134,7 +128,7 @@ export default function CandidateApplyDynamicPage() {
             <div className="flex items-center gap-4">
               <a
                 href="/recruiter/login"
-                className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-blue-600 transition-colors"
+                className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-brand transition-colors"
               >
                 Connexion
               </a>
@@ -169,7 +163,7 @@ export default function CandidateApplyDynamicPage() {
             <div className="flex flex-col items-center justify-center">
               <a
                 href="/offers"
-                className="w-full inline-flex items-center justify-center px-8 h-12 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all duration-200 gap-2"
+                className="w-full inline-flex items-center justify-center px-8 h-12 text-sm font-bold text-white bg-brand hover:bg-brand-hover rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all duration-200 gap-2"
               >
                 Découvrir nos offres d'emploi
                 <span className="text-base">→</span>
@@ -257,7 +251,7 @@ export default function CandidateApplyDynamicPage() {
                   {missionsList.map((m, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
                       <span
-                        className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-blue-600"
+                        className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-brand"
                         aria-hidden="true"
                       />
                       <span className="leading-relaxed">{m}</span>
@@ -274,7 +268,7 @@ export default function CandidateApplyDynamicPage() {
                 <ul className="space-y-3">
                   {profileRequirements.map((p, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
-                      <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" aria-hidden="true" />
+                      <CheckCircle2 className="w-4 h-4 text-brand mt-0.5 shrink-0" aria-hidden="true" />
                       <span className="leading-relaxed">{p}</span>
                     </li>
                   ))}
@@ -297,7 +291,7 @@ export default function CandidateApplyDynamicPage() {
                         {pool.required_skills.map((skill) => (
                           <span
                             key={skill}
-                            className="text-xs font-semibold rounded-full border border-blue-100 bg-blue-50/50 px-3 py-1 text-blue-700"
+                            className="text-xs font-semibold rounded-full border border-brand/20 bg-brand-light px-3 py-1 text-brand"
                           >
                             {skill}
                           </span>
@@ -334,10 +328,7 @@ export default function CandidateApplyDynamicPage() {
                 {DEFAULT_PROCESS.map(({ step, label }) => (
                   <li key={step} className="flex items-start gap-4">
                     <span
-                      className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-semibold shrink-0"
-                      style={{
-                        background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
-                      }}
+                      className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-semibold shrink-0 bg-brand shadow-sm"
                     >
                       {step}
                     </span>
@@ -367,25 +358,20 @@ export default function CandidateApplyDynamicPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-6 flex-wrap">
               <a href="/" className="text-xl font-bold tracking-tight" aria-label="PooLink home">
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)',
-                  }}
-                >
+                <span className="text-brand">
                   PooLink
                 </span>
               </a>
               <nav className="flex items-center gap-5 text-[0.85rem] font-medium text-gray-700">
-                <a href="#" className="hover:text-blue-600 transition-colors">Offres</a>
-                <a href="#" className="hover:text-blue-600 transition-colors">Entreprises</a>
-                <a href="#" className="hover:text-blue-600 transition-colors">Nous contacter</a>
+                <a href="#" className="hover:text-brand transition-colors">Offres</a>
+                <a href="#" className="hover:text-brand transition-colors">Entreprises</a>
+                <a href="#" className="hover:text-brand transition-colors">Nous contacter</a>
               </nav>
             </div>
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-brand bg-white px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
               >
                 Newsletter
               </button>
@@ -393,14 +379,14 @@ export default function CandidateApplyDynamicPage() {
                 <a
                   href="#"
                   aria-label="LinkedIn"
-                  className="h-9 w-9 rounded-lg border border-black/10 bg-white flex items-center justify-center text-gray-500 text-xs font-semibold hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-500 text-xs font-semibold hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
                 >
                   in
                 </a>
                 <button
                   type="button"
                   aria-label="Retour en haut"
-                  className="h-9 w-9 rounded-lg border border-black/10 bg-white flex items-center justify-center text-gray-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-600 hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   <ArrowUp className="w-4 h-4" aria-hidden="true" />
@@ -409,14 +395,14 @@ export default function CandidateApplyDynamicPage() {
             </div>
           </div>
 
-          <div className="h-px bg-gray-200/70" />
+          <div className="h-px bg-border-brand" />
 
           <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-3 text-[0.75rem] text-gray-500">
             <p>© {new Date().getFullYear()} PooLink. Tous droits réservés.</p>
             <nav className="flex items-center gap-4">
-              <a href="#" className="hover:text-blue-600 transition-colors">Cookies</a>
-              <a href="#" className="hover:text-blue-600 transition-colors">Conditions générales</a>
-              <a href="#" className="hover:text-blue-600 transition-colors">Mentions légales</a>
+              <a href="#" className="hover:text-brand transition-colors">Cookies</a>
+              <a href="#" className="hover:text-brand transition-colors">Conditions générales</a>
+              <a href="#" className="hover:text-brand transition-colors">Mentions légales</a>
             </nav>
           </div>
         </div>

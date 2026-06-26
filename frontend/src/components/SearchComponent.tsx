@@ -60,11 +60,11 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Search Candidates</h2>
+    <div className="bg-white rounded-2xl border border-border-brand shadow-sm p-6">
+      <h2 className="text-xl font-bold text-ink mb-4">Search Candidates</h2>
       <div className="space-y-4">
         <div>
-          <label htmlFor="poolSelect" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="poolSelect" className="block text-sm font-semibold text-gray-700 mb-2">
             Select Job Pool
           </label>
           {isLoadingPools ? (
@@ -74,7 +74,7 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
           ) : (
             <select
               id="poolSelect"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+              className="w-full px-3 py-2.5 border border-border-brand rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand bg-white text-ink transition-all"
               value={selectedPoolId}
               onChange={(e) => setSelectedPoolId(e.target.value)}
               disabled={isSearching}
@@ -89,13 +89,13 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
         </div>
 
         <div>
-          <label htmlFor="jobDescription" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="jobDescription" className="block text-sm font-semibold text-gray-700 mb-2">
             Search Query / Criteria
           </label>
           <textarea
             id="jobDescription"
             rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2.5 border border-border-brand rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand transition-all"
             placeholder="Describe the profile you are looking for (e.g., 'React developer with 3 years of experience' or 'Python FastAPI backend engineer')..."
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
@@ -106,7 +106,7 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
         <button
           onClick={handleSearch}
           disabled={isSearching || pools.length === 0}
-          className="w-full bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-brand text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-hover disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
         >
           {isSearching ? 'Searching Store...' : 'Search Candidates'}
         </button>

@@ -85,7 +85,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-brand-light/40">
       <AppSidebar user={user} />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <Toaster position="top-right" />
@@ -112,12 +112,12 @@ export default function DashboardPage() {
             </div>
 
             <aside className="lg:col-span-1">
-              <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sticky top-6">
+              <section className="bg-white rounded-2xl border border-border-brand shadow-sm p-5 sticky top-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Search History</h2>
+                  <h2 className="text-lg font-bold text-ink">Search History</h2>
                   <button
                     onClick={fetchSearchHistory}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-xs text-brand hover:text-brand-hover font-semibold transition-colors"
                   >
                     Refresh
                   </button>
@@ -136,30 +136,30 @@ export default function DashboardPage() {
                       return (
                         <article
                           key={item.id}
-                          className={`rounded-lg border p-3 transition ${
-                            isActive ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
+                          className={`rounded-xl border p-3 transition ${
+                            isActive ? 'border-brand/40 bg-brand-light' : 'border-border-brand bg-white'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-400">
                               {new Date(item.createdAt).toLocaleString()}
                             </p>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-light text-brand font-bold border border-brand/10">
                               {item.topCount} candidates
                             </span>
                           </div>
                           {item.pool_title && (
-                            <p className="text-xs font-semibold text-blue-600 mb-1">
+                            <p className="text-xs font-bold text-brand mb-1">
                               Pool: {item.pool_title}
                             </p>
                           )}
-                          <p className="text-sm text-gray-800 line-clamp-3 mb-3">
+                          <p className="text-sm text-gray-705 line-clamp-3 mb-3 leading-relaxed">
                             {item.queryDescription}
                           </p>
                           <button
                             onClick={() => handleOpenHistory(item)}
                             disabled={openingHistoryId === item.id}
-                            className="w-full text-sm font-medium px-3 py-2 rounded-md bg-gray-900 text-white hover:bg-black disabled:opacity-60"
+                            className="w-full text-sm font-semibold px-3 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white transition-all disabled:opacity-60"
                           >
                             {openingHistoryId === item.id ? 'Opening...' : 'Open Search'}
                           </button>

@@ -32,12 +32,12 @@ export default function RecruiterLoginPage() {
   };
 
   const inputClass =
-    'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500';
+    'w-full rounded-xl border border-border-brand px-3 py-2 text-sm bg-white text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-2xl font-bold text-gray-900">Recruiter sign in</h1>
+    <div className="flex min-h-screen items-center justify-center bg-brand-light px-4">
+      <div className="w-full max-w-md rounded-2xl border border-border-brand bg-white p-8 shadow-sm">
+        <h1 className="mb-1 text-2xl font-bold text-ink">Recruiter sign in</h1>
         <p className="mb-6 text-sm text-gray-500">Welcome back.</p>
 
         {/* Simple error message */}
@@ -49,7 +49,7 @@ export default function RecruiterLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <label className="mb-1 block text-sm font-medium text-ink">Email</label>
             <input
               type="email"
               className={inputClass}
@@ -59,7 +59,7 @@ export default function RecruiterLoginPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+            <label className="mb-1 block text-sm font-medium text-ink">Password</label>
             <input
               type="password"
               className={inputClass}
@@ -69,14 +69,14 @@ export default function RecruiterLoginPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-brand hover:bg-brand-hover text-white rounded-xl" disabled={loading}>
             {loading ? 'Signing in…' : 'Sign in'}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Don&apos;t have an account?{' '}
-          <Link to="/recruiter/register" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/recruiter/register" className="font-semibold text-brand hover:text-brand-hover hover:underline">
             Create one
           </Link>
         </p>

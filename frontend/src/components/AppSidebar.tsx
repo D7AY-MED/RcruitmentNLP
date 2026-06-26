@@ -26,13 +26,13 @@ export default function AppSidebar({ user }: AppSidebarProps) {
   };
 
   return (
-    <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white border-r border-gray-200 flex flex-col shrink-0 min-h-screen transition-all duration-300 relative`}>
-      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 shrink-0">
-        {!isCollapsed && <h2 className="text-xl font-bold text-gray-900 tracking-tight">xQuesty</h2>}
-        {isCollapsed && <h2 className="text-xl font-bold text-gray-900 tracking-tight mx-auto">xQ</h2>}
+    <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-surface border-r border-border-brand flex flex-col shrink-0 min-h-screen transition-all duration-300 relative`}>
+      <div className="h-16 flex items-center justify-between px-6 border-b border-border-brand shrink-0">
+        {!isCollapsed && <h2 className="text-xl font-bold text-ink tracking-tight">PooLink</h2>}
+        {isCollapsed && <h2 className="text-xl font-bold text-ink tracking-tight mx-auto">PL</h2>}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-5 bg-white border border-gray-200 rounded-full p-1 text-gray-500 hover:text-gray-900 shadow-sm z-10"
+          className="absolute -right-3 top-5 bg-white border border-border-brand rounded-full p-1 text-gray-500 hover:text-ink shadow-sm z-10"
           title={isCollapsed ? 'Expand menu' : 'Collapse menu'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -49,21 +49,21 @@ export default function AppSidebar({ user }: AppSidebarProps) {
               title={isCollapsed ? link.name : undefined}
               className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                 isActive
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'bg-brand-light text-brand font-semibold'
+                  : 'text-gray-600 hover:text-ink hover:bg-gray-100/50'
               } ${isCollapsed ? 'justify-center' : ''}`}
             >
-              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
+              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand' : 'text-gray-400'}`} />
               {!isCollapsed && link.name}
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t border-gray-200 shrink-0 mt-auto space-y-3">
+      <div className="p-4 border-t border-border-brand shrink-0 mt-auto space-y-3">
         <button
           onClick={handleLogout}
           title={isCollapsed ? 'Log out' : undefined}
-          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 ${
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-650 ${
             isCollapsed ? 'justify-center' : ''
           }`}
         >

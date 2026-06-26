@@ -50,8 +50,8 @@ export default function InterviewTokenPage() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mr-2" />
+      <div className="flex min-h-screen items-center justify-center bg-brand-light/35 text-gray-500">
+        <Loader2 className="w-8 h-8 animate-spin text-brand mr-2" />
         Vérification...
       </div>
     );

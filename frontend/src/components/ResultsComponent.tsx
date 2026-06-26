@@ -23,9 +23,9 @@ export default function ResultsComponent({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white rounded-2xl border border-border-brand shadow-sm p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Top Matching Candidates</h2>
+        <h2 className="text-xl font-bold text-ink">Top Matching Candidates</h2>
         <p className="text-sm text-gray-500 mt-1">Ranked by AI matching score and query relevance</p>
       </div>
 
@@ -34,15 +34,15 @@ export default function ResultsComponent({
           return (
             <div
               key={candidate.id}
-              className="border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all duration-200 bg-white"
+              className="border border-border-brand rounded-2xl p-5 hover:border-brand/40 hover:shadow-sm transition-all duration-200 bg-white"
             >
               {/* Header row: Rank Badge + Name on Left, CV link on Right */}
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b border-border-brand">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-100">
+                  <span className="inline-flex items-center justify-center bg-brand-light text-brand text-xs font-bold px-2.5 py-1 rounded-xl border border-brand/20">
                     Match #{index + 1}
                   </span>
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg font-bold text-ink">
                     {candidate.name || 'Unknown Candidate'}
                   </h3>
                 </div>
@@ -53,13 +53,13 @@ export default function ResultsComponent({
                       href={candidate.cv_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center bg-blue-600 text-white px-3.5 py-1.5 rounded-md text-xs font-semibold hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center justify-center bg-brand text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold hover:bg-brand-hover transition-colors"
                     >
                       Open CV (new tab)
                     </a>
                   )}
                   {(!candidate.cv_url || candidate.cv_url === '#') && (
-                    <span className="inline-flex items-center justify-center bg-gray-100 text-gray-500 px-3 py-1.5 rounded-md text-xs font-semibold">
+                    <span className="inline-flex items-center justify-center bg-gray-100 text-gray-500 px-3 py-1.5 rounded-xl text-xs font-semibold">
                       CV not available
                     </span>
                   )}
@@ -70,11 +70,11 @@ export default function ResultsComponent({
               <div className="space-y-4">
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">Summary</h4>
-                  <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">{candidate.summary}</p>
+                  <p className="text-sm text-gray-750 mt-1.5 leading-relaxed">{candidate.summary}</p>
                 </div>
 
                 {candidate.matchDescription && (
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4">
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                     <h4 className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
                       ✨ Why This Candidate Matches
                     </h4>
@@ -83,15 +83,15 @@ export default function ResultsComponent({
                 )}
 
                 {/* Footer details: contact information */}
-                <div className="pt-3 border-t border-gray-100">
+                <div className="pt-3 border-t border-border-brand">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-medium text-gray-400">Phone</p>
-                      <p className="text-sm text-gray-800 font-semibold mt-0.5">{candidate.phone || 'Not available'}</p>
+                      <p className="text-xs font-medium text-gray-455">Phone</p>
+                      <p className="text-sm text-ink font-semibold mt-0.5">{candidate.phone || 'Not available'}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-400">Email</p>
-                      <p className="text-sm text-gray-800 font-semibold mt-0.5">{candidate.email || 'Not available'}</p>
+                      <p className="text-xs font-medium text-gray-455">Email</p>
+                      <p className="text-sm text-ink font-semibold mt-0.5">{candidate.email || 'Not available'}</p>
                     </div>
                   </div>
                 </div>

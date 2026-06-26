@@ -42,10 +42,7 @@ export default function JobSidebar({
         <div className="flex items-center gap-2 w-full">
           <Button
             onClick={onApply}
-            className="flex-1 h-11 text-[14px] font-semibold rounded-lg text-white hover:opacity-90 active:scale-[0.98] transition-all duration-200"
-            style={{
-              background: 'linear-gradient(to right, #2563EB 70%, #60A5FA 130%)',
-            }}
+            className="flex-1 h-11 text-[14px] font-semibold rounded-xl text-white bg-brand hover:bg-brand-hover active:scale-[0.98] transition-all duration-200"
           >
             Postuler
             <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
@@ -53,7 +50,7 @@ export default function JobSidebar({
           <Button
             variant="outline"
             onClick={handleShare}
-            className="w-11 h-11 shrink-0 p-0 flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+            className="w-11 h-11 shrink-0 p-0 flex items-center justify-center rounded-xl border border-border-brand bg-white text-gray-700 hover:bg-brand-light hover:text-brand hover:border-brand/35 transition-colors"
             title="Partager cette offre"
           >
             {copied ? (
@@ -65,16 +62,16 @@ export default function JobSidebar({
         </div>
 
         {/* Company card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="rounded-xl border border-border-brand bg-white p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 border border-blue-100">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-light border border-brand/20">
               <Building2
-                className="w-5 h-5 text-blue-600"
+                className="w-5 h-5 text-brand"
                 aria-hidden="true"
               />
             </div>
             <div>
-              <h3 className="text-[15px] font-semibold text-gray-900">
+              <h3 className="text-[15px] font-semibold text-ink">
                 {companyName}
               </h3>
               {location && (
@@ -87,14 +84,14 @@ export default function JobSidebar({
           </div>
 
           {companyDescription && (
-            <p className="text-[13px] text-gray-600 leading-relaxed mb-4">
+            <p className="text-[13px] text-gray-605 leading-relaxed mb-4">
               {companyDescription}
             </p>
           )}
 
           <a
             href="#"
-            className="inline-flex items-center gap-1 text-[13px] font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand hover:text-brand-hover transition-colors"
           >
             En savoir plus sur l&apos;entreprise
             <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -102,32 +99,32 @@ export default function JobSidebar({
         </div>
 
         {/* Quick info card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <h4 className="text-[13px] font-semibold text-gray-900 mb-3">
+        <div className="rounded-xl border border-border-brand bg-white p-5">
+          <h4 className="text-[13px] font-bold text-ink mb-3">
             Informations clés
           </h4>
-          <ul className="space-y-2.5 text-[13px] text-gray-600">
+          <ul className="space-y-2.5 text-[13px] text-gray-605">
             {location && (
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                 Lieu : {location}
               </li>
             )}
             {contractType && (
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                 Contrat : {contractType}
               </li>
             )}
             {experienceLevel && (
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                 Expérience : {experienceLevel}
               </li>
             )}
             {educationLevel && (
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                 Études : {educationLevel}
               </li>
             )}

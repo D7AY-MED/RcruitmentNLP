@@ -48,12 +48,12 @@ export default function JobPoolCard({ pool, onView, onStatusChange, onDelete, bu
 
   return (
     <div 
-      className="bg-card border border-border rounded-2xl p-5 card-shadow cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all duration-200 group relative"
+      className="bg-card border border-border rounded-2xl p-5 card-shadow cursor-pointer hover:ring-2 hover:ring-brand/50 transition-all duration-200 group relative"
       onClick={() => onView?.(pool)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-foreground truncate group-hover:text-indigo-600 transition-colors">{pool.title}</h3>
+          <h3 className="text-base font-semibold text-foreground truncate group-hover:text-brand transition-colors">{pool.title}</h3>
           {pool.company_name && (
             <p className="text-sm text-muted-foreground truncate">{pool.company_name}</p>
           )}
@@ -164,7 +164,7 @@ export default function JobPoolCard({ pool, onView, onStatusChange, onDelete, bu
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-4">
-        <span className="text-xs font-semibold text-indigo-600 group-hover:text-indigo-800 transition-colors flex items-center gap-1">
+        <span className="text-xs font-bold text-brand group-hover:text-brand-hover transition-colors flex items-center gap-1">
           View candidates
           <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </span>
