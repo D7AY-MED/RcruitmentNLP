@@ -1,7 +1,12 @@
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/((?!api/|static/|favicon.ico|_next/|assets/).*)",
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

@@ -82,3 +82,11 @@ cd backend && python -m pytest app/admin/tests -q
 
 See `PROJECT_MAP.md` for the full system architecture, data flow, and database
 schema.
+
+## Vercel Deployment
+
+Both the Vite frontend and Python backend are deployed within a single Vercel project.
+- **Root Directory in Vercel settings:** `frontend`
+- **Include files outside root directory in the Build Step:** Enabled (ON)
+- **Dependencies:** The Python serverless dependencies for Vercel are referenced in [requirements.txt](file:///c:/Users/GG/Desktop/link%20project/pooLink/matching%20project/frontend/requirements.txt) inside the `frontend` directory (which maps back to the core `backend/requirements.txt`).
+
