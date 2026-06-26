@@ -18,7 +18,4 @@ python-multipart>=0.0.32         # FastAPI Form / File upload parsing
 
 # --- Admin module: reporting + docs/screenshots ---
 openpyxl>=3.1                    # Excel (.xlsx) report export
-playwright>=1.40                 # Screenshots + HTML->PDF for docs (run `playwright install chromium`)
 
-# --- Testing ---
-pytest>=8.0                      # Admin module unit tests (app/admin/tests)
