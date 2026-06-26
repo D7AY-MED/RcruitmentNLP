@@ -88,5 +88,7 @@ schema.
 Both the Vite frontend and Python backend are deployed within a single Vercel project.
 - **Root Directory in Vercel settings:** `frontend`
 - **Include files outside root directory in the Build Step:** Enabled (ON)
-- **Dependencies:** The Python serverless dependencies for Vercel are referenced in [requirements.txt](file:///c:/Users/GG/Desktop/link%20project/pooLink/matching%20project/frontend/requirements.txt) inside the `frontend` directory (which maps back to the core `backend/requirements.txt`).
+- **Build Command in Vercel settings:** `cp -R ../backend/app ./app && npm run build` (This copies the backend application code into the frontend folder for deployment bundling, while keeping the repository root clean).
+- **Dependencies:** The Python serverless dependencies for Vercel are referenced in [requirements.txt](file:///c:/Users/GG/Desktop/link%20project/pooLink/matching%20project/frontend/requirements.txt) inside the `frontend` directory.
+
 
