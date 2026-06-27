@@ -121,61 +121,61 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f4f4f4' }}>
-      <header className="border-b border-gray-200/80 bg-white/90" style={{ backdropFilter: 'blur(16px)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <span
-            className="text-lg font-bold tracking-tight bg-clip-text text-transparent"
-            style={{ backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)' }}
-          >
-            PooLink
-          </span>
-          <span className="text-gray-300 text-sm">|</span>
-          <span className="text-sm text-gray-500 font-medium truncate">{companyName}</span>
+    <div className="min-h-screen flex flex-col" style={{ background: '#f7f9fb' }}>
+      <header className="border-b border-gray-200/80 bg-white/90 sticky top-0 z-50" style={{ backdropFilter: 'blur(16px)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-6 sm:py-8 flex justify-between items-center w-full">
+          <div className="flex items-center gap-3">
+            <span
+              className="text-xl font-bold tracking-tight bg-clip-text text-transparent"
+              style={{ backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)' }}
+            >
+              PooLink
+            </span>
+            <span className="text-gray-300 text-sm">|</span>
+            <span className="text-sm text-gray-500 font-medium truncate max-w-[150px] sm:max-w-none">{companyName}</span>
+          </div>
+          <nav className="hidden md:flex gap-8 items-center text-sm font-semibold">
+            <span className="text-gray-400 hover:text-blue-600 transition-colors cursor-pointer">Help Center</span>
+            <span className="text-blue-600 transition-all duration-300 cursor-default">Interview Session</span>
+          </nav>
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 sm:py-12">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl w-full">
           {pageStatus === 'idle' && (
             <>
-              <div className="text-center mb-8">
-                <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-4 shadow-sm">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
-                </div>
-                <h1 className="text-xl font-bold text-gray-950 mb-2">
-                  Entretien IA — {jobTitle}
+              {/* Header Section */}
+              <section className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">
+                  Upload CV to start your interview
                 </h1>
-                <p className="text-sm text-gray-500">
-                  Téléversez votre CV pour que l&apos;IA personnalise les questions.
+                <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto">
+                  Welcome to your PooLink AI assessment. Please provide your professional details to begin the automated screening process.
                 </p>
+              </section>
+
+              {/* Card Container */}
+              <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+                <SetupForm onStart={handleStart} isStarting={isStarting} />
               </div>
-              <SetupForm onStart={handleStart} isStarting={isStarting} />
             </>
           )}
 
           {pageStatus === 'active' && (
-            <>
-              <div className="text-center mb-6">
-                <h1 className="text-lg font-bold text-gray-950 mb-1">
-                  Entretien IA
-                </h1>
-                <p className="text-xs text-gray-400">{companyName} — {jobTitle}</p>
-              </div>
-              <QASession
-                questionIndex={questionIndex}
-                totalQuestions={maxQuestions}
-                question={question}
-                onSubmit={handleAnswer}
-                isSubmitting={isSubmitting}
-                error={errorMessage}
-                onReset={handleReset}
-              />
-            </>
+            <QASession
+              questionIndex={questionIndex}
+              totalQuestions={maxQuestions}
+              question={question}
+              onSubmit={handleAnswer}
+              isSubmitting={isSubmitting}
+              error={errorMessage}
+              onReset={handleReset}
+            />
           )}
 
           {pageStatus === 'completed' && (
-            <>
+            <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
               <div className="text-center mb-6">
                 <h1 className="text-lg font-bold text-gray-950 mb-1">
                   Entretien IA
@@ -183,10 +183,24 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
                 <p className="text-xs text-gray-400">{companyName} — {jobTitle}</p>
               </div>
               <CompletedScreen />
-            </>
+            </div>
           )}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="w-full bg-transparent py-8 mt-auto border-t border-gray-200/50">
+        <div className="max-w-2xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400 font-medium">
+          <div>
+            © 2026 PooLink. Secure & Private.
+          </div>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-blue-600 transition-colors">Privacy</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Terms</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Support</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
