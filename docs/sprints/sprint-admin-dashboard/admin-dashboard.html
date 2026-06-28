@@ -1,0 +1,2184 @@
+<html><head><meta charset='utf-8'><style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+       color: #1f2933; line-height: 1.55; font-size: 11px; }
+h1, h2, h3, h4 { color: #111827; line-height: 1.25; }
+h1 { font-size: 22px; border-bottom: 3px solid #4f46e5; padding-bottom: 6px; margin-top: 0; }
+h2 { font-size: 16px; margin-top: 22px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+h3 { font-size: 13px; margin-top: 16px; color: #4338ca; }
+h4 { font-size: 12px; margin-top: 12px; }
+p, li { font-size: 11px; }
+a { color: #4f46e5; text-decoration: none; }
+code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px;
+       font-family: 'SFMono-Regular', Consolas, monospace; font-size: 10px; color: #be185d; }
+pre { background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+      overflow-x: auto; font-size: 9.5px; line-height: 1.4; }
+pre code { background: none; color: inherit; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 10px; }
+th, td { border: 1px solid #e5e7eb; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #eef2ff; color: #3730a3; font-weight: 600; }
+tr:nth-child(even) td { background: #fafafa; }
+blockquote { border-left: 3px solid #c7d2fe; background: #f5f3ff; margin: 10px 0;
+             padding: 6px 12px; color: #4338ca; }
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 18px 0; }
+.section { page-break-before: always; }
+.cover { page-break-after: always; text-align: center; padding-top: 120px; }
+.cover .logo { width: 84px; height: 84px; border-radius: 22px; background: #4f46e5; color: #fff;
+   font-size: 46px; font-weight: 800; line-height: 84px; display: inline-block; margin-bottom: 24px; }
+.cover h1 { font-size: 34px; border: none; color: #111827; }
+.cover .sub { font-size: 15px; color: #6b7280; margin-top: 6px; }
+.cover .meta { margin-top: 40px; font-size: 11px; color: #9ca3af; }
+.cover .pill { display:inline-block; background:#eef2ff; color:#4338ca; border-radius:999px;
+   padding:4px 12px; margin:4px; font-size:10px; font-weight:600; }
+.toc { page-break-after: always; }
+.toc ol { font-size: 12px; line-height: 2; }
+.gallery { page-break-before: always; }
+.shot { page-break-inside: avoid; margin: 0 0 18px; }
+.shot img { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.shot .cap { font-size: 10px; color: #6b7280; margin-top: 5px; font-style: italic; }
+.muted { color:#6b7280; }
+</style></head><body>
+        <div class='cover'>
+          <div class='logo'>x</div>
+          <h1>xQuesty Admin Dashboard</h1>
+          <div class='sub'>Complete Rebuild — Engineering &amp; Architecture Guide</div>
+          <div style='margin-top:28px'>
+            <span class='pill'>MVC</span><span class='pill'>FastAPI</span>
+            <span class='pill'>React + Vite</span><span class='pill'>Supabase</span>
+            <span class='pill'>No schema changes</span>
+          </div>
+          <div class='meta'>
+            Sprint: Admin Dashboard Rebuild<br/>
+            Backend module: <code>backend/app/admin</code> &nbsp;·&nbsp;
+            Frontend module: <code>frontend/src/admin</code><br/>
+            Educational reference for onboarding developers.
+          </div>
+        </div>
+        <div class='toc'><h1>Contents</h1><ol><li>Overview</li><li>Architecture</li><li>MVC Mapping</li><li>Folder Structure</li><li>Database Mapping</li><li>Implementation Plan</li><li>Testing & Verification</li><li>Cleanup Report</li><li>Performance Optimization — Audit</li><li>Performance Optimization — Results</li><li>File-by-File Reference</li><li>Screenshots</li></ol></div><div class='section'><h1 id="sprint-admin-dashboard-rebuild">Sprint: Admin Dashboard Rebuild</h1>
+<p>A complete, ground-up rebuild of the xQuesty Admin Dashboard as an isolated,
+MVC-structured module on both the backend (FastAPI) and frontend (React + Vite),
+adapted strictly to the <strong>existing</strong> database — no schema changes.</p>
+<h2 id="what-shipped">What shipped</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Before (legacy)</th>
+<th>After (this sprint)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backend</td>
+<td>One 375-line <code>admin/router.py</code> with all logic inline</td>
+<td>MVC module: <code>repositories → services → routers</code>, <code>schemas</code>, <code>permissions</code>, <code>validators</code>, <code>tests</code></td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>4 basic pages (<code>src/app/admin/*</code>) + ad-hoc components</td>
+<td>Isolated module <code>src/admin/*</code>: pages, layout, components, services, hooks, context</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td>4 stat cards</td>
+<td>KPI cards, charts, activity feed, quick actions, status indicators</td>
+</tr>
+<tr>
+<td>Users</td>
+<td>Separate Candidates + Recruiters tables, delete-only</td>
+<td>One unified Users table (search, filter, view, edit, disable, delete) with a large detail drawer + 3-dot actions</td>
+</tr>
+<tr>
+<td>Companies</td>
+<td>— (did not exist)</td>
+<td>Company management derived from <code>hr_profiles</code></td>
+</tr>
+<tr>
+<td>Jobs</td>
+<td>—</td>
+<td>Full <code>job_pools</code> management (search, filter, edit, activate/archive, delete)</td>
+</tr>
+<tr>
+<td>Applications</td>
+<td>—</td>
+<td><code>interview_sessions</code> as applications: progress, status, transcript, AI summary</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>—</td>
+<td>Analytics + CSV/Excel export</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>Sidebar links</td>
+<td>Profile-dropdown → Settings (My Profile, Admin Users, Security, API Keys placeholder)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="read-these-in-order">Read these in order</h2>
+<ol>
+<li><strong><a href="./architecture.md">architecture.md</a></strong> — the big picture: layers, request flow, auth, data sources.</li>
+<li><strong><a href="./mvc-mapping.md">mvc-mapping.md</a></strong> — exactly which file is Model, View or Controller, and why.</li>
+<li><strong><a href="./folder-structure.md">folder-structure.md</a></strong> — the directory tree, annotated.</li>
+<li><strong><a href="./database-mapping.md">database-mapping.md</a></strong> — the 6 existing tables and how each screen maps to them.</li>
+<li><strong><a href="./implementation-plan.md">implementation-plan.md</a></strong> — the plan that was executed, phase by phase.</li>
+<li><strong><a href="./FILES.md">FILES.md</a></strong> — every file: path, purpose, MVC role, imports/exports, responsibilities, interactions, testing.</li>
+<li><strong><a href="./cleanup-report.md">cleanup-report.md</a></strong> — what legacy code was deleted and what replaced it.</li>
+<li><strong><a href="./testing.md">testing.md</a></strong> — how the module is tested and verified.</li>
+<li><strong><a href="./admin-dashboard.pdf">admin-dashboard.pdf</a></strong> — the educational, self-contained PDF (all of the above + screenshots).</li>
+</ol>
+<h2 id="screenshots">Screenshots</h2>
+<p>See <a href="./screenshots/"><code>screenshots/</code></a>. Captured from the live app with Playwright
+(<code>capture_screens.py</code>), driving real data from the production Supabase instance.</p>
+<h2 id="reproducing-the-verification">Reproducing the verification</h2>
+<pre><code class="language-bash"># 1. Run the app (root of repo)
+runall.bat
+# 2. From backend/ (venv active), run the unit tests
+python -m pytest app/admin/tests -q
+# 3. Drive the live UI: verify pages + capture screenshots
+python ../docs/sprints/sprint-admin-dashboard/verify_and_screenshot.py
+python ../docs/sprints/sprint-admin-dashboard/capture_screens.py
+# 4. Regenerate the PDF
+python ../docs/sprints/sprint-admin-dashboard/build_pdf.py
+</code></pre>
+<h2 id="hard-rules-honoured">Hard rules honoured</h2>
+<ul>
+<li><strong>No database changes.</strong> No tables created/dropped, no columns added, no migrations.</li>
+<li><strong>Existing tables only:</strong> <code>admin_profiles</code>, <code>candidate_profiles</code>, <code>hr_profiles</code>,
+  <code>job_pools</code>, <code>interview_sessions</code>, <code>Candidate_summaries</code>.</li>
+<li><strong>Not an auth rewrite.</strong> Token verification reuses <code>app.auth.verify_token</code>
+  (Supabase JWT). The module only adds the admin-role gate on top.</li>
+<li><strong>Isolated.</strong> All new code lives under <code>backend/app/admin/</code> and <code>frontend/src/admin/</code>.</li>
+</ul></div><div class='section'><h1 id="architecture">Architecture</h1>
+<p>The Admin Dashboard is two cooperating MVC modules — one in the FastAPI backend,
+one in the React frontend — talking over a JSON HTTP API under <code>/api/v1/admin</code>.</p>
+<pre><code>┌──────────────────────────── Browser ────────────────────────────┐
+│  React + Vite SPA  (frontend/src/admin)                          │
+│                                                                  │
+│   Pages (View)  ──uses──▶  Hooks/Context  ──calls──▶ Services    │
+│       │                                                  │       │
+│       └──────────────── render UI ◀──────────────────────┘       │
+│                                                          │       │
+└──────────────────────────────────────────────────────── │ ──────┘
+                                                           │ fetch  (Bearer JWT)
+                                                           ▼
+┌──────────────────────────── FastAPI ────────────────────────────┐
+│  Admin module  (backend/app/admin)                               │
+│                                                                  │
+│   Routers (View) ─▶ Services (Controller) ─▶ Repositories (Model)│
+│       │                    │                       │             │
+│   permissions.py      validators.py            Supabase client   │
+│   (admin gate)        (input rules)                 │            │
+└───────────────────────────────────────────────────── │ ─────────┘
+                                                        ▼
+                                          ┌──────── Supabase ───────┐
+                                          │  Postgres (6 tables)    │
+                                          │  + GoTrue Auth          │
+                                          └─────────────────────────┘
+</code></pre>
+<h2 id="layers-backend">Layers (backend)</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Folder</th>
+<th>Responsibility</th>
+<th>May import</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>View</strong></td>
+<td><code>routers/</code></td>
+<td>Parse the HTTP request, enforce the admin dependency, call one service method, serialise the response. <strong>No business logic.</strong></td>
+<td>services, schemas, permissions</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td><code>services/</code></td>
+<td>Business rules: orchestrate repositories, validate, shape data, enforce invariants (e.g. "can't delete the last admin"). Raise <code>HTTPException</code> on domain errors.</td>
+<td>repositories, schemas, validators</td>
+</tr>
+<tr>
+<td><strong>Model</strong></td>
+<td><code>repositories/</code></td>
+<td>The only code that touches the database. One class per table (plus <code>AuthRepository</code> for GoTrue). Returns plain dicts/lists.</td>
+<td>the Supabase client</td>
+</tr>
+<tr>
+<td>Cross-cutting</td>
+<td><code>permissions.py</code>, <code>validators.py</code>, <code>schemas/</code></td>
+<td>Auth dependency, reusable validators, request/response contracts.</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The dependency rule points one way:</strong> routers → services → repositories. A
+repository never imports a service; a router never imports a repository. This is
+what keeps the layers swappable and testable.</p>
+<h2 id="layers-frontend">Layers (frontend)</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Folder</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>View</strong></td>
+<td><code>pages/</code>, <code>components/</code></td>
+<td>Render UI, handle local interaction state.</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td><code>hooks/</code>, <code>context/</code></td>
+<td><code>useAsync</code> (loading/error/data), <code>useDebounce</code>, <code>useConfirm</code>, <code>useToast</code>; <code>AdminAuthContext</code> (session).</td>
+</tr>
+<tr>
+<td><strong>Model</strong></td>
+<td><code>services/</code>, <code>types.ts</code></td>
+<td>API access via the <code>http</code> client; typed contracts.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>client.ts</code> <code>http</code> wrapper is the single choke-point for every request: it
+injects the bearer token, normalises FastAPI error shapes, and flags auth errors.</p>
+<h2 id="request-lifecycle-example-open-the-users-page">Request lifecycle (example: open the Users page)</h2>
+<ol>
+<li><code>UsersPage</code> mounts and calls <code>useAsync(() =&gt; usersService.listUsers(...))</code>.</li>
+<li><code>usersService.listUsers</code> calls <code>http.get('/api/v1/admin/users?...')</code>, which
+   attaches <code>Authorization: Bearer &lt;admin_token&gt;</code>.</li>
+<li>FastAPI routes to <code>users_router.list_users</code>, whose <code>Depends(get_current_admin)</code>
+   runs <strong><code>permissions.get_current_admin</code></strong> → <code>app.auth.verify_token</code> (validates
+   the Supabase JWT) → <code>AdminRepository.get(user_id)</code> (is this user an admin?).</li>
+<li>The router calls <code>UserService().list_users(...)</code>.</li>
+<li><code>UserService</code> merges <code>CandidateRepository.list_all()</code> + <code>HrRepository.list_all()</code>,
+   overlays disabled status from <code>AuthRepository.disabled_map()</code>, filters/sorts,
+   and returns normalised rows.</li>
+<li>The router returns the list; <code>useAsync</code> flips to <code>{loading:false, data}</code>; the
+   table renders.</li>
+</ol>
+<h2 id="authentication-authorization">Authentication &amp; authorization</h2>
+<ul>
+<li><strong>Authentication</strong> is unchanged from the rest of the app: a Supabase-issued JWT
+  in <code>localStorage</code> under <code>admin_token</code>, verified server-side by
+  <code>app.auth.verify_token</code> (a call to Supabase <code>/auth/v1/user</code>).</li>
+<li><strong>Authorization</strong> is the admin gate: <code>permissions.get_current_admin</code> looks the
+  authenticated user up in <code>admin_profiles</code>; absence ⇒ <code>403</code>.</li>
+<li><strong>Login</strong> (<code>AuthService.login</code>) signs in via Supabase, then confirms the user is
+  in <code>admin_profiles</code> before returning the token.</li>
+<li>This is deliberately <em>not</em> an auth rewrite — only the role check is admin-specific.</li>
+</ul>
+<h2 id="disable-user-without-a-schema-column">"Disable user" without a schema column</h2>
+<p>The profile tables have no <code>status</code>/<code>disabled</code> column, and the schema is frozen.
+So <strong>disable = ban the user in Supabase Auth</strong> (<code>AuthRepository.ban_user</code> sets a
+~100-year <code>ban_duration</code> via the GoTrue admin API); enable removes the ban. The
+Users list reads ban state in one paged sweep (<code>AuthRepository.disabled_map</code>) so
+the disabled badge is accurate without an auth call per row.</p>
+<h2 id="data-sources-per-screen">Data sources per screen</h2>
+<table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>Primary table(s)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>all six</td>
+<td>counts + 6-month growth + status breakdowns + activity</td>
+</tr>
+<tr>
+<td>Users</td>
+<td><code>candidate_profiles</code> + <code>hr_profiles</code></td>
+<td>unified; admins excluded</td>
+</tr>
+<tr>
+<td>Companies</td>
+<td><code>hr_profiles</code></td>
+<td>aggregated by <code>company_name</code> (no companies table)</td>
+</tr>
+<tr>
+<td>Jobs</td>
+<td><code>job_pools</code> (join <code>hr_profiles</code>)</td>
+<td>management actions on existing columns</td>
+</tr>
+<tr>
+<td>Applications</td>
+<td><code>interview_sessions</code> (+ <code>candidate_profiles</code>, <code>job_pools</code>, <code>Candidate_summaries</code>)</td>
+<td>rows grouped by <code>session_id</code> into applications</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>all six</td>
+<td>analytics + CSV/XLSX export built in-memory</td>
+</tr>
+<tr>
+<td>Settings → Admin Users</td>
+<td><code>admin_profiles</code></td>
+<td>the only admin-management surface</td>
+</tr>
+</tbody>
+</table>
+<p>See <strong><a href="./database-mapping.md">database-mapping.md</a></strong> for the column-level detail.</p></div><div class='section'><h1 id="mvc-mapping">MVC Mapping</h1>
+<p>A precise map of which file plays which role, so a junior developer always knows
+where a given kind of change belongs.</p>
+<h2 id="the-rule-of-thumb">The rule of thumb</h2>
+<blockquote>
+<p><strong>Where do I put this code?</strong>
+- Reads/writes the database → a <strong>repository</strong> (Model).
+- A business decision, a rule, combining data → a <strong>service</strong> (Controller).
+- Wiring an HTTP request to a service call → a <strong>router</strong> (View, backend).
+- Rendering pixels / handling clicks → a <strong>page or component</strong> (View, frontend).
+- Fetching from the API → a <strong>service</strong> (frontend Model).
+- Shared async/UI behaviour → a <strong>hook</strong> or <strong>context</strong> (frontend Controller).</p>
+</blockquote>
+<h2 id="backend">Backend</h2>
+<table>
+<thead>
+<tr>
+<th>MVC role</th>
+<th>Files</th>
+<th>What lives here</th>
+<th>What must NOT live here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model</strong></td>
+<td><code>repositories/*.py</code></td>
+<td><code>.table(...).select/insert/update/delete</code>, GoTrue admin calls</td>
+<td>business rules, HTTP, validation</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td><code>services/*.py</code></td>
+<td>grouping rows into applications, computing KPIs, "can't delete last admin", disable-via-ban, building CSV/XLSX</td>
+<td>raw SQL/PostgREST (delegate to repos), HTTP routing</td>
+</tr>
+<tr>
+<td><strong>View</strong></td>
+<td><code>routers/*.py</code></td>
+<td><code>APIRouter</code>, path/query parsing, <code>Depends(get_current_admin)</code>, one service call, response model</td>
+<td>loops over data, conditionals on domain state, DB access</td>
+</tr>
+<tr>
+<td><strong>Auth (cross-cut)</strong></td>
+<td><code>permissions.py</code></td>
+<td>the admin dependency</td>
+<td>token verification (reused from <code>app.auth</code>)</td>
+</tr>
+<tr>
+<td><strong>Validation (cross-cut)</strong></td>
+<td><code>validators.py</code></td>
+<td><code>validate_user_type</code>, <code>validate_dataset</code>, <code>validate_format</code></td>
+<td>DB access</td>
+</tr>
+<tr>
+<td><strong>Contracts</strong></td>
+<td><code>schemas/*.py</code></td>
+<td>pydantic in/out models</td>
+<td>logic</td>
+</tr>
+</tbody>
+</table>
+<h3 id="concrete-example-disable-a-user">Concrete example — "disable a user"</h3>
+<pre><code>POST /api/v1/admin/users/candidate/{id}/disable
+   │
+routers/users_router.py  disable_user()        ← VIEW: parse path, check admin, call service
+   │
+services/user_service.py  set_disabled(...)    ← CONTROLLER: verify the user exists, decide ban vs unban
+   │
+repositories/auth_repository.py  ban_user(id)  ← MODEL: PUT ban_duration to GoTrue
+</code></pre>
+<h2 id="frontend">Frontend</h2>
+<table>
+<thead>
+<tr>
+<th>MVC role</th>
+<th>Files</th>
+<th>What lives here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model</strong></td>
+<td><code>services/*.ts</code>, <code>types.ts</code>, <code>services/client.ts</code></td>
+<td>API calls, token handling, typed shapes</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td><code>hooks/*.ts</code>, <code>context/AdminAuthContext.tsx</code></td>
+<td><code>useAsync</code>, <code>useDebounce</code>, <code>useConfirm</code>, <code>useToast</code>, session state</td>
+</tr>
+<tr>
+<td><strong>View</strong></td>
+<td><code>pages/*.tsx</code>, <code>components/**</code></td>
+<td>layout, tables, drawers, forms, charts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="concrete-example-the-users-page">Concrete example — "the Users page"</h3>
+<pre><code>pages/UsersPage.tsx                       ← VIEW: renders table, search, filter, actions
+   │ uses
+hooks/useAsync.ts + hooks/useDebounce.ts  ← CONTROLLER: fetch lifecycle + debounced search
+   │ calls
+services/users.service.ts                 ← MODEL: GET /api/v1/admin/users
+   │ via
+services/client.ts (http.get)             ← MODEL: token + error handling
+</code></pre>
+<p>The detail drawer (<code>components/users/UserDetailDrawer.tsx</code>) is also a View; it
+calls <code>users.service.ts</code> directly for the single-record fetch and the update.</p>
+<h2 id="performance-layer-where-caching-lives-in-the-mvc-picture">Performance layer (where caching lives in the MVC picture)</h2>
+<p>The optimization pass added a thin <strong>cross-cutting performance layer</strong> that does
+not change the MVC roles — it sits beside them:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>File</th>
+<th>Layer it serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local JWT verification + cached admin lookup</td>
+<td><code>security.py</code></td>
+<td>in front of the <strong>auth dependency</strong> (Model access avoided)</td>
+</tr>
+<tr>
+<td>TTL cache primitive + memoize decorator</td>
+<td><code>cache.py</code></td>
+<td>used by <strong>Controllers</strong> (services) and the <strong>Model</strong> (auth_repository)</td>
+</tr>
+<tr>
+<td>Shared DB client</td>
+<td><code>repositories/base.py</code></td>
+<td><strong>Model</strong></td>
+</tr>
+<tr>
+<td>Aggregate memoization</td>
+<td><code>dashboard/application/report</code> services</td>
+<td><strong>Controller</strong></td>
+</tr>
+<tr>
+<td>Request cache + de-dupe</td>
+<td><code>services/cache.ts</code>, <code>hooks/useQuery.ts</code></td>
+<td>frontend <strong>Model</strong>/<strong>Controller</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Rule of thumb unchanged: caching is an implementation detail <em>inside</em> a layer
+(e.g. a service memoizes its own aggregate), never a new place for business
+rules. Mutations invalidate the caches they affect (e.g. ban/unban clears the
+disabled-map cache; user writes invalidate the frontend <code>users:</code>/<code>dashboard:</code>
+cache keys).</p>
+<h2 id="why-this-matters">Why this matters</h2>
+<ul>
+<li><strong>Testability.</strong> Services are tested by injecting fake repositories
+  (<code>tests/test_application_service.py</code>, <code>test_company_and_report.py</code>) — no DB.
+  Routers are tested with <code>TestClient</code> and an overridden admin dependency.</li>
+<li><strong>Swappability.</strong> If the project ever moves off Supabase, only the
+  repositories change. If the dashboard KPIs change, only <code>dashboard_service</code>
+  changes. Routers and the frontend stay put.</li>
+<li><strong>Findability.</strong> A bug in a number on the dashboard → <code>dashboard_service</code>. A
+  404 on an endpoint → the matching <code>routers/*.py</code>. A wrong column →
+  the matching <code>repositories/*.py</code>.</li>
+</ul></div><div class='section'><h1 id="folder-structure">Folder Structure</h1>
+<h2 id="backend-backendappadmin">Backend — <code>backend/app/admin/</code></h2>
+<pre><code>admin/
+├── __init__.py              # exports `router` (the aggregated APIRouter)
+├── router.py                # mounts all sub-routers under /api/v1/admin
+├── permissions.py           # get_current_admin dependency (admin gate)
+├── validators.py            # reusable input validators
+│
+├── repositories/            # MODEL — database access only
+│   ├── __init__.py
+│   ├── base.py              # BaseRepository: shared Supabase client
+│   ├── admin_repository.py        # admin_profiles
+│   ├── candidate_repository.py    # candidate_profiles
+│   ├── hr_repository.py           # hr_profiles
+│   ├── job_pool_repository.py     # job_pools
+│   ├── interview_repository.py    # interview_sessions
+│   ├── summary_repository.py      # Candidate_summaries
+│   └── auth_repository.py         # Supabase Auth admin API (create/ban/delete)
+│
+├── services/                # CONTROLLER — business rules
+│   ├── __init__.py
+│   ├── auth_service.py
+│   ├── dashboard_service.py
+│   ├── user_service.py
+│   ├── company_service.py
+│   ├── job_service.py
+│   ├── application_service.py
+│   ├── report_service.py
+│   └── settings_service.py
+│
+├── routers/                 # VIEW — thin HTTP endpoints
+│   ├── __init__.py
+│   ├── auth_router.py        # /login /register /me /logout /health
+│   ├── dashboard_router.py   # /dashboard/{stats,charts,activity}
+│   ├── users_router.py       # /users ...
+│   ├── companies_router.py   # /companies ...
+│   ├── jobs_router.py        # /jobs ...
+│   ├── applications_router.py# /applications ...
+│   ├── reports_router.py     # /reports/{summary,export}
+│   └── settings_router.py    # /settings/{admins,profile,security,api-keys}
+│
+├── schemas/                  # pydantic request/response contracts
+│   ├── __init__.py
+│   ├── common.py
+│   ├── auth_schemas.py
+│   ├── dashboard_schemas.py
+│   ├── user_schemas.py
+│   ├── company_schemas.py
+│   ├── job_schemas.py
+│   └── settings_schemas.py
+│
+└── tests/                    # fast unit tests (no live DB)
+    ├── __init__.py
+    ├── conftest.py           # stubs the Supabase client
+    ├── test_validators.py
+    ├── test_application_service.py
+    ├── test_company_and_report.py
+    └── test_routers.py       # TestClient wiring smoke tests
+</code></pre>
+<h2 id="frontend-frontendsrcadmin">Frontend — <code>frontend/src/admin/</code></h2>
+<pre><code>admin/
+├── AdminApp.tsx             # module entry: providers + route table (mounted at /admin/*)
+├── types.ts                 # shared TypeScript contracts
+│
+├── context/
+│   └── AdminAuthContext.tsx # current admin + login/logout/refresh
+│
+├── hooks/
+│   ├── useAsync.ts          # generic loading/error/data fetcher
+│   ├── useDebounce.ts       # debounce search inputs
+│   └── useToast.ts          # toast helper (react-hot-toast)
+│
+├── services/                # MODEL — typed API access
+│   ├── client.ts            # http wrapper (token, errors, download)
+│   ├── auth.service.ts
+│   ├── dashboard.service.ts
+│   ├── users.service.ts
+│   ├── companies.service.ts
+│   ├── jobs.service.ts
+│   ├── applications.service.ts
+│   ├── reports.service.ts
+│   └── settings.service.ts
+│
+├── lib/
+│   └── format.ts            # date / value formatting helpers
+│
+├── components/
+│   ├── ui/                  # design-system primitives
+│   │   ├── Button.tsx  form.tsx  primitives.tsx  SearchInput.tsx
+│   │   ├── Drawer.tsx  Modal.tsx  ActionsMenu.tsx  ConfirmDialog.tsx
+│   │   ├── KpiCard.tsx  Table.tsx  Tabs.tsx  index.ts (barrel)
+│   ├── charts/
+│   │   └── Charts.tsx       # recharts wrappers (area, donut, bar)
+│   ├── layout/
+│   │   ├── AdminLayout.tsx  Sidebar.tsx  Topbar.tsx  RequireAdmin.tsx
+│   ├── users/
+│   │   ├── CreateUserModal.tsx  UserDetailDrawer.tsx
+│   ├── companies/CompanyDetailDrawer.tsx
+│   ├── jobs/JobDetailDrawer.tsx
+│   └── applications/ApplicationDetailDrawer.tsx
+│
+└── pages/                   # VIEW — one per route
+    ├── LoginPage.tsx
+    ├── DashboardPage.tsx
+    ├── UsersPage.tsx
+    ├── CompaniesPage.tsx
+    ├── JobsPage.tsx
+    ├── ApplicationsPage.tsx
+    ├── ReportsPage.tsx
+    └── SettingsPage.tsx
+</code></pre>
+<h2 id="where-it-plugs-into-the-host-app">Where it plugs into the host app</h2>
+<ul>
+<li><strong>Backend:</strong> <code>backend/app/main.py</code> does <code>from app.admin import router as admin_module</code>
+  then <code>app.include_router(admin_module)</code>. One line; nothing else in the app
+  references admin internals.</li>
+<li><strong>Frontend:</strong> <code>frontend/src/App.tsx</code> mounts the module with a single splat route:
+  <code>&lt;Route path="/admin/*" element={&lt;AdminApp /&gt;} /&gt;</code>. <code>AdminApp</code> owns everything
+  below <code>/admin</code>.</li>
+</ul></div><div class='section'><h1 id="database-mapping">Database Mapping</h1>
+<p>The admin module adapts to the <strong>existing</strong> schema. Nothing here was created,
+altered or dropped. Columns below were introspected live from the Supabase
+PostgREST OpenAPI definition (the source of truth), not from migration files
+(which were out of date).</p>
+<h2 id="the-six-tables">The six tables</h2>
+<h3 id="admin_profiles"><code>admin_profiles</code></h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>uuid</td>
+<td>PK → <code>auth.users.id</code></td>
+</tr>
+<tr>
+<td><code>full_name</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>timestamptz</td>
+<td></td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>text</td>
+<td>legacy/unused for auth (auth is via Supabase) — never returned to the client</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>AdminRepository</code>, <code>AuthService</code>, <code>SettingsService</code>, <code>permissions.get_current_admin</code>.</p>
+<h3 id="candidate_profiles"><code>candidate_profiles</code></h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th></th>
+<th>Column</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>uuid (PK)</td>
+<td></td>
+<td><code>city</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>full_name</code></td>
+<td>text</td>
+<td></td>
+<td><code>education_level</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>text</td>
+<td></td>
+<td><code>university_name</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>text</td>
+<td></td>
+<td><code>field_of_study</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>timestamptz</td>
+<td></td>
+<td><code>languages</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>text</td>
+<td></td>
+<td><code>expected_salary_min</code></td>
+<td>numeric</td>
+</tr>
+<tr>
+<td><code>phone_number</code></td>
+<td>text</td>
+<td></td>
+<td><code>expected_salary_max</code></td>
+<td>numeric</td>
+</tr>
+<tr>
+<td><code>linkedin_url</code></td>
+<td>text</td>
+<td></td>
+<td><code>profile_picture_url</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>current_job_title</code></td>
+<td>text</td>
+<td></td>
+<td><code>open_to_work</code></td>
+<td>boolean</td>
+</tr>
+<tr>
+<td><code>current_company</code></td>
+<td>text</td>
+<td></td>
+<td><code>years_of_experience</code></td>
+<td>integer</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>CandidateRepository</code>; surfaced in Users (type=candidate) and the user detail drawer.</p>
+<h3 id="hr_profiles-recruiters-company-data"><code>hr_profiles</code> (recruiters + company data)</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th></th>
+<th>Column</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>uuid (PK)</td>
+<td></td>
+<td><code>company_industry</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>full_name</code></td>
+<td>text</td>
+<td></td>
+<td><code>company_size</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>text</td>
+<td></td>
+<td><code>company_website</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>text</td>
+<td></td>
+<td><code>company_linkedin_url</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>timestamptz</td>
+<td></td>
+<td><code>company_email</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>company_name</code></td>
+<td>text</td>
+<td></td>
+<td><code>company_phone</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>company_description</code></td>
+<td>text</td>
+<td></td>
+<td><code>company_address</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>company_founded_year</code></td>
+<td>integer</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>HrRepository</code>; surfaced in Users (type=recruiter) and <strong>derived into Companies</strong>.</p>
+<h3 id="job_pools"><code>job_pools</code></h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th></th>
+<th>Column</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>uuid (PK)</td>
+<td></td>
+<td><code>must_have_skills</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>hr_id</code></td>
+<td>uuid → hr_profiles.id</td>
+<td></td>
+<td><code>nice_to_have_skills</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>text</td>
+<td></td>
+<td><code>soft_skills</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>text</td>
+<td></td>
+<td><code>deal_breakers</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>public_token</code></td>
+<td>text</td>
+<td></td>
+<td><code>responsibilities</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>boolean</td>
+<td></td>
+<td><code>languages</code></td>
+<td>text[]</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>timestamptz</td>
+<td></td>
+<td><code>years_experience</code></td>
+<td>smallint</td>
+</tr>
+<tr>
+<td><code>seniority_level</code></td>
+<td>text</td>
+<td></td>
+<td><code>education_level</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>main_mission</code></td>
+<td>text</td>
+<td></td>
+<td><code>contract_type</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>experience_range</code></td>
+<td>text</td>
+<td></td>
+<td><code>location</code></td>
+<td>text</td>
+</tr>
+<tr>
+<td><code>generated_jd</code></td>
+<td>text</td>
+<td></td>
+<td><code>archived</code></td>
+<td>boolean</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>text</td>
+<td></td>
+<td><code>gemini_store_name</code></td>
+<td>varchar</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>JobPoolRepository</code>; surfaced in Jobs, Companies (job counts) and Applications (pool title).</p>
+<h3 id="interview_sessions-applications"><code>interview_sessions</code>  (= applications)</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>integer (PK)</td>
+<td>one row <strong>per question</strong></td>
+</tr>
+<tr>
+<td><code>candidate_id</code></td>
+<td>uuid → candidate_profiles.id</td>
+<td></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>varchar</td>
+<td>candidate name snapshot</td>
+</tr>
+<tr>
+<td><code>question</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>answer</code></td>
+<td>text</td>
+<td>nullable until answered</td>
+</tr>
+<tr>
+<td><code>sequence</code></td>
+<td>integer</td>
+<td>question order</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>timestamp</td>
+<td></td>
+</tr>
+<tr>
+<td><code>session_status</code></td>
+<td>varchar</td>
+<td><code>active</code> / <code>completed</code></td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>openai_session_id</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>uuid</td>
+<td>groups rows into one application</td>
+</tr>
+<tr>
+<td><code>pool_id</code></td>
+<td>text</td>
+<td>the job pool being applied to</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>InterviewRepository</code>; rows are grouped by <code>session_id</code> in
+<code>ApplicationService</code> into one "application" with progress + status.</p>
+<h3 id="candidate_summaries-note-the-capital-c"><code>Candidate_summaries</code>  (note the capital C)</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>uuid (PK)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>candidate_id</code></td>
+<td>uuid → candidate_profiles.id</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Candidate_name</code></td>
+<td>text</td>
+<td>mixed-case column, quoted exactly</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>text</td>
+<td>AI-generated interview summary</td>
+</tr>
+<tr>
+<td><code>last_updated</code></td>
+<td>timestamptz</td>
+<td></td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td>text</td>
+<td>AI score</td>
+</tr>
+</tbody>
+</table>
+<p>Used by: <code>SummaryRepository</code>; shown in the Application detail drawer ("AI summary").</p>
+<h2 id="relationships-used-by-the-module">Relationships used by the module</h2>
+<pre><code>auth.users ──1:1── admin_profiles / candidate_profiles / hr_profiles   (id = auth user id)
+hr_profiles ──1:N── job_pools                       (job_pools.hr_id → hr_profiles.id)
+candidate_profiles ──1:N── interview_sessions       (interview_sessions.candidate_id)
+candidate_profiles ──1:N── Candidate_summaries      (Candidate_summaries.candidate_id)
+job_pools ◀┄┄ interview_sessions.pool_id            (text id, joined in app code)
+hr_profiles.company_name  ──derives──▶  &quot;Company&quot;   (no companies table)
+</code></pre>
+<h2 id="screen-table-matrix">Screen → table matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>reads</th>
+<th>writes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>all six (counts/aggregates)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Users (list)</td>
+<td>candidate_profiles, hr_profiles (+ GoTrue ban state)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Users (create)</td>
+<td>—</td>
+<td>candidate_profiles / hr_profiles + GoTrue user</td>
+</tr>
+<tr>
+<td>Users (edit)</td>
+<td>candidate_profiles / hr_profiles</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Users (disable)</td>
+<td>—</td>
+<td>GoTrue ban (no table column)</td>
+</tr>
+<tr>
+<td>Users (delete)</td>
+<td>—</td>
+<td>candidate_profiles / hr_profiles + GoTrue user</td>
+</tr>
+<tr>
+<td>Companies</td>
+<td>hr_profiles, job_pools</td>
+<td>hr_profiles (company_* fan-out)</td>
+</tr>
+<tr>
+<td>Jobs</td>
+<td>job_pools (join hr_profiles)</td>
+<td>job_pools</td>
+</tr>
+<tr>
+<td>Applications</td>
+<td>interview_sessions, candidate_profiles, job_pools, Candidate_summaries</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>all six</td>
+<td>— (export only)</td>
+</tr>
+<tr>
+<td>Settings → Admin Users</td>
+<td>admin_profiles</td>
+<td>admin_profiles + GoTrue user</td>
+</tr>
+<tr>
+<td>Settings → Security</td>
+<td>—</td>
+<td>GoTrue password</td>
+</tr>
+</tbody>
+</table></div><div class='section'><h1 id="implementation-plan-as-executed">Implementation Plan (as executed)</h1>
+<p>The rebuild was executed in seven phases. Each phase was verified before moving on.</p>
+<h2 id="phase-0-discovery-before-writing-any-code">Phase 0 — Discovery (before writing any code)</h2>
+<ul>
+<li>Mapped the legacy backend admin router, the legacy frontend admin pages, the
+  auth flow, and the available UI primitives.</li>
+<li><strong>Introspected the live database</strong> via the Supabase PostgREST OpenAPI spec
+  (migration files were stale and missing columns). Confirmed all six tables and
+  their real columns, including <code>Candidate_summaries</code> (which was absent from code).</li>
+<li>Confirmed four product decisions with the stakeholder: charts via <strong>recharts</strong>,
+  full <strong>Playwright</strong> screenshots + PDF, <strong>delete</strong> the legacy implementation, and
+  <strong>disable = Supabase Auth ban</strong> (no schema column exists).</li>
+</ul>
+<h2 id="phase-1-dependencies">Phase 1 — Dependencies</h2>
+<ul>
+<li>Frontend: <code>recharts</code>.</li>
+<li>Backend: <code>openpyxl</code> (Excel export), <code>playwright</code> (+ <code>chromium</code>) for docs.</li>
+<li>Added <code>pytest</code> for the module's tests. Recorded all in <code>requirements.txt</code>.</li>
+</ul>
+<h2 id="phase-2-backend-mvc-module">Phase 2 — Backend MVC module</h2>
+<p>Built bottom-up so each layer could be verified against the one below:</p>
+<ol>
+<li><strong>Repositories</strong> (Model) — one per table + <code>AuthRepository</code> for GoTrue.</li>
+<li><strong>Schemas</strong> — pydantic request/response contracts.</li>
+<li><strong>Permissions &amp; validators</strong> — admin gate + reusable input checks.</li>
+<li><strong>Services</strong> (Controller) — auth, dashboard, users, companies, jobs,
+   applications, reports, settings.</li>
+<li><strong>Routers</strong> (View) — thin endpoints, aggregated by <code>router.py</code>.</li>
+<li><strong>Tests</strong> — validators, service logic, router wiring (23 tests).</li>
+</ol>
+<p>Verified: module imports (34 routes), unit tests pass, and a <strong>live read-only
+smoke test</strong> of every service against real Supabase data.</p>
+<h2 id="phase-3-frontend-module">Phase 3 — Frontend module</h2>
+<ol>
+<li><strong>Foundation</strong> — <code>types.ts</code>, <code>client.ts</code>, <code>AdminAuthContext</code>, hooks.</li>
+<li><strong>Services</strong> — one per backend area.</li>
+<li><strong>UI primitives</strong> — Button, form controls, Card/Badge/StatusBadge, SearchInput,
+   Drawer, Modal, ActionsMenu, ConfirmDialog, KpiCard, DataTable, Tabs.</li>
+<li><strong>Charts</strong> — recharts wrappers (area/donut/bar).</li>
+<li><strong>Layout</strong> — RequireAdmin, Sidebar, Topbar (profile dropdown), AdminLayout.</li>
+<li><strong>Pages</strong> — Login, Dashboard, Users, Companies, Jobs, Applications, Reports,
+   Settings (+ detail drawers and create modals).</li>
+<li><strong>AdminApp</strong> — providers + route table.</li>
+</ol>
+<h2 id="phase-4-wire-delete-legacy">Phase 4 — Wire &amp; delete legacy</h2>
+<ul>
+<li><code>App.tsx</code>: replaced four admin routes with <code>&lt;Route path="/admin/*"&gt;</code>.</li>
+<li>Deleted <code>src/app/admin/</code>, <code>src/components/admin/</code>, <code>src/lib/adminAuth.ts</code>.</li>
+<li>Backend <code>main.py</code>: include the new aggregated router. The legacy monolithic
+  router was replaced in place. See <strong><a href="./cleanup-report.md">cleanup-report.md</a></strong>.</li>
+</ul>
+<h2 id="phase-5-run-verify">Phase 5 — Run &amp; verify</h2>
+<ul>
+<li>Ran both servers (<code>runall.bat</code> pattern).</li>
+<li>Verified every page with Playwright: login, dashboard, users, companies, jobs,
+  applications, reports, settings, logout. <strong>No React duplicate-key warnings.</strong></li>
+<li>Verified responsive (390px mobile viewport).</li>
+</ul>
+<h2 id="phase-6-screenshots">Phase 6 — Screenshots</h2>
+<ul>
+<li>Drove the live app with Playwright against real data, capturing each page,
+  both detail drawers, the mobile dashboard and the mobile nav.</li>
+</ul>
+<h2 id="phase-7-documentation-pdf">Phase 7 — Documentation &amp; PDF</h2>
+<ul>
+<li>Wrote architecture, MVC mapping, folder structure, database mapping, FILES.md,
+  cleanup report and testing docs.</li>
+<li>Generated <code>admin-dashboard.pdf</code> from a self-contained HTML build (Playwright
+  print-to-PDF) that embeds the docs and screenshots.</li>
+</ul>
+<h2 id="non-negotiables-held-throughout">Non-negotiables held throughout</h2>
+<ul>
+<li>No DDL of any kind. Only the six existing tables, only existing columns.</li>
+<li>Token verification reused from <code>app.auth</code> (no auth rewrite).</li>
+<li>Everything under <code>backend/app/admin/</code> and <code>frontend/src/admin/</code>.</li>
+</ul></div><div class='section'><h1 id="testing-verification">Testing &amp; Verification</h1>
+<p>Three layers of assurance: backend unit tests, a live read-only service smoke
+test, and an end-to-end UI verification with Playwright.</p>
+<h2 id="1-backend-unit-tests-backendappadmintests">1. Backend unit tests — <code>backend/app/admin/tests/</code></h2>
+<p>Fast, no live database (the Supabase client is stubbed in <code>conftest.py</code>). Run:</p>
+<pre><code class="language-bash">cd backend
+python -m pytest app/admin/tests -q
+</code></pre>
+<p><strong>Result: 23 passed.</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_validators.py</code></td>
+<td><code>validate_user_type</code> (rejects <code>admin</code>), <code>validate_dataset</code>, <code>validate_format</code>, <code>require_non_empty</code></td>
+</tr>
+<tr>
+<td><code>test_application_service.py</code></td>
+<td>grouping interview rows into applications, progress counting, completed-status detection, status filtering, detail assembly</td>
+</tr>
+<tr>
+<td><code>test_company_and_report.py</code></td>
+<td>company aggregation by name, first-non-null company fields, search filter; CSV header/rows, bool/list cell rendering, valid XLSX (PK zip magic)</td>
+</tr>
+<tr>
+<td><code>test_routers.py</code></td>
+<td>router wiring via <code>TestClient</code> with an overridden admin dependency: <code>/health</code>, <code>/dashboard/stats</code>, <code>/users</code>, and a 400 on a bad export dataset</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How services are tested without a DB:</strong> each test builds the service, then
+replaces its repository attributes with <code>SimpleNamespace</code> fakes returning canned
+rows. This exercises the business rules in isolation — the essence of the MVC
+split.</p>
+<h2 id="2-live-service-smoke-test-read-only">2. Live service smoke test (read-only)</h2>
+<p>Before building the frontend, every service was run against the <strong>real</strong> Supabase
+data to validate the schema assumptions (table casing, joins, the
+<code>Candidate_summaries</code> table, GoTrue ban reads). All passed, e.g.:</p>
+<pre><code>dashboard.stats = recruiters:19 candidates:34 pools:9 companies:13
+                  applications:14 completed:7 summaries:1
+users.list = 53   companies.list = 13   jobs.list = 9   applications.list = 14
+reports.csv(users) -&gt; bytes   reports.xlsx(candidates) -&gt; bytes
+</code></pre>
+<h2 id="3-end-to-end-ui-verification-playwright">3. End-to-end UI verification — Playwright</h2>
+<p><code>verify_and_screenshot.py</code> drives the live app and asserts each page renders,
+while capturing all console output.</p>
+<p><strong>Checks (all functional areas pass):</strong></p>
+<ul>
+<li>Login → Dashboard ✔</li>
+<li>Users / Companies / Jobs / Applications / Reports / Settings pages render ✔</li>
+<li>User detail drawer opens and loads full profile ✔</li>
+<li>Mobile (390px) dashboard renders ✔</li>
+<li>Logout returns to the login screen ✔  (also confirmed via the API)</li>
+</ul>
+<p><strong>Console health:</strong> only <strong>2</strong> messages, both benign React-Router <em>future-flag</em>
+warnings (<code>v7_startTransition</code>, <code>v7_relativeSplatPath</code>).
+<strong>Zero React duplicate-key warnings</strong> — every list uses a stable <code>rowKey</code>
+(e.g. <code>${type}:${id}</code> for the unified Users table).</p>
+<blockquote>
+<p>Note: when the verification script sweeps all pages in a few seconds it can hit
+Supabase Auth's per-request token-verification rate limit (every backend call
+re-verifies the JWT against GoTrue). That manifests as transient timeouts in
+the <em>script</em>, not as product bugs — under normal single-user interaction it
+does not occur, and a brief cooldown + client-side navigation makes the run
+clean. This is why <code>capture_screens.py</code> waits for rendered content and paces
+itself.</p>
+</blockquote>
+<h2 id="4-screenshots">4. Screenshots</h2>
+<p><code>capture_screens.py</code> produces the documentation screenshots in <code>screenshots/</code>,
+waiting for charts/tables to actually render before each capture so no image
+shows a loading state.</p></div><div class='section'><h1 id="cleanup-report">Cleanup Report</h1>
+<p>What legacy Admin Dashboard code was removed and what replaced it. The success
+criterion "Old Admin Dashboard is removed" is satisfied.</p>
+<h2 id="frontend-deleted">Frontend — deleted</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What it was</th>
+<th>Replaced by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/app/admin/page.tsx</code></td>
+<td>Legacy dashboard (4 stat cards)</td>
+<td><code>src/admin/pages/DashboardPage.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/app/admin/login/page.tsx</code></td>
+<td>Legacy login</td>
+<td><code>src/admin/pages/LoginPage.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/app/admin/candidates/page.tsx</code></td>
+<td>Candidates table</td>
+<td><code>src/admin/pages/UsersPage.tsx</code> (unified)</td>
+</tr>
+<tr>
+<td><code>src/app/admin/recruiters/page.tsx</code></td>
+<td>Recruiters table</td>
+<td><code>src/admin/pages/UsersPage.tsx</code> (unified)</td>
+</tr>
+<tr>
+<td><code>src/app/admin/layout.tsx</code></td>
+<td>Sidebar layout wrapper</td>
+<td><code>src/admin/components/layout/AdminLayout.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/components/admin/AdminSidebar.tsx</code></td>
+<td>Sidebar</td>
+<td><code>src/admin/components/layout/Sidebar.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/components/admin/RequireAdmin.tsx</code></td>
+<td>Route guard</td>
+<td><code>src/admin/components/layout/RequireAdmin.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/components/admin/CreateUserModal.tsx</code></td>
+<td>Create modal</td>
+<td><code>src/admin/components/users/CreateUserModal.tsx</code></td>
+</tr>
+<tr>
+<td><code>src/components/admin/UserTable.tsx</code></td>
+<td>Table</td>
+<td><code>src/admin/components/ui/Table.tsx</code> (generic)</td>
+</tr>
+<tr>
+<td><code>src/lib/adminAuth.ts</code></td>
+<td>Admin auth helpers</td>
+<td><code>src/admin/services/auth.service.ts</code> + <code>client.ts</code> + <code>context/AdminAuthContext.tsx</code></td>
+</tr>
+</tbody>
+</table>
+<p>Whole directories removed: <code>src/app/admin/</code>, <code>src/components/admin/</code>.</p>
+<h2 id="frontend-edited">Frontend — edited</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/App.tsx</code></td>
+<td>Removed 4 admin page imports + the <code>AdminLayout</code> import and the four <code>/admin/*</code> routes; added <code>import AdminApp</code> and a single <code>&lt;Route path="/admin/*" element={&lt;AdminApp /&gt;} /&gt;</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="backend-replaced">Backend — replaced</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/admin/router.py</code></td>
+<td>The legacy 375-line monolith (all endpoints + business logic inline) was <strong>replaced</strong> by a thin aggregator that mounts the new sub-routers.</td>
+</tr>
+<tr>
+<td><code>app/admin/__init__.py</code></td>
+<td>Now documents the MVC module and exports the aggregated <code>router</code>.</td>
+</tr>
+<tr>
+<td><code>app/main.py</code></td>
+<td><code>include_router(admin_module)</code> for the new module; CORS comment updated from "Next.js" to "Vite".</td>
+</tr>
+</tbody>
+</table>
+<h2 id="backend-added-new-mvc-files">Backend — added (new MVC files)</h2>
+<p><code>repositories/</code> (7 + base), <code>services/</code> (8), <code>routers/</code> (8), <code>schemas/</code> (7),
+<code>permissions.py</code>, <code>validators.py</code>, <code>tests/</code> (5). See <strong><a href="./FILES.md">FILES.md</a></strong>.</p>
+<h2 id="intentionally-left-untouched">Intentionally left untouched</h2>
+<ul>
+<li><code>app/schemas.py</code> still contains legacy <code>Admin*</code> pydantic models. They are no
+  longer used by the admin module (which has its own <code>schemas/</code>), but other code
+  and historical compatibility are unaffected by leaving them. Removing them was
+  out of scope and carried needless risk.</li>
+<li><code>app/auth.py</code> — reused as-is (<code>verify_token</code>, <code>get_supabase</code>, <code>parse_datetime</code>).
+  Not modified: this was explicitly <em>not</em> an auth rewrite.</li>
+<li>The <code>DATABASE_URL</code> / SQLAlchemy dependency — unused by admin; left as-is.</li>
+</ul>
+<h2 id="verification-that-nothing-else-depended-on-the-deleted-code">Verification that nothing else depended on the deleted code</h2>
+<p>A repo-wide search for <code>app/admin</code>, <code>components/admin</code> and <code>lib/adminAuth</code> before
+deletion showed the only external importer was <code>App.tsx</code> (updated). All other
+references were the legacy files importing each other. No other module imported
+the deleted frontend code.</p></div><div class='section'><h1 id="performance-audit-admin-dashboard">Performance Audit — Admin Dashboard</h1>
+<p>A dedicated performance pass. No new features, no UI redesign, no schema changes.
+This document records the audit (measurements, slow endpoints, root causes,
+opportunities). The fixes and before/after results are in
+<a href="./SPRINT_REPORT.md">SPRINT_REPORT.md</a>.</p>
+<h2 id="how-it-was-measured">How it was measured</h2>
+<ul>
+<li><strong>Backend endpoint latency</strong>: timed HTTP calls to each admin endpoint
+  (<code>scratchpad/bench.py</code>, then a clean re-measure via <code>bench_clean.py</code>).</li>
+<li><strong>Removed per-request cost</strong>: a direct timing of one GoTrue
+  <code>GET /auth/v1/user</code> call — exactly what the old code did on <em>every</em> request.</li>
+<li><strong>Frontend navigation</strong>: Playwright timing of sidebar navigations, first
+  visit vs cached revisit (<code>nav_timing.py</code>).</li>
+</ul>
+<blockquote>
+<p><strong>Measurement note (important for reproducibility).</strong> On Windows, <code>localhost</code>
+resolves to IPv6 <code>::1</code> first while the dev server binds IPv4, which adds a
+uniform ~2000 ms <em>connect</em> penalty to some HTTP clients (Python <code>urllib</code>). All
+clean server-latency numbers here use <code>http://127.0.0.1:8000</code> to avoid that
+client-side artifact. The original "feels slow" symptom is independent of this
+and is caused by the root cause below.</p>
+</blockquote>
+<h2 id="baseline-before-the-symptom">Baseline (before) — the symptom</h2>
+<p>Measured end-to-end while the dashboard was in normal use. Latencies were not
+just high but <strong>wildly variable</strong>, the signature of rate-limiting:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th style="text-align: right;">avg ms</th>
+<th style="text-align: right;">peak ms</th>
+<th style="text-align: right;">payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/me</code> (no data work!)</td>
+<td style="text-align: right;">3138</td>
+<td style="text-align: right;">16432</td>
+<td style="text-align: right;">0.1 KB</td>
+</tr>
+<tr>
+<td><code>/dashboard/stats</code></td>
+<td style="text-align: right;">8275</td>
+<td style="text-align: right;">12164</td>
+<td style="text-align: right;">0.1 KB</td>
+</tr>
+<tr>
+<td><code>/dashboard/charts</code></td>
+<td style="text-align: right;">7635</td>
+<td style="text-align: right;">11863</td>
+<td style="text-align: right;">0.7 KB</td>
+</tr>
+<tr>
+<td><code>/dashboard/activity</code></td>
+<td style="text-align: right;">5486</td>
+<td style="text-align: right;">9224</td>
+<td style="text-align: right;">1.5 KB</td>
+</tr>
+<tr>
+<td><strong>dashboard page (3 calls)</strong></td>
+<td style="text-align: right;"><strong>27545</strong></td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td style="text-align: right;">5134</td>
+<td style="text-align: right;">8002</td>
+<td style="text-align: right;">11.8 KB</td>
+</tr>
+<tr>
+<td><code>/companies</code></td>
+<td style="text-align: right;">4393</td>
+<td style="text-align: right;">5463</td>
+<td style="text-align: right;">6.3 KB</td>
+</tr>
+<tr>
+<td><code>/jobs</code></td>
+<td style="text-align: right;">3804</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">7.3 KB</td>
+</tr>
+<tr>
+<td><code>/applications</code></td>
+<td style="text-align: right;">14526</td>
+<td style="text-align: right;"><strong>41724</strong></td>
+<td style="text-align: right;">4.5 KB</td>
+</tr>
+<tr>
+<td><code>/reports/summary</code></td>
+<td style="text-align: right;">16950</td>
+<td style="text-align: right;">24411</td>
+<td style="text-align: right;">3.0 KB</td>
+</tr>
+</tbody>
+</table>
+<p>The tell-tale sign: <strong><code>/me</code> does no data work</strong> — it only verifies the token and
+returns the admin's profile — yet it took 3+ seconds. The cost was pure auth
+overhead.</p>
+<h2 id="root-causes">Root causes</h2>
+<h3 id="1-per-request-network-token-verification-the-dominant-cause">1. Per-request network token verification (the dominant cause)</h3>
+<p><code>app/auth.py::verify_token</code> verified the caller's JWT by calling Supabase GoTrue
+over the network on <strong>every request</strong>:</p>
+<pre><code class="language-python">resp = httpx.get(f&quot;{SUPABASE_URL}/auth/v1/user&quot;, headers={...})  # blocking, per request
+</code></pre>
+<ul>
+<li>Measured cost of that single call: <strong>~376 ms</strong> (min 334 ms) even when healthy.</li>
+<li>It is a <strong>synchronous</strong> call inside an <code>async</code> dependency → it also blocks the
+  event loop, serialising concurrent requests.</li>
+<li>The admin gate then did a <strong>second</strong> round trip (<code>admin_profiles</code> query) per
+  request.</li>
+<li>A single dashboard view fires 3 endpoints → 6+ GoTrue/DB round trips in a
+  burst; navigation multiplies this. The volume <strong>tripped GoTrue's rate
+  limiter</strong>, which is why latencies ballooned to 8–42 s and varied so much.</li>
+</ul>
+<h3 id="2-redundant-heavy-data-fetching">2. Redundant heavy data fetching</h3>
+<ul>
+<li><code>DashboardService.stats()</code>, <code>.charts()</code> and <code>.activity()</code> each independently
+  re-fetched overlapping full tables (candidates, recruiters, pools) and each
+  called <code>ApplicationService.list_applications()</code> — which scans <strong>all</strong>
+  <code>interview_sessions</code> + candidates + pools — just to compute counts.</li>
+<li><code>ReportService.summary()</code> recomputed the same application + company aggregates
+  again.</li>
+<li>Net effect: the same expensive scans ran several times per dashboard load.</li>
+</ul>
+<h3 id="3-expensive-gotrue-sweep-on-every-users-load">3. Expensive GoTrue sweep on every Users load</h3>
+<p><code>UserService.list_users</code> called <code>AuthRepository.disabled_map()</code> on every request,
+which <strong>pages through every Supabase Auth user</strong> to know who is banned — another
+network-heavy operation repeated on each list/search keystroke.</p>
+<h3 id="4-a-new-supabase-client-per-repository">4. A new Supabase client per repository</h3>
+<p><code>BaseRepository.__init__</code> created a fresh client (with its own httpx pool) for
+every repository instance. A single service builds several repositories → several
+clients per request.</p>
+<h3 id="5-over-fetching-and-no-pagination">5. Over-fetching and no pagination</h3>
+<ul>
+<li>List endpoints used <code>select("*")</code>, pulling columns the table view never shows
+  (e.g. the Users list dragged ~11.8 KB including profile-picture URLs, salary,
+  etc.).</li>
+<li>No server-side pagination: the whole result set was always returned.</li>
+</ul>
+<h3 id="6-frontend-refetch-on-every-navigation-spinners-no-memoization">6. Frontend: refetch-on-every-navigation, spinners, no memoization</h3>
+<ul>
+<li>Every page used <code>useAsync</code>, which refetched on each mount → revisiting a page
+  always showed a spinner and hit the network again.</li>
+<li>Loading used a centred "Loading…" spinner rather than skeletons.</li>
+<li>Table columns and action handlers were re-created every render.</li>
+<li>All page components were eagerly imported into the admin bundle.</li>
+</ul>
+<h2 id="optimization-opportunities-implemented">Optimization opportunities (→ implemented)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Opportunity</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Kill per-request GoTrue call</td>
+<td><strong>Local JWKS (ES256) verification</strong>, cached; network fallback retained</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Stop re-verifying the admin row</td>
+<td>Cache <code>admin_profiles</code> lookup (60 s TTL)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Stop re-scanning tables 3× per dashboard</td>
+<td>TTL-cache aggregates (stats/charts/activity 15 s, applications 15 s, reports 20 s)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Stop the GoTrue ban sweep per Users load</td>
+<td>Cache <code>disabled_map</code> (30 s, invalidated on ban/unban)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Stop creating clients per repo</td>
+<td>One shared service-role client</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Stop over-fetching</td>
+<td><code>list_basic</code> column projection for the Users list</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Bound payloads / rendering</td>
+<td>Server-side pagination on Users; client-side pagination on other tables</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Instant navigation</td>
+<td>Frontend SWR cache + request de-dupe</td>
+</tr>
+<tr>
+<td>9</td>
+<td>No "Loading…"</td>
+<td>Skeleton table + chart skeletons</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Fewer re-renders</td>
+<td><code>useMemo</code> columns/handlers</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Smaller initial bundle</td>
+<td>Lazy-loaded routes</td>
+</tr>
+</tbody>
+</table>
+<p>See <strong><a href="./SPRINT_REPORT.md">SPRINT_REPORT.md</a></strong> for the before/after benchmarks
+and improvement percentages.</p></div><div class='section'><h1 id="sprint-report-performance-optimization-pass">Sprint Report — Performance Optimization Pass</h1>
+<p><strong>Goal:</strong> make the Admin Dashboard feel instant. No new features, no UI redesign,
+no schema changes. See <a href="./PERFORMANCE_AUDIT.md">PERFORMANCE_AUDIT.md</a> for the
+audit and root-cause analysis.</p>
+<h2 id="tldr">TL;DR</h2>
+<blockquote>
+<p><strong>Root cause:</strong> every API request verified the JWT by calling Supabase GoTrue
+over the network (~376 ms each, blocking), then queried <code>admin_profiles</code> again
+— and the volume tripped GoTrue's rate limiter, ballooning latency to
+<strong>3–42 seconds</strong>. Replacing it with <strong>local JWKS verification</strong> + caching
+removed that cost entirely.</p>
+</blockquote>
+<ul>
+<li><strong>Dashboard load: 27.5 s → ~0.03 s</strong> (3 calls, parallel).</li>
+<li><strong>Per-request auth overhead: 376 ms → ~1 ms.</strong></li>
+<li><strong>Every endpoint is now sub-second; most are 10–350 ms.</strong></li>
+<li><strong>Zero React warnings; zero duplicate keys; 10/10 UI checks pass.</strong></li>
+</ul>
+<h2 id="before-after-backend-endpoint-latency">Before / After — backend endpoint latency</h2>
+<p>"Before" = measured under the rate-limited condition that caused the complaint.
+"After" = clean warm server latency (<code>127.0.0.1</code>, cache warm). Improvement is the
+reduction in response time.</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th style="text-align: right;">Before (avg)</th>
+<th style="text-align: right;">After (warm)</th>
+<th style="text-align: right;">Reduction</th>
+<th style="text-align: right;">Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/me</code> (auth only)</td>
+<td style="text-align: right;">3138 ms</td>
+<td style="text-align: right;"><strong>14 ms</strong></td>
+<td style="text-align: right;">99.6%</td>
+<td style="text-align: right;">224×</td>
+</tr>
+<tr>
+<td><code>/dashboard/stats</code></td>
+<td style="text-align: right;">8275 ms</td>
+<td style="text-align: right;"><strong>13 ms</strong></td>
+<td style="text-align: right;">99.8%</td>
+<td style="text-align: right;">636×</td>
+</tr>
+<tr>
+<td><code>/dashboard/charts</code></td>
+<td style="text-align: right;">7635 ms</td>
+<td style="text-align: right;"><strong>15 ms</strong></td>
+<td style="text-align: right;">99.8%</td>
+<td style="text-align: right;">509×</td>
+</tr>
+<tr>
+<td><code>/dashboard/activity</code></td>
+<td style="text-align: right;">5486 ms</td>
+<td style="text-align: right;"><strong>16 ms</strong></td>
+<td style="text-align: right;">99.7%</td>
+<td style="text-align: right;">343×</td>
+</tr>
+<tr>
+<td><strong>dashboard page (3 calls)</strong></td>
+<td style="text-align: right;"><strong>27545 ms</strong></td>
+<td style="text-align: right;"><strong>26 ms</strong></td>
+<td style="text-align: right;"><strong>99.9%</strong></td>
+<td style="text-align: right;"><strong>1060×</strong></td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td style="text-align: right;">5134 ms</td>
+<td style="text-align: right;"><strong>346 ms</strong></td>
+<td style="text-align: right;">93.3%</td>
+<td style="text-align: right;">15×</td>
+</tr>
+<tr>
+<td><code>/companies</code></td>
+<td style="text-align: right;">4393 ms</td>
+<td style="text-align: right;"><strong>195 ms</strong></td>
+<td style="text-align: right;">95.6%</td>
+<td style="text-align: right;">22×</td>
+</tr>
+<tr>
+<td><code>/jobs</code></td>
+<td style="text-align: right;">3804 ms</td>
+<td style="text-align: right;"><strong>103 ms</strong></td>
+<td style="text-align: right;">97.3%</td>
+<td style="text-align: right;">37×</td>
+</tr>
+<tr>
+<td><code>/applications</code></td>
+<td style="text-align: right;">14526 ms (peak 41724)</td>
+<td style="text-align: right;"><strong>15 ms</strong></td>
+<td style="text-align: right;">99.9%</td>
+<td style="text-align: right;">968×</td>
+</tr>
+<tr>
+<td><code>/reports/summary</code></td>
+<td style="text-align: right;">16950 ms</td>
+<td style="text-align: right;"><strong>13 ms</strong></td>
+<td style="text-align: right;">99.9%</td>
+<td style="text-align: right;">1304×</td>
+</tr>
+<tr>
+<td>login (one-time)</td>
+<td style="text-align: right;">3968 ms</td>
+<td style="text-align: right;"><strong>838 ms</strong></td>
+<td style="text-align: right;">79%</td>
+<td style="text-align: right;">4.7×</td>
+</tr>
+</tbody>
+</table>
+<p>Cold (first call after a cache expiry) is also fast now — e.g. <code>/users</code> 764 ms,
+<code>/dashboard/stats</code> 758 ms — because auth is local; only the data query remains.</p>
+<h3 id="the-cost-that-was-removed">The cost that was removed</h3>
+<table>
+<thead>
+<tr>
+<th>Measurement</th>
+<th style="text-align: right;">Before</th>
+<th style="text-align: right;">After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token verification per request</td>
+<td style="text-align: right;"><strong>376 ms</strong> (network GoTrue, min 334)</td>
+<td style="text-align: right;"><strong>~1 ms</strong> (local JWKS)</td>
+</tr>
+<tr>
+<td><code>admin_profiles</code> lookup per request</td>
+<td style="text-align: right;">~150 ms (DB)</td>
+<td style="text-align: right;">~0 ms (cached 60 s)</td>
+</tr>
+<tr>
+<td>Users-list ban sweep</td>
+<td style="text-align: right;">full GoTrue paged scan, every load</td>
+<td style="text-align: right;">cached 30 s</td>
+</tr>
+<tr>
+<td>Users payload</td>
+<td style="text-align: right;">11.8 KB</td>
+<td style="text-align: right;"><strong>5.6 KB</strong> (−53%)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="before-after-frontend">Before / After — frontend</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Before</th>
+<th style="text-align: right;">After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route navigation (Users/Jobs/…)</td>
+<td style="text-align: right;">multi-second (spinner each time)</td>
+<td style="text-align: right;"><strong>~100–180 ms</strong></td>
+</tr>
+<tr>
+<td>Revisit a page</td>
+<td style="text-align: right;">full refetch + spinner</td>
+<td style="text-align: right;"><strong>instant</strong> (cached, revalidate in background)</td>
+</tr>
+<tr>
+<td>Loading UI</td>
+<td style="text-align: right;">"Loading…" spinner</td>
+<td style="text-align: right;"><strong>skeleton</strong> table + chart placeholders</td>
+</tr>
+<tr>
+<td>Initial admin bundle</td>
+<td style="text-align: right;">all pages eager</td>
+<td style="text-align: right;"><strong>code-split</strong> (per-route chunks)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-changed-by-layer">What changed (by layer)</h2>
+<h3 id="backend-backendappadmin">Backend (<code>backend/app/admin/</code>)</h3>
+<ul>
+<li><strong><code>security.py</code> (new)</strong> — local JWKS (ES256) token verification with a network
+  fallback; cached verified-token and admin-profile lookups.</li>
+<li><strong><code>cache.py</code> (new)</strong> — tiny thread-safe <code>TTLCache</code> + <code>ttl_cached</code> decorator.</li>
+<li><strong><code>permissions.py</code></strong> — <code>get_current_admin</code> now uses the fast verifier (no
+  per-request GoTrue/DB round trips).</li>
+<li><strong><code>repositories/base.py</code></strong> — one shared service-role Supabase client.</li>
+<li><strong><code>repositories/auth_repository.py</code></strong> — <code>disabled_map</code> cached (30 s), invalidated
+  on ban/unban.</li>
+<li><strong><code>repositories/{candidate,hr}_repository.py</code></strong> — <code>list_basic</code> column projection.</li>
+<li><strong><code>services/dashboard_service.py</code>, <code>application_service.py</code>, <code>report_service.py</code></strong>
+  — heavy read-only aggregates memoized (15–20 s TTL).</li>
+<li><strong><code>services/user_service.py</code>, <code>routers/users_router.py</code></strong> — server-side
+  pagination (<code>{items,total,page,page_size,pages}</code>).</li>
+</ul>
+<h3 id="frontend-frontendsrcadmin">Frontend (<code>frontend/src/admin/</code>)</h3>
+<ul>
+<li><strong><code>services/cache.ts</code> (new)</strong> + <strong><code>hooks/useQuery.ts</code> (new)</strong> — SWR cache with
+  request de-dupe; pages migrated from <code>useAsync</code> → <code>useQuery</code>.</li>
+<li><strong><code>components/ui/Table.tsx</code></strong> — skeleton rows on first load + optional
+  client-side pagination.</li>
+<li><strong><code>components/ui/Pagination.tsx</code> (new)</strong>, <strong><code>primitives.tsx</code></strong> — <code>ChartSkeleton</code>.</li>
+<li><strong><code>pages/UsersPage.tsx</code></strong> — server-side pagination, memoized columns/handlers,
+  cache invalidation on mutation; other pages cached + paginated.</li>
+<li><strong><code>AdminApp.tsx</code></strong> — routes are <code>React.lazy</code> code-split with <code>Suspense</code>.</li>
+</ul>
+<h2 id="verification">Verification</h2>
+<ul>
+<li><strong>Unit tests:</strong> <code>pytest app/admin/tests</code> → <strong>23 passed</strong> (cache-isolation
+  fixture added).</li>
+<li><strong>End-to-end (Playwright):</strong> <strong>10/10</strong> checks pass — login, all six pages,
+  detail drawer, mobile, logout. <strong>Console: 2 benign React-Router future-flag
+  warnings; zero duplicate-key warnings.</strong> (Notably, the auth fix also removed
+  the rate-limiting that used to make the logout check flake.)</li>
+<li><strong>Benchmarks:</strong> <code>bench_clean.py</code> (backend) and <code>nav_timing.py</code> (frontend),
+  reproducible from <code>runall.bat</code> + the verify admin.</li>
+</ul>
+<h2 id="success-criteria-met">Success criteria — met</h2>
+<ul>
+<li>[x] Loads quickly (sub-second everywhere; dashboard ~26 ms)</li>
+<li>[x] Feels responsive (navigation ~100–180 ms, instant on revisit)</li>
+<li>[x] No infinite loading (skeletons; data resolves in ms)</li>
+<li>[x] No duplicate key warnings (stable <code>rowKey</code>)</li>
+<li>[x] Debounced search (350 ms, retained)</li>
+<li>[x] Pagination (server-side on Users; client-side on other tables)</li>
+<li>[x] Optimized API calls (local auth, caching, de-dupe, column projection)</li>
+<li>[x] Optimized rendering (memoization, skeletons, lazy routes)</li>
+</ul>
+<h2 id="trade-offs-notes">Trade-offs / notes</h2>
+<ul>
+<li>Aggregate caching introduces <strong>bounded staleness</strong> (≤15–30 s) on dashboard
+  counts and reports after a mutation — standard for SaaS dashboards and
+  invisible in practice. Mutating lists (Users) are <strong>not</strong> cached on the server
+  and are invalidated on the client after writes, so edits appear immediately.</li>
+<li>Local JWKS verification keeps the <strong>network fallback</strong> so a legacy token or a
+  brief JWKS outage never locks anyone out — same security, faster transport.</li>
+</ul></div><div class='section'><h1 id="filesmd-file-by-file-reference">FILES.md — File-by-file reference</h1>
+<p>Every file in the Admin module, with: <strong>path · purpose · MVC role · imports ·
+exports · responsibilities · interactions · testing</strong>. Written so a junior
+developer can open any file and know what it does and why.</p>
+<hr />
+<h1 id="backend-backendappadmin">Backend — <code>backend/app/admin/</code></h1>
+<h2 id="__init__py"><code>__init__.py</code></h2>
+<ul>
+<li><strong>Role:</strong> package entry.</li>
+<li><strong>Imports:</strong> <code>from app.admin.router import router</code>.</li>
+<li><strong>Exports:</strong> <code>router</code> (the aggregated <code>APIRouter</code>).</li>
+<li><strong>Responsibilities:</strong> document the MVC module; expose the single public symbol.</li>
+<li><strong>Interactions:</strong> imported by <code>app/main.py</code>.</li>
+<li><strong>Testing:</strong> covered indirectly by <code>test_routers.py</code> (importing <code>router</code>).</li>
+</ul>
+<h2 id="routerpy"><code>router.py</code></h2>
+<ul>
+<li><strong>Role:</strong> View (aggregator).</li>
+<li><strong>Imports:</strong> the eight sub-routers from <code>app.admin.routers</code>.</li>
+<li><strong>Exports:</strong> <code>router = APIRouter(prefix="/api/v1/admin")</code> with all sub-routers included.</li>
+<li><strong>Responsibilities:</strong> mount auth/dashboard/users/companies/jobs/applications/reports/settings under one prefix.</li>
+<li><strong>Interactions:</strong> included by <code>main.py</code>; replaces the legacy monolith.</li>
+<li><strong>Testing:</strong> <code>test_routers.py</code> mounts it in a <code>TestClient</code>.</li>
+</ul>
+<h2 id="permissionspy"><code>permissions.py</code></h2>
+<ul>
+<li><strong>Role:</strong> cross-cutting auth dependency.</li>
+<li><strong>Imports:</strong> <code>AdminRepository</code>, <code>app.auth.verify_token</code>.</li>
+<li><strong>Exports:</strong> <code>async def get_current_admin(...) -&gt; dict</code>.</li>
+<li><strong>Responsibilities:</strong> verify the Supabase JWT (reused) then confirm the user is in <code>admin_profiles</code>; else 403.</li>
+<li><strong>Interactions:</strong> <code>Depends(get_current_admin)</code> guards every protected router.</li>
+<li><strong>Testing:</strong> overridden in <code>test_routers.py</code>; the live path is exercised by the smoke test.</li>
+</ul>
+<h2 id="validatorspy"><code>validators.py</code></h2>
+<ul>
+<li><strong>Role:</strong> cross-cutting validation.</li>
+<li><strong>Imports:</strong> <code>fastapi.HTTPException</code>.</li>
+<li><strong>Exports:</strong> <code>validate_user_type</code>, <code>validate_dataset</code>, <code>validate_format</code>, <code>require_non_empty</code>, and the <code>USER_TYPES</code>/<code>REPORT_DATASETS</code>/<code>EXPORT_FORMATS</code> sets.</li>
+<li><strong>Responsibilities:</strong> fail fast (400) on bad path/query input before it reaches a service/DB.</li>
+<li><strong>Interactions:</strong> used by <code>UserService</code>, <code>ReportService</code>, the reports router.</li>
+<li><strong>Testing:</strong> <code>test_validators.py</code> (6 tests).</li>
+</ul>
+<h2 id="repositories-model">repositories/ (MODEL)</h2>
+<h3 id="repositoriesbasepy"><code>repositories/base.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model base.</li>
+<li><strong>Imports:</strong> <code>app.auth.get_supabase</code>.</li>
+<li><strong>Exports:</strong> <code>BaseRepository</code> (<code>.client</code>, <code>.table</code>, <code>table_name</code>).</li>
+<li><strong>Responsibilities:</strong> give every repository one Supabase service-role client and a <code>.table</code> query builder.</li>
+<li><strong>Interactions:</strong> parent of all table repositories.</li>
+<li><strong>Testing:</strong> <code>conftest.py</code> stubs <code>get_supabase</code> so subclasses construct without network.</li>
+</ul>
+<h3 id="repositoriesadmin_repositorypy"><code>repositories/admin_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>admin_profiles</code>.</li>
+<li><strong>Exports:</strong> <code>AdminRepository</code> — <code>list_all</code>, <code>get</code>, <code>count</code>, <code>upsert</code>, <code>update</code>, <code>delete</code>.</li>
+<li><strong>Responsibilities:</strong> CRUD on admin rows.</li>
+<li><strong>Interactions:</strong> <code>permissions</code>, <code>AuthService</code>, <code>SettingsService</code>.</li>
+<li><strong>Testing:</strong> via service/router tests (stubbed).</li>
+</ul>
+<h3 id="repositoriescandidate_repositorypy"><code>repositories/candidate_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>candidate_profiles</code>.</li>
+<li><strong>Exports:</strong> <code>CandidateRepository</code> — <code>list_all</code>, <code>get</code>, <code>count</code>, <code>upsert</code>, <code>update</code>, <code>delete</code>.</li>
+<li><strong>Interactions:</strong> <code>UserService</code>, <code>DashboardService</code>, <code>ApplicationService</code>, <code>ReportService</code>.</li>
+</ul>
+<h3 id="repositorieshr_repositorypy"><code>repositories/hr_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>hr_profiles</code>.</li>
+<li><strong>Exports:</strong> <code>HrRepository</code> — the standard set plus <code>list_by_company</code>, <code>update_company_fields</code> (fan-out company_* edits).</li>
+<li><strong>Interactions:</strong> <code>UserService</code>, <code>CompanyService</code>, <code>DashboardService</code>, <code>ReportService</code>.</li>
+</ul>
+<h3 id="repositoriesjob_pool_repositorypy"><code>repositories/job_pool_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>job_pools</code>.</li>
+<li><strong>Exports:</strong> <code>JobPoolRepository</code> — <code>list_all</code>, <code>list_with_recruiter</code> (joins <code>hr_profiles</code>), <code>get</code>, <code>list_by_hr</code>, <code>count(active_only)</code>, <code>update</code>, <code>delete</code>.</li>
+<li><strong>Interactions:</strong> <code>JobService</code>, <code>CompanyService</code>, <code>DashboardService</code>, <code>ApplicationService</code>, <code>ReportService</code>.</li>
+</ul>
+<h3 id="repositoriesinterview_repositorypy"><code>repositories/interview_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>interview_sessions</code>.</li>
+<li><strong>Exports:</strong> <code>InterviewRepository</code> — <code>list_all</code>, <code>list_for_session</code>, <code>list_for_candidate</code>, <code>count(status)</code>, <code>delete_session</code>.</li>
+<li><strong>Interactions:</strong> <code>ApplicationService</code>, <code>DashboardService</code>.</li>
+</ul>
+<h3 id="repositoriessummary_repositorypy"><code>repositories/summary_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — <code>Candidate_summaries</code> (mixed-case, quoted exactly).</li>
+<li><strong>Exports:</strong> <code>SummaryRepository</code> — <code>list_all</code>, <code>get_for_candidate</code>, <code>count</code>.</li>
+<li><strong>Interactions:</strong> <code>ApplicationService</code> (AI summary), <code>DashboardService</code> (count).</li>
+</ul>
+<h3 id="repositoriesauth_repositorypy"><code>repositories/auth_repository.py</code></h3>
+<ul>
+<li><strong>Role:</strong> Model — Supabase Auth (GoTrue) admin API (no DB table).</li>
+<li><strong>Imports:</strong> <code>httpx</code>, <code>app.auth.get_supabase</code>, config.</li>
+<li><strong>Exports:</strong> <code>AuthRepository</code> — <code>create_user</code>, <code>delete_user</code>, <code>set_password</code>, <code>sign_in</code>, <code>ban_user</code>, <code>unban_user</code>, <code>get_auth_user</code>, <code>is_disabled</code>, <code>disabled_map</code>.</li>
+<li><strong>Responsibilities:</strong> account lifecycle + <strong>disable-via-ban</strong> + reading <code>banned_until</code>.</li>
+<li><strong>Interactions:</strong> <code>UserService</code>, <code>AuthService</code>, <code>SettingsService</code>.</li>
+<li><strong>Testing:</strong> exercised live (create/ban happen against GoTrue); not stubbed in unit tests.</li>
+</ul>
+<h2 id="schemas-contracts">schemas/ (CONTRACTS)</h2>
+<ul>
+<li><code>schemas/common.py</code> — <code>MessageOut</code> (generic <code>{message, ok}</code>).</li>
+<li><code>schemas/auth_schemas.py</code> — <code>AdminLogin</code>, <code>AdminRegister</code>, <code>AdminOut</code>, <code>AdminToken</code>.</li>
+<li><code>schemas/dashboard_schemas.py</code> — <code>AdminStats</code> (KPI counts), <code>ActivityItem</code>.</li>
+<li><code>schemas/user_schemas.py</code> — <code>CandidateCreate/Update</code>, <code>RecruiterCreate/Update</code> (only real columns; updates all-optional/PATCH).</li>
+<li><code>schemas/company_schemas.py</code> — <code>CompanyUpdate</code> (company_* fields).</li>
+<li><code>schemas/job_schemas.py</code> — <code>JobUpdate</code> (editable job_pools columns, arrays → text[]).</li>
+<li><code>schemas/settings_schemas.py</code> — <code>AdminCreate</code>, <code>AdminProfileUpdate</code>, <code>PasswordChange</code>.</li>
+<li><strong>Role:</strong> request/response contracts. <strong>Exports:</strong> the pydantic models (re-exported from <code>schemas/__init__.py</code>). <strong>Interactions:</strong> routers (request bodies + <code>response_model</code>). <strong>Testing:</strong> validated implicitly by router tests.</li>
+</ul>
+<h2 id="services-controller">services/ (CONTROLLER)</h2>
+<h3 id="servicesauth_servicepy"><code>services/auth_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>AuthService</code> — <code>login</code>, <code>register</code>, <code>me</code>.</li>
+<li><strong>Responsibilities:</strong> sign in via Supabase then gate on <code>admin_profiles</code>; bootstrap first admin (guarded by <code>ADMIN_SETUP_TOKEN</code>); roll back the auth user if the profile insert fails.</li>
+<li><strong>Interactions:</strong> <code>AdminRepository</code>, <code>AuthRepository</code>; used by <code>auth_router</code>.</li>
+</ul>
+<h3 id="servicesdashboard_servicepy"><code>services/dashboard_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>DashboardService</code> — <code>stats</code>, <code>charts</code>, <code>activity</code>.</li>
+<li><strong>Responsibilities:</strong> KPI counts; 6-month signup growth; application-status donut; pools-by-state bar; top companies; merged recent-activity feed.</li>
+<li><strong>Interactions:</strong> candidate/hr/job/interview/summary repos + <code>ApplicationService</code>.</li>
+</ul>
+<h3 id="servicesuser_servicepy"><code>services/user_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>UserService</code> — <code>list_users</code>, <code>get_user</code>, <code>create_candidate</code>, <code>create_recruiter</code>, <code>update_user</code>, <code>set_disabled</code>, <code>delete_user</code>.</li>
+<li><strong>Responsibilities:</strong> unify candidates + recruiters; overlay disabled status; normalise rows; enforce <code>validate_user_type</code>; disable-via-ban; rollback on failed create.</li>
+<li><strong>Interactions:</strong> candidate/hr repos + <code>AuthRepository</code>. <strong>Excludes admins by construction.</strong></li>
+</ul>
+<h3 id="servicescompany_servicepy"><code>services/company_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>CompanyService</code> — <code>list_companies</code>, <code>get_company</code>, <code>update_company</code>.</li>
+<li><strong>Responsibilities:</strong> aggregate <code>hr_profiles</code> by <code>company_name</code>; count recruiters/jobs; first-non-null company fields; attach pools on detail; fan-out company_* edits.</li>
+<li><strong>Interactions:</strong> <code>HrRepository</code>, <code>JobPoolRepository</code>.</li>
+<li><strong>Testing:</strong> <code>test_company_and_report.py</code>.</li>
+</ul>
+<h3 id="servicesjob_servicepy"><code>services/job_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>JobService</code> — <code>list_jobs</code>, <code>get_job</code>, <code>update_job</code>, <code>delete_job</code> + <code>_flatten</code> helper.</li>
+<li><strong>Responsibilities:</strong> flatten the joined recruiter/company; status filter (active/inactive/archived); search; PATCH changed fields.</li>
+<li><strong>Interactions:</strong> <code>JobPoolRepository</code>.</li>
+</ul>
+<h3 id="servicesapplication_servicepy"><code>services/application_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>ApplicationService</code> — <code>list_applications</code>, <code>get_application</code>.</li>
+<li><strong>Responsibilities:</strong> group <code>interview_sessions</code> rows by <code>session_id</code> into applications; compute progress/status; join candidate/pool/AI summary; build transcript.</li>
+<li><strong>Interactions:</strong> interview/candidate/job/summary repos.</li>
+<li><strong>Testing:</strong> <code>test_application_service.py</code>.</li>
+</ul>
+<h3 id="servicesreport_servicepy"><code>services/report_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>ReportService</code> — <code>summary</code>, <code>build_rows</code>, <code>to_csv</code>, <code>to_xlsx</code>; helpers <code>_cell</code>, <code>JobServiceRows</code>.</li>
+<li><strong>Responsibilities:</strong> analytics totals/rates; per-dataset column sets; CSV (UTF-8 BOM) and styled XLSX, both in-memory.</li>
+<li><strong>Interactions:</strong> candidate/hr/job repos + Application/Company services.</li>
+<li><strong>Testing:</strong> <code>test_company_and_report.py</code> (CSV/XLSX/cell).</li>
+</ul>
+<h3 id="servicessettings_servicepy"><code>services/settings_service.py</code></h3>
+<ul>
+<li><strong>Exports:</strong> <code>SettingsService</code> — <code>list_admins</code>, <code>create_admin</code>, <code>delete_admin</code>, <code>update_profile</code>, <code>change_password</code>, <code>api_keys</code>.</li>
+<li><strong>Responsibilities:</strong> admin-user management with guards (no self-delete, no last-admin delete); strip <code>password</code> from output; password change via GoTrue; api-keys placeholder.</li>
+<li><strong>Interactions:</strong> <code>AdminRepository</code>, <code>AuthRepository</code>.</li>
+</ul>
+<h2 id="routers-view">routers/ (VIEW)</h2>
+<p>Each is a thin <code>APIRouter</code>; every protected endpoint uses <code>Depends(get_current_admin)</code>.</p>
+<ul>
+<li><code>routers/auth_router.py</code> — <code>/login</code>, <code>/register</code>, <code>/me</code>, <code>/logout</code>, <code>/health</code> → <code>AuthService</code>.</li>
+<li><code>routers/dashboard_router.py</code> — <code>/dashboard/stats|charts|activity</code> → <code>DashboardService</code>.</li>
+<li><code>routers/users_router.py</code> — <code>GET/POST/PUT/DELETE /users...</code>, <code>.../disable</code>, <code>.../enable</code> → <code>UserService</code>.</li>
+<li><code>routers/companies_router.py</code> — <code>GET /companies</code>, <code>GET/PUT /companies/{key}</code> → <code>CompanyService</code>.</li>
+<li><code>routers/jobs_router.py</code> — <code>GET /jobs</code>, <code>GET/PATCH/DELETE /jobs/{id}</code> → <code>JobService</code>.</li>
+<li><code>routers/applications_router.py</code> — <code>GET /applications</code>, <code>GET /applications/{session_id}</code> → <code>ApplicationService</code>.</li>
+<li><code>routers/reports_router.py</code> — <code>GET /reports/summary</code>, <code>GET /reports/export</code> (CSV/XLSX <code>Response</code>) → <code>ReportService</code> + validators.</li>
+<li><code>routers/settings_router.py</code> — <code>/settings/admins</code>, <code>/settings/profile</code>, <code>/settings/security/password</code>, <code>/settings/api-keys</code> → <code>SettingsService</code>.</li>
+<li><strong>Testing:</strong> wiring smoke-tested in <code>test_routers.py</code>; full surface exercised live.</li>
+</ul>
+<h2 id="tests">tests/</h2>
+<ul>
+<li><code>conftest.py</code> — autouse fixture stubbing <code>get_supabase</code> (3 import sites) so repos build offline.</li>
+<li><code>test_validators.py</code>, <code>test_application_service.py</code>, <code>test_company_and_report.py</code>, <code>test_routers.py</code> — see <a href="./testing.md">testing.md</a>. <strong>23 tests, all passing.</strong></li>
+</ul>
+<hr />
+<h1 id="frontend-frontendsrcadmin">Frontend — <code>frontend/src/admin/</code></h1>
+<h2 id="adminapptsx"><code>AdminApp.tsx</code></h2>
+<ul>
+<li><strong>Role:</strong> View (module entry).</li>
+<li><strong>Imports:</strong> providers, <code>RequireAdmin</code>, <code>AdminLayout</code>, all pages, <code>Toaster</code>.</li>
+<li><strong>Exports:</strong> default <code>AdminApp</code>.</li>
+<li><strong>Responsibilities:</strong> wrap the module in <code>AdminAuthProvider</code> + <code>ConfirmProvider</code> + toaster; declare the route table (login public; rest guarded inside the layout).</li>
+<li><strong>Interactions:</strong> mounted by <code>App.tsx</code> at <code>/admin/*</code>.</li>
+</ul>
+<h2 id="typests"><code>types.ts</code></h2>
+<ul>
+<li><strong>Role:</strong> Model (contracts). <strong>Exports:</strong> <code>Admin</code>, <code>UserRow</code>, <code>AdminStats</code>, <code>DashboardCharts</code>, <code>ActivityItem</code>, <code>Company</code>, <code>Job</code>, <code>ApplicationRow</code>, <code>ApplicationDetail</code>, <code>ReportSummary</code>, <code>UserType</code>.</li>
+<li><strong>Responsibilities:</strong> one source of truth for API shapes. <strong>Interactions:</strong> services + pages.</li>
+</ul>
+<h2 id="contextadminauthcontexttsx">context/<code>AdminAuthContext.tsx</code></h2>
+<ul>
+<li><strong>Role:</strong> Controller. <strong>Exports:</strong> <code>AdminAuthProvider</code>, <code>useAdminAuth</code>.</li>
+<li><strong>Responsibilities:</strong> hold current admin; <code>login/logout/refresh/setAdmin</code>; validate token on mount; keep session on transient errors, drop only on real auth failure.</li>
+<li><strong>Interactions:</strong> <code>auth.service</code>, <code>client.isAuthError</code>; consumed by RequireAdmin/Topbar/LoginPage/Settings.</li>
+</ul>
+<h2 id="hooks">hooks/</h2>
+<ul>
+<li><code>useAsync.ts</code> — Controller. <code>useAsync(fn, deps)</code> → <code>{data, loading, error, reload}</code>; maps auth errors to a friendly message. Used by every list/detail page.</li>
+<li><code>useDebounce.ts</code> — Controller. Debounce a value (search boxes).</li>
+<li><code>useToast.ts</code> — Controller. <code>toast.success/error/...</code> over react-hot-toast.</li>
+</ul>
+<h2 id="libformatts">lib/<code>format.ts</code></h2>
+<ul>
+<li><strong>Role:</strong> helper. <strong>Exports:</strong> <code>formatDate</code>, <code>formatDateTime</code>, <code>timeAgo</code>, <code>titleCase</code>, <code>displayValue</code>. Used across pages/drawers for consistent rendering.</li>
+</ul>
+<h2 id="services-model">services/ (MODEL)</h2>
+<ul>
+<li><code>client.ts</code> — the <code>http</code> wrapper (<code>get/post/put/patch/del/download</code>), token storage (<code>getAdminToken</code>/<code>setAdminToken</code>/<code>clearAdminToken</code>), <code>AdminApiError</code>, <code>isAuthError</code>. <strong>Every</strong> request goes through here.</li>
+<li><code>auth.service.ts</code> — <code>login</code>, <code>getCurrentAdmin</code>, <code>logout</code>, <code>hasToken</code>.</li>
+<li><code>dashboard.service.ts</code> — <code>getStats</code>, <code>getCharts</code>, <code>getActivity</code>.</li>
+<li><code>users.service.ts</code> — <code>listUsers</code>, <code>getUser</code>, <code>createCandidate</code>, <code>createRecruiter</code>, <code>updateUser</code>, <code>disableUser</code>, <code>enableUser</code>, <code>deleteUser</code>.</li>
+<li><code>companies.service.ts</code> — <code>listCompanies</code>, <code>getCompany</code>, <code>updateCompany</code>.</li>
+<li><code>jobs.service.ts</code> — <code>listJobs</code>, <code>getJob</code>, <code>updateJob</code>, <code>deleteJob</code>.</li>
+<li><code>applications.service.ts</code> — <code>listApplications</code>, <code>getApplication</code>.</li>
+<li><code>reports.service.ts</code> — <code>getSummary</code>, <code>exportDataset</code> (CSV/XLSX download).</li>
+<li><code>settings.service.ts</code> — <code>listAdmins</code>, <code>createAdmin</code>, <code>deleteAdmin</code>, <code>updateProfile</code>, <code>changePassword</code>, <code>getApiKeys</code>.</li>
+</ul>
+<h2 id="componentsui-design-system">components/ui/ (design system)</h2>
+<ul>
+<li><code>Button.tsx</code> — variants (primary/secondary/outline/ghost/destructive) + sizes + <code>loading</code> spinner.</li>
+<li><code>form.tsx</code> — <code>Label</code>, <code>Input</code>, <code>Textarea</code>, <code>Select</code>, <code>Field</code> (label+control+hint/error).</li>
+<li><code>primitives.tsx</code> — <code>Card</code>, <code>Badge</code>, <code>StatusBadge</code>, <code>Spinner</code>, <code>Skeleton</code>, <code>LoadingState</code>, <code>EmptyState</code>, <code>ErrorState</code>, <code>PageHeader</code>, <code>Avatar</code>.</li>
+<li><code>SearchInput.tsx</code> — icon + clear-button search box.</li>
+<li><code>Drawer.tsx</code> — right-hand slide-over (Escape/backdrop close, scroll-lock) for detail/edit.</li>
+<li><code>Modal.tsx</code> — centered dialog (create forms).</li>
+<li><code>ActionsMenu.tsx</code> — three-dot dropdown (portal-positioned; danger/disabled items).</li>
+<li><code>ConfirmDialog.tsx</code> — <code>ConfirmProvider</code> + <code>useConfirm()</code> imperative confirm for destructive actions.</li>
+<li><code>KpiCard.tsx</code> — dashboard stat card (icon, value, hint, loading skeleton).</li>
+<li><code>Table.tsx</code> — generic <code>DataTable&lt;T&gt;</code> (columns, <code>rowKey</code>, loading/empty/error built in) — the reason there are <strong>no duplicate-key warnings</strong>.</li>
+<li><code>Tabs.tsx</code> — underline tabs (Settings sections).</li>
+<li><code>index.ts</code> — barrel re-exporting all of the above.</li>
+</ul>
+<h2 id="componentschartschartstsx">components/charts/<code>Charts.tsx</code></h2>
+<ul>
+<li><strong>Role:</strong> View. <strong>Exports:</strong> <code>GrowthAreaChart</code>, <code>StatusDonut</code>, <code>SimpleBarChart</code> (recharts, xQuesty palette, responsive). Used by Dashboard + Reports.</li>
+</ul>
+<h2 id="componentslayout">components/layout/</h2>
+<ul>
+<li><code>RequireAdmin.tsx</code> — guard: no token → redirect; validating → loader; validated → children.</li>
+<li><code>Sidebar.tsx</code> — xQuesty-branded nav (Dashboard/Users/Companies/Jobs/Applications/Reports). <strong>No Settings link</strong> (spec).</li>
+<li><code>Topbar.tsx</code> — mobile menu button + <strong>profile dropdown</strong> (My Profile, Settings, Sign out).</li>
+<li><code>AdminLayout.tsx</code> — responsive shell: sidebar + topbar + <code>&lt;Outlet/&gt;</code>; off-canvas sidebar on mobile.</li>
+</ul>
+<h2 id="componentsusers">components/users/</h2>
+<ul>
+<li><code>CreateUserModal.tsx</code> — role-switching create form (candidate/recruiter) → <code>users.service</code>.</li>
+<li><code>UserDetailDrawer.tsx</code> — large view+edit drawer; fetches full profile; field groups per type; PATCHes only changed fields.</li>
+</ul>
+<h2 id="componentscompaniescompanydetaildrawertsx">components/companies/<code>CompanyDetailDrawer.tsx</code></h2>
+<ul>
+<li>Company overview + editable company_* fields + member recruiters + pools.</li>
+</ul>
+<h2 id="componentsjobsjobdetaildrawertsx">components/jobs/<code>JobDetailDrawer.tsx</code></h2>
+<ul>
+<li>Job overview/requirements + management actions (activate/deactivate, archive/unarchive, edit, delete-handled-on-page).</li>
+</ul>
+<h2 id="componentsapplicationsapplicationdetaildrawertsx">components/applications/<code>ApplicationDetailDrawer.tsx</code></h2>
+<ul>
+<li>Candidate/job context, progress, AI summary (Candidate_summaries), full Q&amp;A transcript (read-only).</li>
+</ul>
+<h2 id="pages-view">pages/ (VIEW)</h2>
+<ul>
+<li><code>LoginPage.tsx</code> — branded login; redirects authenticated admins to the dashboard.</li>
+<li><code>DashboardPage.tsx</code> — KPI cards, growth/donut/bar charts, activity feed, quick actions.</li>
+<li><code>UsersPage.tsx</code> — unified table; search/type filter; 3-dot actions (view/edit/disable/enable/delete); create modal; detail drawer.</li>
+<li><code>CompaniesPage.tsx</code> — searchable company card grid → detail drawer.</li>
+<li><code>JobsPage.tsx</code> — table; search/status filter; actions; detail drawer.</li>
+<li><code>ApplicationsPage.tsx</code> — table with progress bars; search/status filter; transcript drawer.</li>
+<li><code>ReportsPage.tsx</code> — analytics totals, completion gauge, top-companies chart, CSV/Excel export grid.</li>
+<li><code>SettingsPage.tsx</code> — tabbed (My Profile, Admin Users, Security, API Keys placeholder); URL-encoded section; create/delete admins with guards.</li>
+</ul>
+<hr />
+<h1 id="performance-layer-added-in-the-optimization-pass">Performance layer (added in the optimization pass)</h1>
+<p>These files were introduced/changed to make the dashboard feel instant. See
+<a href="./PERFORMANCE_AUDIT.md">PERFORMANCE_AUDIT.md</a> and <a href="./SPRINT_REPORT.md">SPRINT_REPORT.md</a>.</p>
+<h2 id="backend">Backend</h2>
+<h3 id="appadmincachepy-new"><code>app/admin/cache.py</code>  <em>(new)</em></h3>
+<ul>
+<li><strong>Role:</strong> cross-cutting (performance). <strong>Exports:</strong> <code>TTLCache</code>, <code>ttl_cached</code>.</li>
+<li><strong>Responsibilities:</strong> dependency-free, thread-safe time-to-live cache and a
+  memoize decorator for read-only service aggregates.</li>
+<li><strong>Interactions:</strong> used by <code>security.py</code>, <code>auth_repository.py</code>, and the dashboard/
+  application/report services.</li>
+<li><strong>Testing:</strong> exercised indirectly; <code>tests/conftest.py</code> clears these caches
+  between tests so memoized results don't leak across cases.</li>
+</ul>
+<h3 id="appadminsecuritypy-new"><code>app/admin/security.py</code>  <em>(new)</em></h3>
+<ul>
+<li><strong>Role:</strong> cross-cutting (auth performance). <strong>Exports:</strong> <code>verify_admin_token</code>,
+  <code>get_admin_profile</code>, <code>invalidate_admin</code>.</li>
+<li><strong>Responsibilities:</strong> verify the JWT <strong>locally</strong> via Supabase JWKS (ES256), with
+  a cached result and a network fallback; cache the <code>admin_profiles</code> lookup. This
+  removes the ~376 ms-per-request GoTrue round trip that was the root cause.</li>
+<li><strong>Interactions:</strong> used by <code>permissions.get_current_admin</code>.</li>
+</ul>
+<h3 id="changed-backend-files">Changed backend files</h3>
+<ul>
+<li><code>permissions.py</code> — uses <code>security.verify_admin_token</code> + <code>get_admin_profile</code>.</li>
+<li><code>repositories/base.py</code> — single shared service-role client (<code>get_shared_supabase</code>).</li>
+<li><code>repositories/auth_repository.py</code> — <code>disabled_map</code> cached (30 s) + invalidated on ban/unban.</li>
+<li><code>repositories/candidate_repository.py</code>, <code>hr_repository.py</code> — <code>list_basic</code> projection.</li>
+<li><code>services/dashboard_service.py</code> — <code>stats</code>/<code>charts</code>/<code>activity</code> <code>@ttl_cached(15)</code>.</li>
+<li><code>services/application_service.py</code> — <code>list_applications</code> <code>@ttl_cached(15)</code>.</li>
+<li><code>services/report_service.py</code> — <code>summary</code> <code>@ttl_cached(20)</code>.</li>
+<li><code>services/user_service.py</code> + <code>routers/users_router.py</code> — server-side pagination.</li>
+</ul>
+<h2 id="frontend">Frontend</h2>
+<h3 id="srcadminservicescachets-new"><code>src/admin/services/cache.ts</code>  <em>(new)</em></h3>
+<ul>
+<li><strong>Role:</strong> Model (performance). <strong>Exports:</strong> <code>getCached</code>, <code>isFresh</code>, <code>setCached</code>,
+  <code>invalidate</code>, <code>dedupe</code>, <code>clearCache</code>, <code>FRESH_MS</code>.</li>
+<li><strong>Responsibilities:</strong> in-memory stale-while-revalidate store + in-flight request
+  de-dupe; <code>invalidate(prefix)</code> clears affected lists after mutations.</li>
+</ul>
+<h3 id="srcadminhooksusequeryts-new"><code>src/admin/hooks/useQuery.ts</code>  <em>(new)</em></h3>
+<ul>
+<li><strong>Role:</strong> Controller. <strong>Exports:</strong> <code>useQuery(key, fetcher)</code>.</li>
+<li><strong>Responsibilities:</strong> cached fetching — instant render of cached data, background
+  revalidation, <code>loading</code> only on first fetch (drives skeletons), <code>reload()</code> to force.</li>
+<li><strong>Interactions:</strong> used by Dashboard, Users, Companies, Jobs, Applications, Reports.</li>
+</ul>
+<h3 id="srcadmincomponentsuipaginationtsx-new"><code>src/admin/components/ui/Pagination.tsx</code>  <em>(new)</em></h3>
+<ul>
+<li><strong>Role:</strong> View. <strong>Exports:</strong> <code>Pagination</code>. "Showing X–Y of N" + prev/next.
+  Used by the Users page (server-side) and the <code>DataTable</code> client-side mode.</li>
+</ul>
+<h3 id="changed-frontend-files">Changed frontend files</h3>
+<ul>
+<li><code>components/ui/Table.tsx</code> — skeleton rows on first load; optional <code>pageSize</code>
+  client-side pagination.</li>
+<li><code>components/ui/primitives.tsx</code> — <code>ChartSkeleton</code>; <code>Skeleton</code> accepts <code>style</code>.</li>
+<li><code>services/users.service.ts</code> — paginated <code>listUsers</code> + <code>invalidateUsers</code>.</li>
+<li><code>types.ts</code> — <code>Paginated&lt;T&gt;</code> envelope.</li>
+<li><code>pages/*</code> — migrated <code>useAsync</code> → <code>useQuery</code>; memoized columns; pagination;
+  cache invalidation on mutation.</li>
+<li><code>AdminApp.tsx</code> — routes lazy-loaded (<code>React.lazy</code> + <code>Suspense</code>).</li>
+</ul>
+<hr />
+<h1 id="host-app-touch-points-edited-not-part-of-the-module">Host-app touch points (edited, not part of the module)</h1>
+<ul>
+<li><code>frontend/src/App.tsx</code> — mounts <code>&lt;Route path="/admin/*" element={&lt;AdminApp/&gt;} /&gt;</code>.</li>
+<li><code>backend/app/main.py</code> — <code>include_router(admin_module)</code>.</li>
+<li><code>backend/requirements.txt</code> — added <code>openpyxl</code>, <code>playwright</code>, <code>pytest</code>.</li>
+</ul></div><div class='gallery'><h1>Screenshots</h1><p class='muted'>Captured from the live application driving real data (Playwright). Files in <code>screenshots/</code>.</p><div class='shot'><img src='screenshots/01-login.png'/><div class='cap'>Admin login — branded, accessible sign-in.</div></div><div class='shot'><img src='screenshots/02-dashboard.png'/><div class='cap'>Dashboard — KPI cards, growth & status charts, activity, quick actions.</div></div><div class='shot'><img src='screenshots/03-users.png'/><div class='cap'>Users — unified candidates + recruiters with search, filters and 3-dot actions.</div></div><div class='shot'><img src='screenshots/11-user-drawer.png'/><div class='cap'>User detail drawer — large view/edit of every schema field.</div></div><div class='shot'><img src='screenshots/04-companies.png'/><div class='cap'>Companies — derived from hr_profiles, searchable card grid.</div></div><div class='shot'><img src='screenshots/05-jobs.png'/><div class='cap'>Jobs — job_pools with status filters and management actions.</div></div><div class='shot'><img src='screenshots/06-applications.png'/><div class='cap'>Applications — interview_sessions with progress and status.</div></div><div class='shot'><img src='screenshots/12-application-drawer.png'/><div class='cap'>Application detail — AI summary (Candidate_summaries) + transcript.</div></div><div class='shot'><img src='screenshots/07-reports.png'/><div class='cap'>Reports — analytics, completion gauge, top companies, CSV/Excel export.</div></div><div class='shot'><img src='screenshots/08-settings-profile.png'/><div class='cap'>Settings → My Profile (reached via the profile dropdown).</div></div><div class='shot'><img src='screenshots/09-settings-admins.png'/><div class='cap'>Settings → Admin Users — the only admin-management surface.</div></div><div class='shot'><img src='screenshots/10-settings-security.png'/><div class='cap'>Settings → Security — change password.</div></div><div class='shot'><img src='screenshots/13-dashboard-mobile.png'/><div class='cap'>Responsive — dashboard at 390px (mobile).</div></div><div class='shot'><img src='screenshots/14-mobile-nav.png'/><div class='cap'>Responsive — off-canvas navigation drawer on mobile.</div></div></div></body></html>

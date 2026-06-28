@@ -43,7 +43,7 @@ export default function RequireRecruiter({ children }: { children?: React.ReactN
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-sm text-gray-500">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-bg text-sm text-gray-500 dark:text-muted">
         Loading…
       </div>
     );

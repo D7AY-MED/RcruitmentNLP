@@ -76,7 +76,7 @@ export default function CandidateApplyPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f4f4f4' }}>
+    <div className="min-h-screen flex flex-col dark:bg-bg" style={{ background: '#f4f4f4' }}>
       {/* ---------- HERO (Includes Floating Header inside same Grid Background) ---------- */}
       <JobHeroSection
         title={MOCK_OFFER.title}
@@ -95,23 +95,23 @@ export default function CandidateApplyPage() {
           {/* LEFT COLUMN (2/3) — Job Description */}
           <div className="md:col-span-2 space-y-8">
             {/* About the role */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <section className="rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-ink mb-4">
                 À propos du poste
               </h2>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-gray-700 dark:text-ink leading-relaxed">
                 {ABOUT}
               </p>
             </section>
 
             {/* Missions */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <section className="rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-ink mb-4">
                 Missions
               </h2>
               <ul className="space-y-3">
                 {MISSIONS.map((m) => (
-                  <li key={m} className="flex items-start gap-3 text-sm text-gray-700">
+                  <li key={m} className="flex items-start gap-3 text-sm text-gray-700 dark:text-ink">
                     <span
                       className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-brand"
                       aria-hidden="true"
@@ -123,13 +123,13 @@ export default function CandidateApplyPage() {
             </section>
 
             {/* Required profile */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <section className="rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-ink mb-4">
                 Profil recherché
               </h2>
               <ul className="space-y-3">
                 {PROFILE.map((p) => (
-                  <li key={p} className="flex items-start gap-3 text-sm text-gray-700">
+                  <li key={p} className="flex items-start gap-3 text-sm text-gray-700 dark:text-ink">
                     <CheckCircle2
                       className="w-4 h-4 text-brand mt-0.5 shrink-0"
                       aria-hidden="true"
@@ -141,13 +141,13 @@ export default function CandidateApplyPage() {
             </section>
 
             {/* Benefits */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <section className="rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-ink mb-4">
                 Ce que nous offrons
               </h2>
               <ul className="space-y-3">
                 {BENEFITS.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-sm text-gray-700">
+                  <li key={b} className="flex items-start gap-3 text-sm text-gray-700 dark:text-ink">
                     <span
                       className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-brand"
                       aria-hidden="true"
@@ -159,8 +159,8 @@ export default function CandidateApplyPage() {
             </section>
 
             {/* Recruitment process */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-5">
+            <section className="rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-ink mb-5">
                 Processus de recrutement
               </h2>
               <ol className="space-y-5">
@@ -171,7 +171,7 @@ export default function CandidateApplyPage() {
                     >
                       {step}
                     </span>
-                    <span className="text-sm text-gray-700 pt-1 leading-relaxed">
+                    <span className="text-sm text-gray-700 dark:text-ink pt-1 leading-relaxed">
                       {label}
                     </span>
                   </li>
@@ -191,7 +191,7 @@ export default function CandidateApplyPage() {
       </main>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="border-t border-border-brand bg-white/90" style={{ backdropFilter: 'blur(16px)' }}>
+      <footer className="border-t border-border-brand bg-white/90 dark:bg-card/80" style={{ backdropFilter: 'blur(16px)' }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col gap-6">
           {/* Top row */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -202,7 +202,7 @@ export default function CandidateApplyPage() {
                   PooLink
                 </span>
               </a>
-              <nav className="flex items-center gap-5 text-[0.85rem] font-medium text-gray-700">
+              <nav className="flex items-center gap-5 text-[0.85rem] font-medium text-gray-700 dark:text-ink">
                 <a href="#" className="hover:text-brand transition-colors">
                   Offres
                 </a>
@@ -217,7 +217,7 @@ export default function CandidateApplyPage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg border border-border-brand bg-white px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 hover:bg-brand-light hover:border-brand/35 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-brand bg-white dark:bg-card px-3 py-2 text-[0.8125rem] font-semibold text-gray-800 dark:text-ink hover:bg-brand-light hover:border-brand/35 transition-colors"
               >
                 Newsletter
               </button>
@@ -225,14 +225,14 @@ export default function CandidateApplyPage() {
                 <a
                   href="#"
                   aria-label="LinkedIn"
-                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-500 text-xs font-semibold hover:bg-brand-light hover:border-brand/35 transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white dark:bg-card flex items-center justify-center text-gray-500 dark:text-muted text-xs font-semibold hover:bg-brand-light hover:border-brand/35 transition-colors"
                 >
                   in
                 </a>
                 <button
                   type="button"
                   aria-label="Retour en haut"
-                  className="h-9 w-9 rounded-lg border border-border-brand bg-white flex items-center justify-center text-gray-600 hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
+                  className="h-9 w-9 rounded-lg border border-border-brand bg-white dark:bg-card flex items-center justify-center text-gray-600 dark:text-ink hover:bg-brand-light hover:border-brand/35 hover:text-brand transition-colors"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   <ArrowUp className="w-4 h-4" aria-hidden="true" />
@@ -245,7 +245,7 @@ export default function CandidateApplyPage() {
           <div className="h-px bg-border-brand" />
 
           {/* Bottom row */}
-          <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-3 text-[0.75rem] text-gray-500">
+          <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-3 text-[0.75rem] text-gray-500 dark:text-muted">
             <p>© {new Date().getFullYear()} PooLink. Tous droits réservés.</p>
             <nav className="flex items-center gap-4">
               <a href="#" className="hover:text-brand transition-colors">

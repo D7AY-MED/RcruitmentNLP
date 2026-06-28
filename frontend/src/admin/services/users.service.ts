@@ -56,3 +56,10 @@ export const enableUser = (type: UserType, id: string) =>
 
 export const deleteUser = (type: UserType, id: string) =>
   http.del(`/api/v1/admin/users/${type}/${id}`);
+
+/** Admin sets a new password for any candidate/recruiter account. */
+export const setUserPassword = (type: UserType, id: string, newPassword: string) =>
+  http.post<{ ok: boolean; message: string }>(
+    `/api/v1/admin/users/${type}/${id}/password`,
+    { new_password: newPassword }
+  );

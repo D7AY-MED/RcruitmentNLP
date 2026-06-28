@@ -147,7 +147,7 @@ async def me(current=Depends(get_current_recruiter)):
         created_at=parse_datetime(current.get("created_at"))
     )
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class RecruiterProfileUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -184,3 +184,25 @@ async def update_profile(payload: RecruiterProfileUpdate, current=Depends(get_cu
     except Exception as e:
         logger.error("Failed to update recruiter profile: %s", e)
         raise HTTPException(status_code=500, detail=f"Database update failed: {str(e)}")
+
+
+class RecruiterPasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)
+
+
+@router.post("/password")
+async def change_password(payload: RecruiterPasswordChange, current=Depends(get_current_recruiter)):
+    client = get_supabase()
+    # Verify the current password before changing it.
+    try:
+        client.auth.sign_in_with_password(
+            {"email": current["email"], "password": payload.current_password}
+        )
+    except Exception:
+        raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect.")
+    try:
+        client.auth.admin.update_user_by_id(str(current["id"]), {"password": payload.new_password})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Échec de la mise à jour du mot de passe: {e}")
+    return {"ok": True, "message": "Mot de passe mis à jour."}

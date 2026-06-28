@@ -62,9 +62,9 @@ export function ActionsMenu({ items, label = "Open actions" }: { items: ActionIt
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-colors",
-          "hover:bg-gray-100 hover:text-gray-700",
-          open && "bg-gray-100 text-gray-700"
+          "inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 dark:text-muted transition-colors",
+          "hover:bg-gray-100 dark:hover:bg-surface-2 hover:text-gray-700",
+          open && "bg-gray-100 dark:bg-surface-2 text-gray-700"
         )}
       >
         <MoreHorizontal className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function ActionsMenu({ items, label = "Open actions" }: { items: ActionIt
             ref={menuRef}
             role="menu"
             style={{ top: coords.top, left: Math.max(8, coords.left) }}
-            className="fixed z-[60] w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+            className="fixed z-[60] w-48 overflow-hidden rounded-lg border border-gray-200 dark:border-border-brand bg-white dark:bg-card py-1 shadow-lg"
           >
             {items.map((item, i) => (
               <button
@@ -91,8 +91,8 @@ export function ActionsMenu({ items, label = "Open actions" }: { items: ActionIt
                   "flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors",
                   "disabled:cursor-not-allowed disabled:opacity-40",
                   item.danger
-                    ? "text-red-600 hover:bg-red-50"
-                    : "text-gray-700 hover:bg-gray-50"
+                    ? "text-danger hover:bg-danger-soft dark:hover:bg-danger-soft"
+                    : "text-gray-700 dark:text-ink hover:bg-gray-50 dark:hover:bg-surface-2"
                 )}
               >
                 {item.icon && <span className="shrink-0">{item.icon}</span>}

@@ -40,19 +40,19 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-200",
+        "flex h-full flex-col border-r border-gray-200 dark:border-border-brand bg-white dark:bg-card transition-all duration-200",
         collapsed ? "w-20" : "w-64"
       )}
     >
       {/* Brand */}
-      <div className="flex h-16 items-center gap-2.5 border-b border-gray-200 px-5">
+      <div className="flex h-16 items-center gap-2.5 border-b border-gray-200 dark:border-border-brand px-5">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
           x
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-gray-900">xQuesty</p>
-            <p className="truncate text-xs text-gray-400">Admin Console</p>
+            <p className="truncate text-sm font-bold text-gray-900 dark:text-ink">PooLink</p>
+            <p className="truncate text-xs text-gray-400 dark:text-muted">Admin Console</p>
           </div>
         )}
       </div>
@@ -70,8 +70,8 @@ export function Sidebar({
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 collapsed && "justify-center px-0",
                 isActive
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-indigo-50 dark:bg-brand-light text-indigo-700"
+                  : "text-gray-600 dark:text-ink hover:bg-gray-50 dark:hover:bg-surface-2 hover:text-gray-900"
               )
             }
             title={collapsed ? label : undefined}
@@ -83,11 +83,11 @@ export function Sidebar({
       </nav>
 
       {/* Collapse toggle (desktop only) */}
-      <div className="hidden border-t border-gray-200 p-3 lg:block">
+      <div className="hidden border-t border-gray-200 dark:border-border-brand p-3 lg:block">
         <button
           onClick={onToggle}
           className={cn(
-            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700",
+            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-2 hover:text-gray-700",
             collapsed && "justify-center px-0"
           )}
         >

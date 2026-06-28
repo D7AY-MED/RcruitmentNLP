@@ -127,8 +127,8 @@ export function UsersPage() {
           <div className="flex items-center gap-3">
             <Avatar name={u.full_name} />
             <div className="min-w-0">
-              <p className="truncate font-medium text-gray-900">{u.full_name || "—"}</p>
-              <p className="truncate text-xs text-gray-500">{u.email}</p>
+              <p className="truncate font-medium text-gray-900 dark:text-ink">{u.full_name || "—"}</p>
+              <p className="truncate text-xs text-gray-500 dark:text-muted">{u.email}</p>
             </div>
           </div>
         ),
@@ -141,9 +141,9 @@ export function UsersPage() {
           </Badge>
         ),
       },
-      { header: "Company", cell: (u) => <span className="text-gray-600">{u.company_name || "—"}</span> },
+      { header: "Company", cell: (u) => <span className="text-gray-600 dark:text-ink">{u.company_name || "—"}</span> },
       { header: "Status", cell: (u) => <StatusBadge active={!u.disabled} /> },
-      { header: "Joined", cell: (u) => <span className="text-gray-500">{formatDate(u.created_at)}</span> },
+      { header: "Joined", cell: (u) => <span className="text-gray-500 dark:text-muted">{formatDate(u.created_at)}</span> },
       {
         header: "",
         align: "right",
@@ -181,7 +181,7 @@ export function UsersPage() {
       />
 
       <Card>
-        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-border-brand">
           <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
             <SearchInput value={search} onChange={onSearch} placeholder="Search by name, email or company…" className="sm:max-w-xs" />
             <Select value={typeFilter} onChange={(e) => onType(e.target.value as "" | UserType)} className="sm:w-44">
@@ -190,8 +190,8 @@ export function UsersPage() {
               <option value="recruiter">Recruiters</option>
             </Select>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            {validating && !loading && <span className="text-gray-400">Refreshing…</span>}
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-muted">
+            {validating && !loading && <span className="text-gray-400 dark:text-muted">Refreshing…</span>}
             <Badge tone="gray">{total} total</Badge>
           </div>
         </div>

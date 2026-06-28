@@ -93,7 +93,7 @@ export function useRecruiter(): AuthUser {
       id: 'demo-recruiter',
       email: 'recruiter@example.com',
       fullName: 'Demo Recruiter',
-      companyName: 'xQuesty',
+      companyName: 'PooLink',
     };
   }
   return ctx.user;

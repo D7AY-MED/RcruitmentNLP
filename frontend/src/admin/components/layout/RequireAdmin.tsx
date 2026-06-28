@@ -22,10 +22,10 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-surface">
         <div className="flex flex-col items-center gap-3">
           <Spinner className="h-7 w-7" />
-          <p className="text-sm text-gray-500">Verifying your session…</p>
+          <p className="text-sm text-gray-500 dark:text-muted">Verifying your session…</p>
         </div>
       </div>
     );

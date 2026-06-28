@@ -19,7 +19,7 @@ export function Tabs({
   className?: string;
 }) {
   return (
-    <div className={cn("border-b border-gray-200", className)}>
+    <div className={cn("border-b border-gray-200 dark:border-border-brand", className)}>
       <nav className="-mb-px flex gap-6" role="tablist">
         {tabs.map((t) => {
           const active = t.value === value;
@@ -32,8 +32,8 @@ export function Tabs({
               className={cn(
                 "whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors",
                 active
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-gray-500 dark:text-muted hover:border-gray-300 dark:hover:border-border-brand hover:text-gray-700"
               )}
             >
               {t.label}

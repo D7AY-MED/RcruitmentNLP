@@ -13,6 +13,7 @@ from app.admin.schemas.common import MessageOut
 from app.admin.schemas.user_schemas import (
     CandidateCreate,
     CandidateUpdate,
+    PasswordSet,
     RecruiterCreate,
     RecruiterUpdate,
 )
@@ -57,6 +58,12 @@ async def update_candidate(user_id: str, payload: CandidateUpdate,
 async def update_recruiter(user_id: str, payload: RecruiterUpdate,
                            _admin: dict = Depends(get_current_admin)):
     return UserService().update_user("recruiter", user_id, payload.model_dump(exclude_unset=True))
+
+
+@router.post("/{user_type}/{user_id}/password", response_model=dict)
+async def set_user_password(user_type: str, user_id: str, payload: PasswordSet,
+                            _admin: dict = Depends(get_current_admin)):
+    return UserService().set_password(user_type, user_id, payload.new_password)
 
 
 @router.post("/{user_type}/{user_id}/disable", response_model=dict)

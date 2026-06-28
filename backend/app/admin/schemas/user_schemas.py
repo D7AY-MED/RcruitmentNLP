@@ -8,7 +8,15 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+
+
+# --- Security ----------------------------------------------------------------
+
+class PasswordSet(BaseModel):
+    """Admin sets a new password for any candidate/recruiter account."""
+
+    new_password: str = Field(min_length=6)
 
 
 # --- Candidates --------------------------------------------------------------

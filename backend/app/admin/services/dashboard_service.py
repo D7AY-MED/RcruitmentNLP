@@ -45,7 +45,7 @@ class DashboardService:
     # --- KPI cards -----------------------------------------------------------
 
     @ttl_cached(15.0)
-    def stats(self) -> AdminStats:
+    def     stats(self) -> AdminStats:
         recruiter_rows = self.recruiters.list_all()
         applications = ApplicationService().list_applications()
         companies = {

@@ -11,7 +11,6 @@ import {
   Globe,
   Link,
   Loader2,
-  LogOut,
   Mail,
   MapPin,
   Pencil,
@@ -22,7 +21,6 @@ import {
 } from 'lucide-react';
 import {
   getCurrentCandidate,
-  logout as logoutCandidate,
   updateCandidateProfile,
   uploadProfilePicture,
   type Candidate,
@@ -56,7 +54,7 @@ export default function CandidateProfilePage() {
   useEffect(() => {
     const token = typeof window !== 'undefined' && window.localStorage.getItem('candidate_token');
     if (!token) {
-      navigate('/', { replace: true });
+      navigate('/login/candidate', { replace: true });
       return;
     }
 
@@ -67,7 +65,9 @@ export default function CandidateProfilePage() {
         setChecking(false);
       })
       .catch(() => {
-        navigate('/', { replace: true });
+        // Don't bounce to the landing page on a transient backend error —
+        // just stop loading; the shell still guards the route.
+        setChecking(false);
       });
   }, [navigate]);
 
@@ -126,11 +126,6 @@ export default function CandidateProfilePage() {
     }
   }
 
-  function handleLogout() {
-    logoutCandidate();
-    navigate('/', { replace: true });
-  }
-
   function setDraftField<K extends keyof Candidate>(key: K, value: Candidate[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
   }
@@ -151,81 +146,72 @@ export default function CandidateProfilePage() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-light/35">
+      <div className="flex min-h-screen items-center justify-center bg-brand-light/35 dark:bg-bg">
         <Loader2 className="w-8 h-8 animate-spin text-brand" />
       </div>
     );
   }
 
-  if (!candidate) return null;
+  if (!candidate)
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-center text-sm text-muted px-6">
+        Impossible de charger votre profil pour le moment. Vérifiez votre connexion, puis réessayez.
+      </div>
+    );
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-light/35">
-      {/* Header */}
-      <header className="border-b border-border-brand bg-white/90 sticky top-0 z-40"
-        style={{ backdropFilter: 'blur(16px)' }}>
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold tracking-tight">
-            <span className="text-brand">
-              PooLink
-            </span>
-          </a>
-          <div className="flex items-center gap-3">
-            {mode === 'view' ? (
-              <>
-                <button
-                  onClick={startEdit}
-                  className="h-9 px-4 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98] flex items-center gap-1.5"
-                >
-                  <Pencil className="w-4 h-4" />
-                  Modifier
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="h-9 px-4 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Déconnexion
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={saveEdit}
-                  disabled={saving}
-                  className="h-9 px-4 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-brand-hover transition-all active:scale-[0.98] flex items-center gap-1.5 disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Enregistrer
-                </button>
-                <button
-                  onClick={cancelEdit}
-                  disabled={saving}
-                  className="h-9 px-4 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
-                >
-                  <X className="w-4 h-4" />
-                  Annuler
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
+    <div>
       {/* Message toast */}
       {message && (
         <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-xl text-sm font-bold transition-all ${
           message.type === 'success'
-            ? 'bg-green-50 text-green-700 border border-green-200'
-            : 'bg-red-50 text-red-700 border border-red-200'
+            ? 'bg-success-soft text-success border border-success/30'
+            : 'bg-danger-soft text-danger border border-danger/30'
         }`}>
           {message.text}
         </div>
       )}
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 sm:py-12">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-ink">Mon profil</h1>
+          <p className="mt-1 text-sm text-muted">Complétez votre profil pour de meilleures recommandations.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {mode === 'view' ? (
+            <button
+              onClick={startEdit}
+              className="h-9 px-4 rounded-xl text-sm font-semibold text-brand-contrast bg-brand hover:bg-brand-hover transition-all flex items-center gap-1.5"
+            >
+              <Pencil className="w-4 h-4" />
+              Modifier
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={saveEdit}
+                disabled={saving}
+                className="h-9 px-4 rounded-xl text-sm font-semibold text-brand-contrast bg-brand hover:bg-brand-hover transition-all flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                Enregistrer
+              </button>
+              <button
+                onClick={cancelEdit}
+                disabled={saving}
+                className="h-9 px-4 rounded-xl text-sm font-semibold text-ink bg-surface-2 hover:bg-surface transition-colors flex items-center gap-1.5"
+              >
+                <X className="w-4 h-4" />
+                Annuler
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="max-w-4xl">
         {/* Profile Header Card */}
-        <div className="rounded-2xl border border-border-brand bg-white p-6 sm:p-8 shadow-sm mb-6">
+        <div className="rounded-2xl border border-border-brand bg-white dark:bg-card p-6 sm:p-8 shadow-sm mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             <div className="relative shrink-0">
@@ -268,7 +254,7 @@ export default function CandidateProfilePage() {
                 {candidate.full_name || '---'}
               </h1>
               {candidate.title && (
-                <p className="text-base text-gray-550 mt-1">{candidate.title}</p>
+                <p className="text-base text-gray-550 dark:text-muted mt-1">{candidate.title}</p>
               )}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                 {candidate.open_to_work !== false && (
@@ -278,7 +264,7 @@ export default function CandidateProfilePage() {
                   </span>
                 )}
                 {joinedDate && (
-                  <span className="text-xs text-gray-400 font-medium">
+                  <span className="text-xs text-gray-400 dark:text-muted font-medium">
                     Membre depuis {joinedDate}
                   </span>
                 )}
@@ -296,11 +282,11 @@ export default function CandidateProfilePage() {
 
         {/* Open to work toggle at bottom */}
         {mode === 'edit' && (
-          <div className="rounded-2xl border border-border-brand bg-white p-6 shadow-sm mt-6">
+          <div className="rounded-2xl border border-border-brand bg-white dark:bg-card p-6 shadow-sm mt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-ink">Open to work</p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-500 dark:text-muted mt-0.5">
                   Indiquer que vous êtes ouvert aux opportunités
                 </p>
               </div>
@@ -319,7 +305,7 @@ export default function CandidateProfilePage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
@@ -332,15 +318,15 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
       {/* Personal Info */}
       <SectionCard title="Informations personnelles" icon={<User className="w-4 h-4 text-brand" />}>
         <Field label="Nom complet" value={candidate.full_name} />
-        <Field label="Email" value={candidate.email} icon={<Mail className="w-3.5 h-3.5 text-gray-400" />} />
-        <Field label="Téléphone" value={candidate.phone} icon={<Phone className="w-3.5 h-3.5 text-gray-400" />} />
-        <Field label="Ville" value={candidate.city} icon={<MapPin className="w-3.5 h-3.5 text-gray-400" />} />
+        <Field label="Email" value={candidate.email} icon={<Mail className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />} />
+        <Field label="Téléphone" value={candidate.phone} icon={<Phone className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />} />
+        <Field label="Ville" value={candidate.city} icon={<MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />} />
       </SectionCard>
 
       {/* Professional */}
       <SectionCard title="Informations professionnelles" icon={<Briefcase className="w-4 h-4 text-brand" />}>
         <Field label="Poste actuel" value={candidate.current_job_title} />
-        <Field label="Entreprise actuelle" value={candidate.current_company} icon={<Building2 className="w-3.5 h-3.5 text-gray-400" />} />
+        <Field label="Entreprise actuelle" value={candidate.current_company} icon={<Building2 className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />} />
         <Field label="Titre" value={candidate.title} />
         <Field
           label="Années d'expérience"
@@ -360,7 +346,7 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
         <Field
           label="LinkedIn"
           value={candidate.linkedin_url}
-          icon={<Link className="w-3.5 h-3.5 text-gray-400" />}
+          icon={<Link className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />}
           isLink
         />
         <Field
@@ -370,12 +356,12 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
         <Field
           label="Salaire min"
           value={candidate.expected_salary_min != null ? `${candidate.expected_salary_min.toLocaleString()} €` : null}
-          icon={<DollarSign className="w-3.5 h-3.5 text-gray-400" />}
+          icon={<DollarSign className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />}
         />
         <Field
           label="Salaire max"
           value={candidate.expected_salary_max != null ? `${candidate.expected_salary_max.toLocaleString()} €` : null}
-          icon={<DollarSign className="w-3.5 h-3.5 text-gray-400" />}
+          icon={<DollarSign className="w-3.5 h-3.5 text-gray-400 dark:text-muted" />}
         />
       </SectionCard>
     </div>
@@ -384,8 +370,8 @@ function ViewMode({ candidate }: { candidate: Candidate }) {
 
 function SectionCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border-brand bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-105">
+    <div className="rounded-2xl border border-border-brand bg-white dark:bg-card p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-105 dark:border-border-brand">
         {icon}
         <h2 className="text-sm font-bold text-ink">{title}</h2>
       </div>
@@ -399,7 +385,7 @@ function SectionCard({ title, icon, children }: { title: string; icon: React.Rea
 function Field({ label, value, icon, isLink }: { label: string; value: string | null | undefined; icon?: React.ReactNode; isLink?: boolean }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-450 mb-0.5">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-450 dark:text-muted mb-0.5">{label}</p>
       {value ? (
         <p className="text-sm font-medium text-ink flex items-center gap-1.5">
           {icon}
@@ -412,7 +398,7 @@ function Field({ label, value, icon, isLink }: { label: string; value: string | 
           )}
         </p>
       ) : (
-        <p className="text-sm text-gray-300 italic">—</p>
+        <p className="text-sm text-gray-300 dark:text-muted italic">—</p>
       )}
     </div>
   );
@@ -478,7 +464,7 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold uppercase tracking-wider text-gray-450 mb-1 block">
+      <label className="text-xs font-semibold uppercase tracking-wider text-gray-450 dark:text-muted mb-1 block">
         {label}
       </label>
       <input
@@ -486,7 +472,7 @@ function InputField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full h-10 px-3 rounded-xl border border-border-brand bg-white text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand transition-all disabled:bg-gray-50 disabled:text-gray-400"
+        className="w-full h-10 px-3 rounded-xl border border-border-brand bg-white dark:bg-surface text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand transition-all disabled:bg-gray-50 dark:disabled:bg-surface-2 disabled:text-gray-400 dark:disabled:text-muted"
       />
     </div>
   );

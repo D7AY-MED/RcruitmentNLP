@@ -19,24 +19,24 @@ export function KpiCard({
   loading?: boolean;
 }) {
   const toneClasses: Record<string, string> = {
-    indigo: "bg-indigo-50 text-indigo-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    amber: "bg-amber-50 text-amber-600",
-    blue: "bg-blue-50 text-blue-600",
-    rose: "bg-rose-50 text-rose-600",
+    indigo: "bg-brand-light text-brand",
+    emerald: "bg-success-soft text-success",
+    amber: "bg-warning-soft text-warning",
+    blue: "bg-brand-accent-50 text-brand-accent",
+    rose: "bg-danger-soft text-danger",
   };
 
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-500">{label}</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-muted">{label}</p>
           {loading ? (
             <Skeleton className="mt-2 h-8 w-16" />
           ) : (
-            <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900">{value}</p>
+            <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-ink">{value}</p>
           )}
-          {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+          {hint && <p className="mt-1 text-xs text-gray-400 dark:text-muted">{hint}</p>}
         </div>
         <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", toneClasses[tone])}>
           {icon}

@@ -32,7 +32,7 @@ export default function AppSidebar({ user }: AppSidebarProps) {
         {isCollapsed && <h2 className="text-xl font-bold text-ink tracking-tight mx-auto">PL</h2>}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-5 bg-white border border-border-brand rounded-full p-1 text-gray-500 hover:text-ink shadow-sm z-10"
+          className="absolute -right-3 top-5 bg-white dark:bg-card border border-border-brand rounded-full p-1 text-gray-500 dark:text-muted hover:text-ink shadow-sm z-10"
           title={isCollapsed ? 'Expand menu' : 'Collapse menu'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -50,10 +50,10 @@ export default function AppSidebar({ user }: AppSidebarProps) {
               className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                 isActive
                   ? 'bg-brand-light text-brand font-semibold'
-                  : 'text-gray-600 hover:text-ink hover:bg-gray-100/50'
+                  : 'text-gray-600 dark:text-ink hover:text-ink hover:bg-gray-100/50 dark:hover:bg-surface-2'
               } ${isCollapsed ? 'justify-center' : ''}`}
             >
-              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand' : 'text-gray-400'}`} />
+              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand' : 'text-gray-400 dark:text-muted'}`} />
               {!isCollapsed && link.name}
             </Link>
           );
@@ -63,7 +63,7 @@ export default function AppSidebar({ user }: AppSidebarProps) {
         <button
           onClick={handleLogout}
           title={isCollapsed ? 'Log out' : undefined}
-          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-650 ${
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-ink transition-colors hover:bg-red-50 dark:hover:bg-danger-soft hover:text-red-650 ${
             isCollapsed ? 'justify-center' : ''
           }`}
         >

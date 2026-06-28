@@ -155,8 +155,8 @@ export default function RecruiterProfileModal({
   ];
 
   const inputClasses =
-    'w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none shadow-sm transition-all';
-  const labelClasses = 'block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5';
+    'w-full rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-surface px-3.5 py-2.5 text-sm text-gray-900 dark:text-ink placeholder:text-gray-400 dark:placeholder:text-[hsl(var(--text-muted))] hover:border-gray-300 dark:hover:border-border-brand focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none shadow-sm transition-all';
+  const labelClasses = 'block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-muted mb-1.5';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -167,16 +167,16 @@ export default function RecruiterProfileModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[85vh] mx-4 bg-white rounded-2xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden animate-slide-in">
+      <div className="relative w-full max-w-2xl max-h-[85vh] mx-4 bg-white dark:bg-card rounded-2xl border border-gray-200 dark:border-border-brand shadow-2xl flex flex-col overflow-hidden animate-slide-in">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-150 shrink-0">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-150 dark:border-border-brand shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 leading-tight">Account Settings</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Manage your personal profile and company attributes.</p>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-ink leading-tight">Account Settings</h2>
+            <p className="text-xs text-gray-500 dark:text-muted mt-0.5">Manage your personal profile and company attributes.</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="p-1.5 rounded-xl text-gray-400 dark:text-muted hover:text-gray-600 dark:hover:text-ink hover:bg-gray-100 dark:hover:bg-surface-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <X className="w-5 h-5" />
           </button>
@@ -184,7 +184,7 @@ export default function RecruiterProfileModal({
 
         {/* Segmented Tab Indicator */}
         <div className="px-6 pt-5 shrink-0">
-          <div className="flex p-1 bg-gray-100/80 rounded-xl max-w-xs shadow-inner">
+          <div className="flex p-1 bg-gray-100/80 dark:bg-surface-2 rounded-xl max-w-xs shadow-inner">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -195,8 +195,8 @@ export default function RecruiterProfileModal({
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 focus:outline-none ${
                     isActive
-                      ? 'bg-white text-indigo-600 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-800'
+                      ? 'bg-white dark:bg-card text-indigo-600 shadow-sm'
+                      : 'text-gray-500 dark:text-muted hover:text-gray-800 dark:hover:text-ink'
                   }`}
                 >
                   <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
@@ -212,13 +212,13 @@ export default function RecruiterProfileModal({
           {activeTab === 'profile' && (
             <div className="space-y-6">
               {/* Logo / Avatar Upload Dropzone */}
-              <div className="flex flex-col sm:flex-row items-center gap-5 p-4 bg-gray-50/50 rounded-2xl border border-gray-150 shadow-inner">
+              <div className="flex flex-col sm:flex-row items-center gap-5 p-4 bg-gray-50/50 dark:bg-surface rounded-2xl border border-gray-150 dark:border-border-brand shadow-inner">
                 <div className="relative group shrink-0">
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
                       alt="Company logo"
-                      className="w-20 h-20 rounded-2xl object-cover border border-gray-200 shadow-sm"
+                      className="w-20 h-20 rounded-2xl object-cover border border-gray-200 dark:border-border-brand shadow-sm"
                     />
                   ) : (
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm border border-indigo-200/50">
@@ -242,8 +242,8 @@ export default function RecruiterProfileModal({
                   />
                 </div>
                 <div className="text-center sm:text-left flex-1">
-                  <h3 className="text-sm font-semibold text-gray-900">Company Logo</h3>
-                  <p className="text-xs text-gray-500 mt-1 leading-normal max-w-sm">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-ink">Company Logo</h3>
+                  <p className="text-xs text-gray-500 dark:text-muted mt-1 leading-normal max-w-sm">
                     Recommended: Square dimensions. JPG, PNG or SVG format under 5 MB.
                   </p>
                   <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -258,7 +258,7 @@ export default function RecruiterProfileModal({
                       <button
                         type="button"
                         onClick={handleRemoveAvatar}
-                        className="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-destructive bg-white hover:bg-destructive/5 border border-gray-200 hover:border-destructive/20 rounded-lg transition-colors flex items-center gap-1.5"
+                        className="px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-ink hover:text-destructive bg-white dark:bg-card hover:bg-destructive/5 border border-gray-200 dark:border-border-brand hover:border-destructive/20 rounded-lg transition-colors flex items-center gap-1.5"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         Remove
@@ -270,12 +270,12 @@ export default function RecruiterProfileModal({
 
               {/* Personal Details Section */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 pb-2">Personal Information</h4>
+                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 dark:border-border-brand pb-2">Personal Information</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClasses}>Full Name</label>
                     <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="text"
                         value={fullName}
@@ -288,19 +288,19 @@ export default function RecruiterProfileModal({
                   <div>
                     <label className={labelClasses}>Email Address</label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="email"
                         value={user.email}
                         disabled
-                        className={`${inputClasses} pl-10 bg-gray-50 text-gray-500 cursor-not-allowed border-gray-200/60 shadow-none`}
+                        className={`${inputClasses} pl-10 bg-gray-50 dark:bg-surface text-gray-500 dark:text-muted cursor-not-allowed border-gray-200/60 dark:border-border-brand shadow-none`}
                       />
                     </div>
                   </div>
                   <div>
                     <label className={labelClasses}>Phone Number</label>
                     <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="tel"
                         value={phone}
@@ -313,7 +313,7 @@ export default function RecruiterProfileModal({
                   <div>
                     <label className={labelClasses}>Company Name</label>
                     <div className="relative">
-                      <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="text"
                         value={companyName}
@@ -332,11 +332,11 @@ export default function RecruiterProfileModal({
             <div className="space-y-6">
               {/* About Section */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 pb-2">About the Company</h4>
+                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 dark:border-border-brand pb-2">About the Company</h4>
                 <div>
                   <label className={labelClasses}>Company Description</label>
                   <div className="relative">
-                    <FileText className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                    <FileText className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-muted" />
                     <textarea
                       rows={3}
                       value={companyDescription}
@@ -351,7 +351,7 @@ export default function RecruiterProfileModal({
                   <div className="sm:col-span-1">
                     <label className={labelClasses}>Industry</label>
                     <div className="relative">
-                      <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="text"
                         value={companyIndustry}
@@ -378,7 +378,7 @@ export default function RecruiterProfileModal({
                   <div className="sm:col-span-1">
                     <label className={labelClasses}>Founded Year</label>
                     <div className="relative">
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="number"
                         min={1800}
@@ -394,13 +394,13 @@ export default function RecruiterProfileModal({
               </div>
 
               {/* Web presence Section */}
-              <div className="space-y-4 border-t border-gray-100 pt-5">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 pb-2">Web & Social Presence</h4>
+              <div className="space-y-4 border-t border-gray-100 dark:border-border-brand pt-5">
+                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 dark:border-border-brand pb-2">Web & Social Presence</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClasses}>Website URL</label>
                     <div className="relative">
-                      <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="url"
                         value={companyWebsite}
@@ -413,7 +413,7 @@ export default function RecruiterProfileModal({
                   <div>
                     <label className={labelClasses}>LinkedIn Page</label>
                     <div className="relative">
-                      <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="url"
                         value={companyLinkedinUrl}
@@ -427,13 +427,13 @@ export default function RecruiterProfileModal({
               </div>
 
               {/* Contact info Section */}
-              <div className="space-y-4 border-t border-gray-100 pt-5">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 pb-2">Company Contact Details</h4>
+              <div className="space-y-4 border-t border-gray-100 dark:border-border-brand pt-5">
+                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-gray-100 dark:border-border-brand pb-2">Company Contact Details</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClasses}>Inquiries Email</label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="email"
                         value={companyEmail}
@@ -446,7 +446,7 @@ export default function RecruiterProfileModal({
                   <div>
                     <label className={labelClasses}>Inquiries Phone</label>
                     <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted" />
                       <input
                         type="tel"
                         value={companyPhone}
@@ -460,7 +460,7 @@ export default function RecruiterProfileModal({
                 <div>
                   <label className={labelClasses}>Office Address</label>
                   <div className="relative">
-                    <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+                    <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-muted" />
                     <textarea
                       rows={2}
                       value={companyAddress}
@@ -476,11 +476,11 @@ export default function RecruiterProfileModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-150 bg-gray-50/50 shrink-0">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-150 dark:border-border-brand bg-gray-50/50 dark:bg-surface shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer shadow-sm"
+            className="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-ink bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-xl hover:bg-gray-50 dark:hover:bg-surface-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer shadow-sm"
           >
             Cancel
           </button>

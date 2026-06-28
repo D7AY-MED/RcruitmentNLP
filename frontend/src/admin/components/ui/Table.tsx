@@ -42,9 +42,9 @@ function TableSkeleton<T>({ columns, rows }: { columns: Column<T>[]; rows: numbe
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-gray-200 bg-gray-50/60">
+          <tr className="border-b border-gray-200 dark:border-border-brand bg-gray-50/60 dark:bg-surface">
             {columns.map((col, i) => (
-              <th key={i} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <th key={i} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-muted">
                 {col.header}
               </th>
             ))}
@@ -52,7 +52,7 @@ function TableSkeleton<T>({ columns, rows }: { columns: Column<T>[]; rows: numbe
         </thead>
         <tbody>
           {Array.from({ length: rows }).map((_, r) => (
-            <tr key={r} className="border-b border-gray-100 last:border-0">
+            <tr key={r} className="border-b border-gray-100 dark:border-border-brand last:border-0">
               {columns.map((col, c) => (
                 <td key={c} className="px-4 py-3">
                   {c === 0 ? (
@@ -120,13 +120,13 @@ export function DataTable<T>({
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-gray-200 bg-gray-50/60">
+          <tr className="border-b border-gray-200 dark:border-border-brand bg-gray-50/60 dark:bg-surface">
             {columns.map((col, i) => (
               <th
                 key={i}
                 style={{ width: col.width }}
                 className={cn(
-                  "px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500",
+                  "px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-muted",
                   col.align === "right" ? "text-right" : "text-left"
                 )}
               >
@@ -141,15 +141,15 @@ export function DataTable<T>({
               key={rowKey(row)}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={cn(
-                "border-b border-gray-100 transition-colors last:border-0",
-                onRowClick && "cursor-pointer hover:bg-gray-50"
+                "border-b border-gray-100 dark:border-border-brand transition-colors last:border-0",
+                onRowClick && "cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-2"
               )}
             >
               {columns.map((col, i) => (
                 <td
                   key={i}
                   className={cn(
-                    "px-4 py-3 text-gray-700",
+                    "px-4 py-3 text-gray-700 dark:text-ink",
                     col.align === "right" ? "text-right" : "text-left",
                     col.className
                   )}

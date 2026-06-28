@@ -65,7 +65,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </>
         }
       >
-        <div className="text-sm text-gray-600">{opts?.message}</div>
+        <div className="text-sm text-gray-600 dark:text-ink">{opts?.message}</div>
       </Modal>
     </ConfirmContext.Provider>
   );

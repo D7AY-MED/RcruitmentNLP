@@ -2,45 +2,221 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   xQUESTY DESIGN SYSTEM — "Aurora"
+   Brand: Deep Indigo (#4F46E5) → Electric Blue (#2563EB) → Cyan (#06B6D4)
+   Inspired by Stripe × Vercel × Linear. 8px spacing base.
+
+   NOTE: Every legacy token name (--brand, --ink, --surface, --accent,
+   --border-color, shadcn HSL vars …) is preserved and retuned so that
+   pages not yet redesigned keep rendering correctly.
+   ============================================================================ */
+
 @layer base {
   :root {
-    /* ── Brand palette (OKLCH) ── */
-    --brand: oklch(0.420 0.200 270);
-    --brand-hover: oklch(0.370 0.200 270);
-    --brand-light: oklch(0.950 0.020 270);
-    --bg: oklch(1.000 0.000 0);
-    --surface: oklch(0.970 0.005 270);
-    --ink: oklch(0.200 0.015 270);
-    --accent: oklch(0.560 0.155 165);
-    --accent-hover: oklch(0.500 0.150 165);
-    --muted: oklch(0.550 0.010 270);
-    --border-color: oklch(0.900 0.010 270);
+    /* ── Brand scale (indigo) ── */
+    --indigo-50: 226 100% 97%;
+    --indigo-100: 226 100% 94%;
+    --indigo-200: 228 96% 89%;
+    --indigo-300: 230 94% 82%;
+    --indigo-400: 234 89% 74%;
+    --indigo-500: 239 84% 67%;
+    --indigo-600: 243 75% 59%;   /* #4F46E5 — primary */
+    --indigo-700: 245 58% 51%;   /* #4338CA — hover  */
+    --indigo-800: 244 55% 41%;
+    --indigo-900: 242 47% 34%;
 
-    /* ── Shadcn compatibility layer (mapped to brand) ── */
+    /* ── Accent scale (electric blue) ── */
+    --blue-50: 214 100% 97%;
+    --blue-100: 214 95% 93%;
+    --blue-200: 213 97% 87%;
+    --blue-400: 213 94% 68%;
+    --blue-500: 217 91% 60%;
+    --blue-600: 221 83% 53%;     /* #2563EB — accent */
+    --blue-700: 224 76% 48%;
+
+    /* ── Cyan scale (AI / live / insights) ── */
+    --cyan-50: 183 100% 96%;
+    --cyan-100: 185 96% 90%;
+    --cyan-300: 187 85% 69%;
+    --cyan-400: 188 86% 53%;
+    --cyan-500: 189 94% 43%;     /* #06B6D4 — AI accent */
+    --cyan-600: 192 91% 36%;
+    --cyan-700: 193 82% 31%;
+
+    /* ── Neutral (slate) ── */
+    --slate-50: 210 40% 98%;
+    --slate-100: 210 40% 96%;
+    --slate-200: 214 32% 91%;
+    --slate-300: 213 27% 84%;
+    --slate-400: 215 20% 65%;
+    --slate-500: 215 16% 47%;
+    --slate-600: 215 19% 35%;
+    --slate-700: 215 25% 27%;
+    --slate-800: 217 33% 17%;
+    --slate-900: 222 47% 11%;
+    --slate-950: 229 84% 5%;
+
+    /* ── Semantic ── */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 152 76% 95%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 28 80% 15%;
+    --warning-soft: 48 96% 92%;
+    --danger: 0 72% 51%;
+    --danger-foreground: 0 0% 100%;
+    --danger-soft: 0 86% 97%;
+    --info: 217 91% 60%;
+    --info-soft: 214 100% 97%;
+
+    /* ── Semantic surface roles (LIGHT) ── */
+    --bg: hsl(0 0% 100%);
+    --bg-subtle: hsl(210 40% 99%);
+    --surface: hsl(210 40% 98%);
+    --surface-2: hsl(210 40% 96%);
+    --ink: hsl(222 47% 11%);
+    --text-muted: hsl(215 16% 47%);
+    --border-color: hsl(214 32% 91%);
+    --border-strong: hsl(213 27% 84%);
+
+    /* ── Brand roles (legacy names preserved) ── */
+    --brand: hsl(243 75% 59%);
+    --brand-hover: hsl(245 58% 51%);
+    --brand-light: hsl(226 100% 97%);
+    --brand-contrast: hsl(0 0% 100%);
+    --accent: hsl(221 83% 53%);
+    --accent-hover: hsl(224 76% 48%);
+    --muted: hsl(215 16% 47%); /* legacy direct-color use → now a real color */
+
+    /* ── Cyan accent roles (AI / live) ── */
+    --cyan: hsl(189 94% 43%);
+    --cyan-hover: hsl(192 91% 36%);
+    --cyan-soft: hsl(185 96% 90%);
+
+    /* ── Gradients & glass ── */
+    /* Signature gradient: Indigo → Blue → Cyan (3-stop). The cyan tail is
+       additive — existing bg-grad-brand callers gain it transparently. */
+    --grad-brand: linear-gradient(135deg, hsl(243 75% 59%) 0%, hsl(221 83% 53%) 55%, hsl(189 94% 43%) 100%);
+    --grad-ai: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(189 94% 43%) 100%);
+    --grad-brand-soft: linear-gradient(135deg, hsl(226 100% 97%) 0%, hsl(214 100% 97%) 100%);
+    --grad-mesh:
+      radial-gradient(at 0% 0%, hsl(243 75% 59% / 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(221 83% 53% / 0.10) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(239 84% 67% / 0.08) 0px, transparent 50%);
+    --glass-bg: hsl(0 0% 100% / 0.72);
+    --glass-border: hsl(214 32% 91% / 0.7);
+
+    /* ── Elevation (composed shadows) ── */
+    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
+    --shadow-sm: 0 1px 3px 0 hsl(222 47% 11% / 0.07), 0 1px 2px -1px hsl(222 47% 11% / 0.06);
+    --shadow-md: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 2px 6px -2px hsl(222 47% 11% / 0.05);
+    --shadow-lg: 0 12px 28px -6px hsl(222 47% 11% / 0.12), 0 6px 12px -6px hsl(222 47% 11% / 0.08);
+    --shadow-xl: 0 24px 48px -12px hsl(222 47% 11% / 0.18), 0 12px 24px -12px hsl(222 47% 11% / 0.10);
+    --shadow-glow: 0 0 0 1px hsl(243 75% 59% / 0.10), 0 8px 30px -6px hsl(243 75% 59% / 0.30);
+
+    /* ── Radius scale ── */
+    --radius: 0.75rem;
+
+    /* ── shadcn HSL compatibility layer (retuned to brand) ── */
     --background: 0 0% 100%;
-    --foreground: 240 10% 10%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
-    --primary: 262 70% 28%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 243 75% 59%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 262 10% 95%;
-    --secondary-foreground: 262 70% 28%;
-    --muted: 262 10% 95%;
-    --muted-foreground: 262 5% 40%;
-    --accent: 162 50% 35%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted-foreground: 215 16% 47%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 262 15% 90%;
-    --input: 262 15% 90%;
-    --ring: 262 70% 28%;
-    --radius: 0.5rem;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 243 75% 59%;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────
+     DARK THEME
+     ────────────────────────────────────────────────────────────────────── */
+  .dark {
+    --bg: hsl(229 41% 6%);
+    --bg-subtle: hsl(228 35% 8%);
+    --surface: hsl(228 30% 10%);
+    --surface-2: hsl(227 26% 13%);
+    --ink: hsl(210 40% 98%);
+    --text-muted: hsl(215 20% 65%);
+    --border-color: hsl(222 24% 18%);
+    --border-strong: hsl(220 22% 24%);
+
+    --brand: hsl(239 84% 67%);
+    --brand-hover: hsl(234 89% 74%);
+    --brand-light: hsl(243 47% 18%);
+    --brand-contrast: hsl(0 0% 100%);
+    --accent: hsl(217 91% 60%);
+    --accent-hover: hsl(213 94% 68%);
+    --muted: hsl(215 20% 65%);
+
+    /* ── Cyan accent roles (AI / live) — brighter on charcoal ── */
+    --cyan: hsl(188 86% 53%);
+    --cyan-hover: hsl(187 85% 69%);
+    --cyan-soft: hsl(190 80% 16%);
+
+    --success-soft: 152 60% 12%;
+    --warning-soft: 38 70% 14%;
+    --danger-soft: 0 60% 14%;
+    --info-soft: 217 60% 14%;
+
+    /* Signature gradient brightens on charcoal so it glows; cyan tail added. */
+    --grad-brand: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(217 91% 60%) 55%, hsl(188 86% 53%) 100%);
+    --grad-ai: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(188 86% 53%) 100%);
+    --grad-brand-soft: linear-gradient(135deg, hsl(243 47% 16%) 0%, hsl(217 50% 16%) 100%);
+    --grad-mesh:
+      radial-gradient(at 0% 0%, hsl(243 75% 59% / 0.22) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(221 83% 53% / 0.18) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(239 84% 67% / 0.14) 0px, transparent 50%);
+    --glass-bg: hsl(228 30% 10% / 0.72);
+    --glass-border: hsl(222 24% 18% / 0.8);
+
+    --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.30);
+    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.40), 0 1px 2px -1px hsl(0 0% 0% / 0.30);
+    --shadow-md: 0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 6px -2px hsl(0 0% 0% / 0.35);
+    --shadow-lg: 0 12px 28px -6px hsl(0 0% 0% / 0.55), 0 6px 12px -6px hsl(0 0% 0% / 0.40);
+    --shadow-xl: 0 24px 48px -12px hsl(0 0% 0% / 0.65), 0 12px 24px -12px hsl(0 0% 0% / 0.45);
+    --shadow-glow: 0 0 0 1px hsl(239 84% 67% / 0.20), 0 8px 30px -6px hsl(239 84% 67% / 0.45);
+
+    --background: 229 41% 6%;
+    --foreground: 210 40% 98%;
+    --card: 228 30% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 228 30% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 227 26% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted-foreground: 215 20% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 24% 18%;
+    --input: 222 24% 20%;
+    --ring: 239 84% 67%;
   }
 
   * {
     @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
   }
 
   body {
@@ -49,61 +225,141 @@
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  ::selection {
+    background: hsl(243 75% 59% / 0.20);
+    color: var(--ink);
+  }
+
+  /* Refined scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--slate-300)) transparent;
+  }
+  .dark * { scrollbar-color: hsl(var(--slate-700)) transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(215 20% 65% / 0.4);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(215 20% 65% / 0.6); background-clip: content-box; }
+
+  /* Unified focus ring */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
-/* ── Hero entrance animation ── */
+/* ============================================================================
+   COMPONENT UTILITIES
+   ============================================================================ */
+@layer components {
+  .text-gradient {
+    background: var(--grad-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--glass-border);
+  }
+
+  .bg-mesh { background-image: var(--grad-mesh); }
+
+  /* Surface card primitive */
+  .ds-card {
+    background: hsl(var(--card));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Subtle blueprint grid background */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted-foreground) / 0.08) 25%,
+      hsl(var(--muted-foreground) / 0.16) 37%,
+      hsl(var(--muted-foreground) / 0.08) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: calc(var(--radius) - 4px);
+  }
+}
+
+/* ============================================================================
+   KEYFRAMES & ANIMATION UTILITIES
+   ============================================================================ */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes auroraShift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(3%, -4%, 0) scale(1.08); }
+  66% { transform: translate3d(-3%, 3%, 0) scale(0.96); }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
-.animate-fade-up {
-  animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-fade-up-delay-1 {
-  animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
-}
-
-.animate-fade-up-delay-2 {
-  animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
-}
-
-.animate-fade-up-delay-3 {
-  animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
-}
+.animate-fade-up { animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up-delay-1 { animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both; }
+.animate-fade-up-delay-2 { animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both; }
+.animate-fade-up-delay-3 { animation: fadeUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both; }
+.animate-slide-in { animation: slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: top right; }
+.animate-aurora { animation: auroraShift 18s ease-in-out infinite; }
+.animate-float { animation: float 6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
   .animate-fade-up-delay-1,
   .animate-fade-up-delay-2,
-  .animate-fade-up-delay-3 {
-    animation: none;
+  .animate-fade-up-delay-3,
+  .animate-aurora,
+  .animate-float,
+  .animate-slide-in {
+    animation: none !important;
     opacity: 1;
     transform: none;
   }
-}
-
-/* ── Existing slide-in (ProfileDropdown) ── */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-slide-in {
-  animation: slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: top right;
 }

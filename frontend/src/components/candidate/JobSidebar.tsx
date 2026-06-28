@@ -12,6 +12,7 @@ export interface JobSidebarProps {
   experienceLevel?: string;
   educationLevel?: string;
   onApply?: () => void;
+  isAuthenticated?: boolean;
 }
 
 export default function JobSidebar({
@@ -22,6 +23,7 @@ export default function JobSidebar({
   experienceLevel,
   educationLevel,
   onApply,
+  isAuthenticated = false,
 }: JobSidebarProps) {
   const [copied, setCopied] = useState(false);
 
@@ -44,13 +46,13 @@ export default function JobSidebar({
             onClick={onApply}
             className="flex-1 h-11 text-[14px] font-semibold rounded-xl text-white bg-brand hover:bg-brand-hover active:scale-[0.98] transition-all duration-200"
           >
-            Postuler
+            {isAuthenticated ? 'Continuer la candidature' : 'Connectez-vous pour postuler'}
             <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
           </Button>
           <Button
             variant="outline"
             onClick={handleShare}
-            className="w-11 h-11 shrink-0 p-0 flex items-center justify-center rounded-xl border border-border-brand bg-white text-gray-700 hover:bg-brand-light hover:text-brand hover:border-brand/35 transition-colors"
+            className="w-11 h-11 shrink-0 p-0 flex items-center justify-center rounded-xl border border-border-brand bg-white dark:bg-card text-gray-700 dark:text-ink hover:bg-brand-light hover:text-brand hover:border-brand/35 transition-colors"
             title="Partager cette offre"
           >
             {copied ? (
@@ -62,7 +64,7 @@ export default function JobSidebar({
         </div>
 
         {/* Company card */}
-        <div className="rounded-xl border border-border-brand bg-white p-5">
+        <div className="rounded-xl border border-border-brand bg-white dark:bg-card p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-light border border-brand/20">
               <Building2
@@ -75,7 +77,7 @@ export default function JobSidebar({
                 {companyName}
               </h3>
               {location && (
-                <p className="flex items-center gap-1 text-[13px] text-gray-500 mt-0.5">
+                <p className="flex items-center gap-1 text-[13px] text-gray-500 dark:text-muted mt-0.5">
                   <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                   {location}
                 </p>
@@ -84,7 +86,7 @@ export default function JobSidebar({
           </div>
 
           {companyDescription && (
-            <p className="text-[13px] text-gray-605 leading-relaxed mb-4">
+            <p className="text-[13px] text-gray-605 dark:text-ink leading-relaxed mb-4">
               {companyDescription}
             </p>
           )}
@@ -99,11 +101,11 @@ export default function JobSidebar({
         </div>
 
         {/* Quick info card */}
-        <div className="rounded-xl border border-border-brand bg-white p-5">
+        <div className="rounded-xl border border-border-brand bg-white dark:bg-card p-5">
           <h4 className="text-[13px] font-bold text-ink mb-3">
             Informations clés
           </h4>
-          <ul className="space-y-2.5 text-[13px] text-gray-605">
+          <ul className="space-y-2.5 text-[13px] text-gray-605 dark:text-ink">
             {location && (
               <li className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />

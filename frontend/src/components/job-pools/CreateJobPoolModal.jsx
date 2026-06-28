@@ -44,7 +44,7 @@ const PREDEFINED_LANGUAGES = [
 const InfoTooltip = ({ text }) => (
   <div className="group relative inline-flex items-center ml-1.5 align-middle cursor-help">
     <Info className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
-    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-60 bg-white text-slate-800 text-xs font-medium leading-relaxed border border-slate-200 rounded-lg py-2.5 px-3 group-hover:block z-50 text-center shadow-xl pointer-events-none">
+    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-60 bg-white dark:bg-card text-slate-800 dark:text-ink text-xs font-medium leading-relaxed border border-slate-200 dark:border-border-brand rounded-lg py-2.5 px-3 group-hover:block z-50 text-center shadow-xl pointer-events-none">
       {text}
       <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-200">
         <div className="absolute bottom-[2px] left-1/2 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[5px] border-t-white"></div>
@@ -610,7 +610,7 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
                     if(e.target.checked) updateField('dealBreakers', [...formData.dealBreakers, db]);
                     else updateField('dealBreakers', formData.dealBreakers.filter(x => x !== db));
                   }}
-                  className="w-4 h-4 rounded border-gray-300 text-destructive focus:ring-destructive"
+                  className="w-4 h-4 rounded border-gray-300 dark:border-border-brand text-destructive focus:ring-destructive"
                 />
                 <span className="text-sm text-foreground">{db}</span>
               </label>
@@ -647,7 +647,7 @@ export default function CreateJobPoolModal({ open, onClose, onCreated }) {
       aria-label="Create job pool"
       onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}
     >
-      <div className="w-full max-w-3xl bg-white border border-border rounded-2xl shadow-2xl my-8 overflow-hidden flex flex-col">
+      <div className="w-full max-w-3xl bg-white dark:bg-card border border-border rounded-2xl shadow-2xl my-8 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-muted">
           <h2 className="text-xl font-bold text-foreground">

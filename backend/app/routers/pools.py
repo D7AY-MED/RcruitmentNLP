@@ -302,6 +302,20 @@ async def get_pool_application(id: UUID, session_id: str, recruiter=Depends(get_
     resolved_pool_id = app.get("pool_id") or (app.get("pool") or {}).get("id")
     if not app or str(resolved_pool_id) != str(id):
         raise HTTPException(status_code=404, detail="Application not found or access denied.")
-        
+
+    # Attach the candidate's CV link (from the profile column, else Auth metadata)
+    # so recruiters can consult it.
+    cand = app.get("candidate") or {}
+    cv = cand.get("cv_url")
+    cand_id = cand.get("id")
+    if not cv and cand_id:
+        from app.candidate.router import find_candidate_cv
+        info = find_candidate_cv(client, str(cand_id))
+        cv = info["cv_url"] if info else None
+    if cv:
+        app["cv_url"] = cv
+        if isinstance(app.get("candidate"), dict):
+            app["candidate"]["cv_url"] = cv
+
     return app
 

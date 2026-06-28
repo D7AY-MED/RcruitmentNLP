@@ -52,19 +52,19 @@ export function Drawer({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "absolute right-0 top-0 flex h-full w-full flex-col bg-white shadow-2xl",
+          "absolute right-0 top-0 flex h-full w-full flex-col bg-white dark:bg-card shadow-2xl",
           "animate-in slide-in-from-right duration-200",
           wide ? "sm:max-w-2xl" : "sm:max-w-md"
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-gray-200 dark:border-border-brand px-6 py-4">
           <div className="min-w-0">
-            <h2 className="truncate text-lg font-semibold text-gray-900">{title}</h2>
-            {subtitle && <div className="mt-0.5 truncate text-sm text-gray-500">{subtitle}</div>}
+            <h2 className="truncate text-lg font-semibold text-gray-900 dark:text-ink">{title}</h2>
+            {subtitle && <div className="mt-0.5 truncate text-sm text-gray-500 dark:text-muted">{subtitle}</div>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-1.5 text-gray-400 dark:text-muted hover:bg-gray-100 dark:hover:bg-surface-2 hover:text-gray-600"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -74,7 +74,7 @@ export function Drawer({
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-gray-200 bg-gray-50 px-6 py-4">
+          <div className="flex items-center justify-end gap-2 border-t border-gray-200 dark:border-border-brand bg-gray-50 dark:bg-surface px-6 py-4">
             {footer}
           </div>
         )}

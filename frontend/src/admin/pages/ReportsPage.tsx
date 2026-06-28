@@ -67,12 +67,12 @@ export function ReportsPage() {
           {/* Charts row */}
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <Card className="p-6 lg:col-span-1">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900"><TrendingUp className="h-4 w-4 text-indigo-600" />Interview completion</p>
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-ink"><TrendingUp className="h-4 w-4 text-indigo-600" />Interview completion</p>
               <div className="mt-4 flex items-end gap-2">
-                <span className="text-4xl font-bold tracking-tight text-gray-900">{data?.rates.interviewCompletionRate ?? 0}%</span>
-                <span className="mb-1 text-sm text-gray-500">of interviews completed</span>
+                <span className="text-4xl font-bold tracking-tight text-gray-900 dark:text-ink">{data?.rates.interviewCompletionRate ?? 0}%</span>
+                <span className="mb-1 text-sm text-gray-500 dark:text-muted">of interviews completed</span>
               </div>
-              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-surface-2">
                 <div className="h-full rounded-full bg-indigo-600" style={{ width: `${data?.rates.interviewCompletionRate ?? 0}%` }} />
               </div>
               <div className="mt-4 flex items-center gap-2">
@@ -82,7 +82,7 @@ export function ReportsPage() {
             </Card>
 
             <Card className="p-6 lg:col-span-2">
-              <p className="mb-2 text-sm font-semibold text-gray-900">Top companies by job pools</p>
+              <p className="mb-2 text-sm font-semibold text-gray-900 dark:text-ink">Top companies by job pools</p>
               <SimpleBarChart data={topCompanies} />
             </Card>
           </div>
@@ -92,14 +92,14 @@ export function ReportsPage() {
             <div className="mb-4 flex items-center gap-2">
               <Download className="h-5 w-5 text-indigo-600" />
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Export data</h2>
-                <p className="text-sm text-gray-500">Download any dataset as CSV or Excel</p>
+                <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Export data</h2>
+                <p className="text-sm text-gray-500 dark:text-muted">Download any dataset as CSV or Excel</p>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {DATASETS.map((d) => (
-                <div key={d.key} className="flex items-center justify-between rounded-xl border border-gray-200 p-4">
-                  <span className="flex items-center gap-2.5 text-sm font-medium text-gray-700">
+                <div key={d.key} className="flex items-center justify-between rounded-xl border border-gray-200 p-4 dark:border-border-brand">
+                  <span className="flex items-center gap-2.5 text-sm font-medium text-gray-700 dark:text-ink">
                     <span className="text-indigo-600">{d.icon}</span>
                     {d.label}
                   </span>

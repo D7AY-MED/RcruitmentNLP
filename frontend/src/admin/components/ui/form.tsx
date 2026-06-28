@@ -3,12 +3,12 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 const baseField =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 " +
-  "placeholder:text-gray-400 transition-colors focus:border-indigo-500 focus:outline-none " +
-  "focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:bg-gray-50";
+  "w-full rounded-lg border border-gray-300 dark:border-border-brand bg-white dark:bg-surface px-3 py-2 text-sm text-gray-900 dark:text-ink " +
+  "placeholder:text-gray-400 dark:placeholder:text-[hsl(var(--text-muted))] transition-colors focus:border-transparent focus:outline-none " +
+  "focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-surface-2";
 
 export const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
-  <label className={cn("mb-1.5 block text-sm font-medium text-gray-700", className)} {...props} />
+  <label className={cn("mb-1.5 block text-sm font-medium text-gray-700 dark:text-ink", className)} {...props} />
 );
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -57,9 +57,9 @@ export function Field({
       {label && <Label htmlFor={htmlFor}>{label}</Label>}
       {children}
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-danger">{error}</p>
       ) : hint ? (
-        <p className="mt-1 text-xs text-gray-500">{hint}</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-muted">{hint}</p>
       ) : null}
     </div>
   );

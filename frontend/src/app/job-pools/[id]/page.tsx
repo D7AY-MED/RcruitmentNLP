@@ -2,16 +2,14 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Archive, ArrowLeft, Power, Loader2, User, Briefcase, Sparkles, MessageSquare, CheckCircle2, Clock, X } from 'lucide-react';
+import { AlertTriangle, Archive, ArrowLeft, Power, Loader2, User, Briefcase, Sparkles, MessageSquare, CheckCircle2, Clock, X, FileText, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { demoUser, getPool, publicPoolUrl, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
+import { getPool, publicPoolUrl, setPoolStatus as setPoolStatusMock } from '@/lib/frontendData';
 import { getJobPool, updateJobPoolStatus, listPoolApplications, getPoolApplication } from '@/lib/jobPoolService';
 import { JobPool } from '@/lib/types';
 import { formatDate, initials } from '@/lib/utils';
-import AppHeader from '@/components/AppHeader';
-import AppSidebar from '@/components/AppSidebar';
 import JobPoolStatusBadge from '@/components/job-pools/JobPoolStatusBadge';
 import CopyLinkButton from '@/components/job-pools/CopyLinkButton';
 
@@ -37,8 +35,8 @@ function Field({ label, value }: { label: string, value: unknown }) {
   const display = Array.isArray(value) ? value.join(', ') : String(value);
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</dt>
-      <dd className="text-sm text-gray-900 mt-0.5 whitespace-pre-line">{display}</dd>
+      <dt className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-muted">{label}</dt>
+      <dd className="text-sm text-gray-900 dark:text-ink mt-0.5 whitespace-pre-line">{display}</dd>
     </div>
   );
 }
@@ -53,7 +51,6 @@ export default function JobPoolDetails() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const user = demoUser;
 
   // Drawer state
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -133,44 +130,40 @@ export default function JobPoolDetails() {
   const url = pool ? publicPoolUrl(pool.public_slug) : '';
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AppSidebar user={user} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <AppHeader user={user} hrProfileId={user.id}>
-          <Button size="sm" variant="outline" onClick={() => navigate('/job-pools')}>
-            <ArrowLeft className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
-        </AppHeader>
-
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mx-auto w-full max-w-4xl space-y-5">
+    <div>
+      <div className="mb-5">
+        <Button size="sm" variant="outline" onClick={() => navigate('/recruiter/jobs')}>
+          <ArrowLeft className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
+          <span className="hidden sm:inline">Retour aux offres</span>
+        </Button>
+      </div>
+      <div className="mx-auto w-full max-w-4xl space-y-5">
             {loading ? (
-              <div className="bg-white border border-gray-200 rounded-2xl p-12 card-shadow flex flex-col items-center text-center justify-center min-h-[300px]">
+              <div className="bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-2xl p-12 card-shadow flex flex-col items-center text-center justify-center min-h-[300px]">
                 <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
-                <p className="text-sm font-medium text-gray-500">Loading pool details...</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-muted">Loading pool details...</p>
               </div>
             ) : error || !pool ? (
-              <div className="bg-white border border-gray-200 rounded-2xl p-8 card-shadow flex flex-col items-center text-center">
+              <div className="bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-2xl p-8 card-shadow flex flex-col items-center text-center">
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Could not load this pool</h3>
-                <p className="text-gray-500 mb-6">{error || 'Pool not found.'}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-ink mb-2">Could not load this pool</h3>
+                <p className="text-gray-500 dark:text-muted mb-6">{error || 'Pool not found.'}</p>
                 <Button variant="outline" onClick={() => navigate('/job-pools')}>Back to pools</Button>
               </div>
             ) : (
               <>
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <div className="bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-2xl p-6 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="text-xl font-semibold text-gray-900">{pool.title}</h2>
-                      {pool.company_name && <p className="text-gray-500">{pool.company_name}</p>}
-                      <p className="text-xs text-gray-400 mt-1">Created {formatDate(pool.created_at)}</p>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-ink">{pool.title}</h2>
+                      {pool.company_name && <p className="text-gray-500 dark:text-muted">{pool.company_name}</p>}
+                      <p className="text-xs text-gray-400 dark:text-muted mt-1">Created {formatDate(pool.created_at)}</p>
                     </div>
                     <JobPoolStatusBadge status={pool.status} />
                   </div>
 
-                  <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-1">
+                  <div className="mt-4 rounded-xl border border-gray-200 dark:border-border-brand bg-gray-50 dark:bg-surface p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-muted mb-1">
                       Public application link
                     </p>
                     <div className="mt-2">
@@ -197,8 +190,8 @@ export default function JobPoolDetails() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Pool information</h3>
+                <div className="bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-ink mb-4">Pool information</h3>
                   <dl className="grid sm:grid-cols-2 gap-4">
                     <Field label="Location" value={pool.location} />
                     <Field label="Contract type" value={pool.contract_type} />
@@ -213,30 +206,30 @@ export default function JobPoolDetails() {
                   </dl>
                 </div>
 
-                 <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm overflow-hidden">
+                 <div className="bg-white dark:bg-card border border-gray-200 dark:border-border-brand rounded-2xl p-6 shadow-sm overflow-hidden">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-ink">
                       Applicants ({applications.length})
                     </h3>
                   </div>
 
                   {applications.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400">
+                    <div className="text-center py-12 text-gray-400 dark:text-muted">
                       <p className="text-sm">No applications recorded yet.</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto -mx-6">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-[hsl(var(--border))]">
+                        <thead className="bg-gray-50 dark:bg-surface">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Candidate</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Score AI</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Progress</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Updated</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 dark:text-muted uppercase tracking-wider">Candidate</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 dark:text-muted uppercase tracking-wider">Score AI</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 dark:text-muted uppercase tracking-wider">Progress</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 dark:text-muted uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-400 dark:text-muted uppercase tracking-wider">Updated</th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
+                        <tbody className="bg-white dark:bg-card divide-y divide-gray-100 dark:divide-[hsl(var(--border))]">
                           {applications.map((app) => {
                             const avatarInitials = initials(app.candidate_name || app.phone || 'Candidate');
                             const progressPct = app.total_questions ? Math.round((app.answered / app.total_questions) * 100) : 0;
@@ -245,34 +238,34 @@ export default function JobPoolDetails() {
                               <tr 
                                 key={app.session_id} 
                                 onClick={() => { setSelectedSessionId(app.session_id); setDrawerOpen(true); }}
-                                className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                                className="hover:bg-slate-50/80 dark:hover:bg-surface-2 cursor-pointer transition-colors"
                               >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-extrabold text-xs shrink-0">
+                                    <div className="w-9 h-9 rounded-full bg-indigo-50 dark:bg-brand-light border border-indigo-100 flex items-center justify-center text-indigo-700 font-extrabold text-xs shrink-0">
                                       {avatarInitials}
                                     </div>
                                     <div>
-                                      <p className="text-sm font-semibold text-gray-900">{app.candidate_name || 'Candidate'}</p>
-                                      <p className="text-xs text-gray-500 mt-0.5">{app.phone || '—'}</p>
+                                      <p className="text-sm font-semibold text-gray-900 dark:text-ink">{app.candidate_name || 'Candidate'}</p>
+                                      <p className="text-xs text-gray-500 dark:text-muted mt-0.5">{app.phone || '—'}</p>
                                     </div>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   {app.score ? (
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-brand-light text-indigo-700 border border-indigo-100">
                                       {app.score}
                                     </span>
                                   ) : (
-                                    <span className="text-xs text-gray-400">—</span>
+                                    <span className="text-xs text-gray-400 dark:text-muted">—</span>
                                   )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center gap-2">
-                                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100 dark:bg-surface-2">
                                       <div className="h-full rounded-full bg-indigo-600 transition-all duration-300" style={{ width: `${progressPct}%` }} />
                                     </div>
-                                    <span className="text-xs font-medium text-gray-500">{app.answered}/{app.total_questions}</span>
+                                    <span className="text-xs font-medium text-gray-500 dark:text-muted">{app.answered}/{app.total_questions}</span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -285,7 +278,7 @@ export default function JobPoolDetails() {
                                     {app.status === 'completed' ? 'Completed' : 'In progress'}
                                   </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-muted">
                                   {safeFormatDate(app.updated_at)}
                                 </td>
                               </tr>
@@ -298,10 +291,8 @@ export default function JobPoolDetails() {
                 </div>
               </>
             )}
-          </div>
-        </main>
-        <Toaster />
       </div>
+      <Toaster />
 
       {/* ---------- DETAIL DRAWER ---------- */}
       <div className={`fixed inset-0 z-50 overflow-hidden ${drawerOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
@@ -316,18 +307,18 @@ export default function JobPoolDetails() {
         {/* Drawer Panel */}
         <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
           <div 
-            className={`w-screen max-w-2xl bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${
+            className={`w-screen max-w-2xl bg-white dark:bg-card shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${
               drawerOpen ? 'translate-x-0' : 'translate-x-full'
             }`}
           >
             {/* Header */}
-            <div className="h-16 px-6 border-b border-gray-100 flex items-center justify-between shrink-0">
+            <div className="h-16 px-6 border-b border-gray-100 dark:border-border-brand flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-ink">
                   {drawerLoading ? 'Chargement...' : drawerData?.candidate_name || 'Détails du candidat'}
                 </h3>
                 {drawerData && (
-                  <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                  <div className="text-xs text-gray-500 dark:text-muted mt-0.5 flex items-center gap-2">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${
                       drawerData.status === 'completed'
                         ? 'bg-green-50 text-green-700 border-green-200'
@@ -341,7 +332,7 @@ export default function JobPoolDetails() {
               </div>
               <button 
                 onClick={() => { setDrawerOpen(false); setSelectedSessionId(null); }}
-                className="p-1 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 text-gray-400 dark:text-muted hover:text-gray-900 dark:hover:text-ink hover:bg-gray-100 dark:hover:bg-surface-2 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -350,7 +341,7 @@ export default function JobPoolDetails() {
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {drawerLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-muted">
                   <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
                   <p className="text-sm font-medium">Chargement des données du candidat...</p>
                 </div>
@@ -363,30 +354,30 @@ export default function JobPoolDetails() {
                 <div className="space-y-6">
                   {/* Context Info Cards */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="p-4 rounded-xl border border-gray-150 bg-white">
-                      <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div className="p-4 rounded-xl border border-gray-150 dark:border-border-brand bg-white dark:bg-card">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-muted uppercase tracking-wider">
                         <User className="h-3.5 w-3.5" /> Candidat
                       </p>
-                      <p className="mt-1 font-bold text-gray-900">{drawerData.candidate_name || '—'}</p>
-                      {drawerData.candidate?.email && <p className="text-xs text-gray-500">{drawerData.candidate.email}</p>}
-                      {drawerData.candidate?.phone && <p className="text-xs text-gray-500">{drawerData.candidate.phone}</p>}
+                      <p className="mt-1 font-bold text-gray-900 dark:text-ink">{drawerData.candidate_name || '—'}</p>
+                      {drawerData.candidate?.email && <p className="text-xs text-gray-500 dark:text-muted">{drawerData.candidate.email}</p>}
+                      {drawerData.candidate?.phone && <p className="text-xs text-gray-500 dark:text-muted">{drawerData.candidate.phone}</p>}
                     </div>
-                    <div className="p-4 rounded-xl border border-gray-150 bg-white">
-                      <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div className="p-4 rounded-xl border border-gray-150 dark:border-border-brand bg-white dark:bg-card">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-muted uppercase tracking-wider">
                         <Briefcase className="h-3.5 w-3.5" /> Offre
                       </p>
-                      <p className="mt-1 font-bold text-gray-900">{drawerData.pool_title || '—'}</p>
-                      {drawerData.pool?.company_name && <p className="text-xs text-gray-500">{drawerData.pool.company_name}</p>}
+                      <p className="mt-1 font-bold text-gray-900 dark:text-ink">{drawerData.pool_title || '—'}</p>
+                      {drawerData.pool?.company_name && <p className="text-xs text-gray-500 dark:text-muted">{drawerData.pool.company_name}</p>}
                     </div>
                   </div>
 
                   {/* Progress Bar */}
                   <div>
-                    <div className="mb-1 flex items-center justify-between text-xs text-gray-500 font-medium">
+                    <div className="mb-1 flex items-center justify-between text-xs text-gray-500 dark:text-muted font-medium">
                       <span>Progression de l'entretien</span>
                       <span>{drawerData.total_questions ? Math.round((drawerData.answered / drawerData.total_questions) * 100) : 0}%</span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-surface-2">
                       <div 
                         className="h-full rounded-full bg-indigo-600 transition-all duration-500" 
                         style={{ width: `${drawerData.total_questions ? Math.round((drawerData.answered / drawerData.total_questions) * 100) : 0}%` }} 
@@ -394,9 +385,39 @@ export default function JobPoolDetails() {
                     </div>
                   </div>
 
+                  {/* CV */}
+                  {drawerData.cv_url && (
+                    <div className="rounded-2xl border border-gray-150 dark:border-border-brand p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-muted uppercase tracking-wider">
+                          <FileText className="h-3.5 w-3.5" /> CV du candidat
+                        </p>
+                        <a
+                          href={drawerData.cv_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-hover"
+                        >
+                          Ouvrir <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
+                      {/\.pdf(\?|$)/i.test(drawerData.cv_url) ? (
+                        <iframe
+                          src={`${drawerData.cv_url}#view=FitH`}
+                          title="CV du candidat"
+                          className="w-full h-[360px] rounded-xl border border-gray-150 dark:border-border-brand bg-white"
+                        />
+                      ) : (
+                        <a href={drawerData.cv_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-brand">
+                          Télécharger le CV pour le consulter
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   {/* AI Summary Section */}
                   {drawerData.summary && (drawerData.summary.summary || drawerData.summary.score) && (
-                    <div className="border border-indigo-100 bg-indigo-50/40 rounded-2xl p-5 shadow-sm">
+                    <div className="border border-indigo-100 bg-indigo-50/40 dark:bg-brand-light rounded-2xl p-5 shadow-sm">
                       <div className="mb-3 flex items-center justify-between">
                         <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-950">
                           <Sparkles className="h-4 w-4 text-indigo-600 animate-pulse" />
@@ -418,21 +439,21 @@ export default function JobPoolDetails() {
 
                   {/* Transcript Section */}
                   <section>
-                    <h3 className="mb-4 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    <h3 className="mb-4 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">
                       <MessageSquare className="h-3.5 w-3.5" /> Transcription de l'entretien
                     </h3>
                     {!drawerData.questions || !drawerData.questions.length ? (
-                      <p className="text-sm text-gray-400 italic">Aucune question enregistrée.</p>
+                      <p className="text-sm text-gray-400 dark:text-muted italic">Aucune question enregistrée.</p>
                     ) : (
                       <ol className="space-y-4">
                         {drawerData.questions.map((q: any, i: number) => (
-                          <li key={q.sequence ?? i} className="rounded-2xl border border-gray-150 p-4 hover:border-gray-300 transition-all">
-                            <p className="text-sm font-bold text-gray-900">
+                          <li key={q.sequence ?? i} className="rounded-2xl border border-gray-150 dark:border-border-brand p-4 hover:border-gray-300 dark:hover:border-border-brand transition-all">
+                            <p className="text-sm font-bold text-gray-900 dark:text-ink">
                               <span className="mr-2 text-indigo-600">Q{q.sequence ?? i + 1}.</span>
                               {q.question}
                             </p>
-                            <p className="mt-2.5 whitespace-pre-wrap text-sm text-gray-600 leading-relaxed border-l-2 border-slate-150 pl-3">
-                              {q.answer ? q.answer : <span className="italic text-gray-400">Aucune réponse pour le moment</span>}
+                            <p className="mt-2.5 whitespace-pre-wrap text-sm text-gray-600 dark:text-ink leading-relaxed border-l-2 border-slate-150 dark:border-border-brand pl-3">
+                              {q.answer ? q.answer : <span className="italic text-gray-400 dark:text-muted">Aucune réponse pour le moment</span>}
                             </p>
                           </li>
                         ))}

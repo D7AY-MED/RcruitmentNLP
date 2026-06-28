@@ -41,17 +41,17 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-white to-indigo-50/40 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-white to-indigo-50/40 px-4 dark:bg-none dark:bg-bg">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-600/20">
             <ShieldCheck className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">xQuesty Admin</h1>
-          <p className="mt-1 text-sm text-gray-500">Sign in to the administration console</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-ink">PooLink Admin</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-muted">Sign in to the administration console</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-border-brand dark:bg-card">
           <form onSubmit={onSubmit} className="space-y-5">
             <Field label="Email" htmlFor="email">
               <Input
@@ -61,7 +61,7 @@ export function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@xquesty.com"
+                placeholder="admin@poolink.com"
               />
             </Field>
             <Field label="Password" htmlFor="password">
@@ -89,8 +89,8 @@ export function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
-          Protected area · xQuesty Recruitment Platform
+        <p className="mt-6 text-center text-xs text-gray-400 dark:text-muted">
+          Protected area · PooLink Recruitment Platform
         </p>
       </div>
     </div>

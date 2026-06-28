@@ -10,23 +10,23 @@ export default function CompletedScreen() {
         <PartyPopper className="w-8 h-8 text-green-500" />
       </div>
 
-      <h2 className="text-xl font-bold text-gray-950 mb-3">
+      <h2 className="text-xl font-bold text-gray-950 dark:text-ink mb-3">
         Félicitations — Entretien terminé !
       </h2>
 
-      <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
+      <p className="text-sm text-gray-600 dark:text-ink leading-relaxed max-w-sm mx-auto">
         Vous avez terminé l&apos;entretien avec succès. Votre profil est désormais
         entre les mains du recruteur, qui examinera vos réponses sous peu.
       </p>
 
-      <p className="text-xs text-gray-400 mt-4">
+      <p className="text-xs text-gray-400 dark:text-muted mt-4">
         Nous vous remercions pour votre temps et votre participation.
       </p>
 
-      <div className="mt-8 w-20 h-1 rounded-full bg-gray-200 mx-auto" />
+      <div className="mt-8 w-20 h-1 rounded-full bg-gray-200 dark:bg-surface-2 mx-auto" />
 
-      <div className="mt-8 pt-6 border-t border-gray-100">
-        <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
+      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-border-brand">
+        <p className="text-sm text-gray-600 dark:text-ink leading-relaxed max-w-sm mx-auto">
           Complétez votre profil pour maximiser vos chances d&apos;obtenir ce poste.
         </p>
         <Link

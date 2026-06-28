@@ -58,3 +58,16 @@ export async function getCurrentRecruiter(): Promise<Recruiter> {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export async function changeRecruiterPassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const token = getToken();
+  if (!token) throw new Error('Not authenticated');
+  await apiRequest<{ ok: boolean }>('/api/v1/recruiter/password', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+  });
+}

@@ -81,7 +81,7 @@ export default function JobPoolCard({ pool, onView, onStatusChange, onDelete, bu
               <div 
                 role="menu" 
                 aria-label="Job pool actions"
-                className="absolute right-0 top-full mt-1.5 w-40 bg-white border border-border rounded-xl shadow-lg z-30 py-1.5 animate-slide-in"
+                className="absolute right-0 top-full mt-1.5 w-40 bg-white dark:bg-card border border-border rounded-xl shadow-lg z-30 py-1.5 animate-slide-in"
               >
                 {pool.status === 'active' ? (
                   <button
@@ -137,7 +137,7 @@ export default function JobPoolCard({ pool, onView, onStatusChange, onDelete, bu
                     setMenuOpen(false);
                     onDelete?.(pool);
                   }}
-                  className="w-full text-left px-3 py-2 text-xs font-medium text-destructive hover:bg-red-50 focus:bg-red-50 focus:outline-none transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-xs font-medium text-destructive hover:bg-red-50 dark:hover:bg-danger-soft focus:bg-red-50 dark:focus:bg-danger-soft focus:outline-none transition-colors flex items-center gap-2"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Delete

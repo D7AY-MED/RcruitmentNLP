@@ -70,14 +70,14 @@ export default function ProfileDropdown({ user, onProfileSaved }: ProfileDropdow
         {/* Trigger button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-gray-50 transition-colors group"
+          className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-surface-2 transition-colors group"
         >
           {/* Avatar */}
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt="Profile"
-              className="w-9 h-9 rounded-lg object-cover border border-gray-200"
+              className="w-9 h-9 rounded-lg object-cover border border-gray-200 dark:border-border-brand"
             />
           ) : (
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -87,16 +87,16 @@ export default function ProfileDropdown({ user, onProfileSaved }: ProfileDropdow
 
           {/* Name & company */}
           <div className="hidden sm:block text-left">
-            <p className="text-sm font-medium text-gray-900 leading-tight">
+            <p className="text-sm font-medium text-gray-900 dark:text-ink leading-tight">
               {user.fullName || user.email}
             </p>
             {user.companyName && (
-              <p className="text-xs text-gray-500 leading-tight">{user.companyName}</p>
+              <p className="text-xs text-gray-500 dark:text-muted leading-tight">{user.companyName}</p>
             )}
           </div>
 
           <ChevronDown
-            className={`w-4 h-4 text-gray-400 transition-transform ${
+            className={`w-4 h-4 text-gray-400 dark:text-muted transition-transform ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
@@ -104,39 +104,39 @@ export default function ProfileDropdown({ user, onProfileSaved }: ProfileDropdow
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-50 animate-slide-in">
+          <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-card rounded-xl border border-gray-200 dark:border-border-brand shadow-lg overflow-hidden z-50 animate-slide-in">
             {/* User info header */}
-            <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-border-brand bg-gray-50/50 dark:bg-surface">
+              <p className="text-sm font-semibold text-gray-900 dark:text-ink truncate">
                 {user.fullName || 'Recruiter'}
               </p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-gray-500 dark:text-muted truncate">{user.email}</p>
             </div>
 
             {/* Menu items */}
             <div className="py-1.5">
               <button
                 onClick={() => openModal('profile')}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-ink hover:bg-indigo-50 dark:hover:bg-brand-light hover:text-indigo-700 transition-colors"
               >
-                <User className="w-4 h-4 text-gray-400" />
+                <User className="w-4 h-4 text-gray-400 dark:text-muted" />
                 Profile
               </button>
               <button
                 onClick={() => openModal('settings')}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-ink hover:bg-indigo-50 dark:hover:bg-brand-light hover:text-indigo-700 transition-colors"
               >
-                <Settings className="w-4 h-4 text-gray-400" />
+                <Settings className="w-4 h-4 text-gray-400 dark:text-muted" />
                 Company Details
               </button>
             </div>
 
-            <div className="border-t border-gray-100">
+            <div className="border-t border-gray-100 dark:border-border-brand">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-ink hover:bg-red-50 dark:hover:bg-danger-soft hover:text-red-600 transition-colors"
               >
-                <LogOut className="w-4 h-4 text-gray-400" />
+                <LogOut className="w-4 h-4 text-gray-400 dark:text-muted" />
                 Log out
               </button>
             </div>

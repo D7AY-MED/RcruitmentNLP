@@ -139,6 +139,21 @@ class UserService:
         self._repo(user_type).delete(user_id)
         self.auth.delete_user(user_id)
 
+    def set_password(self, user_type: str, user_id: str, new_password: str) -> dict:
+        """Admin sets a new password for any candidate/recruiter account.
+
+        Reuses the same Supabase Auth admin update as the admin's own password
+        change. No schema/database change involved.
+        """
+        validate_user_type(user_type)
+        if not self._repo(user_type).get(user_id):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        try:
+            self.auth.set_password(user_id, new_password)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=500, detail=f"Password change failed: {exc}")
+        return {"id": user_id, "type": user_type, "ok": True, "message": "Password updated."}
+
     # --- helpers -------------------------------------------------------------
 
     def _repo(self, user_type: str):

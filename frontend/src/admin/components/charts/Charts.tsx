@@ -25,9 +25,9 @@ import {
   Legend,
 } from "recharts";
 
-const INDIGO = "#4f46e5";
-const EMERALD = "#10b981";
-const PALETTE = ["#4f46e5", "#10b981", "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6"];
+const INDIGO = "#4F46E5";
+const EMERALD = "#10B981";
+const PALETTE = ["#4F46E5", "#3B82F6", "#06B6D4", "#10B981", "#F59E0B", "#EF4444"];
 
 const tooltipStyle = {
   borderRadius: 10,

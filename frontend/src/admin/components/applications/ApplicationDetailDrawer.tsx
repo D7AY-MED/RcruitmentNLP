@@ -44,7 +44,7 @@ export function ApplicationDetailDrawer({
               {data.status === "completed" ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
               {data.status === "completed" ? "Completed" : "In progress"}
             </Badge>
-            <span className="text-xs text-gray-400">{data.answered}/{data.total_questions} answered</span>
+            <span className="text-xs text-gray-400 dark:text-muted">{data.answered}/{data.total_questions} answered</span>
           </span>
         )
       }
@@ -54,56 +54,56 @@ export function ApplicationDetailDrawer({
           {/* Context */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Card className="p-4">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500"><User className="h-3.5 w-3.5" />Candidate</p>
-              <p className="mt-1 font-semibold text-gray-900">{displayValue(data.candidate_name)}</p>
-              {data.candidate?.email && <p className="text-xs text-gray-500">{data.candidate.email}</p>}
+              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-muted"><User className="h-3.5 w-3.5" />Candidate</p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-ink">{displayValue(data.candidate_name)}</p>
+              {data.candidate?.email && <p className="text-xs text-gray-500 dark:text-muted">{data.candidate.email}</p>}
             </Card>
             <Card className="p-4">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500"><Briefcase className="h-3.5 w-3.5" />Job pool</p>
-              <p className="mt-1 font-semibold text-gray-900">{displayValue(data.pool_title)}</p>
-              {data.pool?.company_name && <p className="text-xs text-gray-500">{data.pool.company_name}</p>}
+              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-muted"><Briefcase className="h-3.5 w-3.5" />Job pool</p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-ink">{displayValue(data.pool_title)}</p>
+              {data.pool?.company_name && <p className="text-xs text-gray-500 dark:text-muted">{data.pool.company_name}</p>}
             </Card>
           </div>
 
           {/* Progress */}
           <div>
-            <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
+            <div className="mb-1 flex items-center justify-between text-xs text-gray-500 dark:text-muted">
               <span>Interview progress</span>
               <span>{progress}%</span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-surface-2">
               <div className="h-full rounded-full bg-indigo-600 transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* AI summary */}
           {data.summary && (data.summary.summary || data.summary.score) && (
-            <Card className="border-indigo-100 bg-indigo-50/40 p-4">
+            <Card className="border-indigo-100 bg-indigo-50/40 p-4 dark:bg-brand-light">
               <div className="mb-2 flex items-center justify-between">
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-indigo-900"><Sparkles className="h-4 w-4" />AI summary</p>
                 {data.summary.score && <Badge tone="indigo">Score: {data.summary.score}</Badge>}
               </div>
-              {data.summary.summary && <p className="whitespace-pre-wrap text-sm text-gray-700">{data.summary.summary}</p>}
+              {data.summary.summary && <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-ink">{data.summary.summary}</p>}
             </Card>
           )}
 
           {/* Transcript */}
           <section>
-            <h3 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            <h3 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">
               <MessageSquare className="h-3.5 w-3.5" />Transcript
             </h3>
             {!data.questions.length ? (
-              <p className="text-sm text-gray-400">No questions recorded.</p>
+              <p className="text-sm text-gray-400 dark:text-muted">No questions recorded.</p>
             ) : (
               <ol className="space-y-4">
                 {data.questions.map((q, i) => (
-                  <li key={q.sequence ?? i} className="rounded-xl border border-gray-200 p-4">
-                    <p className="text-sm font-medium text-gray-900">
+                  <li key={q.sequence ?? i} className="rounded-xl border border-gray-200 p-4 dark:border-border-brand">
+                    <p className="text-sm font-medium text-gray-900 dark:text-ink">
                       <span className="mr-2 text-indigo-600">Q{q.sequence ?? i + 1}.</span>
                       {q.question}
                     </p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm text-gray-600">
-                      {q.answer ? q.answer : <span className="italic text-gray-400">No answer yet</span>}
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-gray-600 dark:text-ink">
+                      {q.answer ? q.answer : <span className="italic text-gray-400 dark:text-muted">No answer yet</span>}
                     </p>
                   </li>
                 ))}

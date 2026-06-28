@@ -46,13 +46,13 @@ export default function RecruiterRegisterPage() {
   };
 
   const inputClass =
-    'w-full rounded-xl border border-border-brand px-3 py-2 text-sm bg-white text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
+    'w-full rounded-xl border border-border-brand px-3 py-2 text-sm bg-white dark:bg-surface text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-light px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border-brand bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-brand-light dark:bg-bg px-4">
+      <div className="w-full max-w-md rounded-2xl border border-border-brand bg-white dark:bg-card p-8 shadow-sm">
         <h1 className="mb-1 text-2xl font-bold text-ink">Create recruiter account</h1>
-        <p className="mb-6 text-sm text-gray-500">Start finding the right candidates.</p>
+        <p className="mb-6 text-sm text-gray-500 dark:text-muted">Start finding the right candidates.</p>
 
         {/* Simple error message */}
         {error && (
@@ -76,7 +76,7 @@ export default function RecruiterRegisterPage() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-ink">
-              Phone <span className="text-gray-400">(optional)</span>
+              Phone <span className="text-gray-400 dark:text-muted">(optional)</span>
             </label>
             <input className={inputClass} value={form.phone} onChange={update('phone')} />
           </div>
@@ -97,7 +97,7 @@ export default function RecruiterRegisterPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-ink">
           Already have an account?{' '}
           <Link to="/recruiter/login" className="font-semibold text-brand hover:text-brand-hover hover:underline">
             Sign in

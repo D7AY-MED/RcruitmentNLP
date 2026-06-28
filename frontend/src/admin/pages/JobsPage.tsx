@@ -70,13 +70,13 @@ export function JobsPage() {
       header: "Title",
       cell: (j) => (
         <div className="min-w-0">
-          <p className="truncate font-medium text-gray-900">{j.title || "Untitled"}</p>
-          <p className="truncate text-xs text-gray-500">{j.location || "—"}</p>
+          <p className="truncate font-medium text-gray-900 dark:text-ink">{j.title || "Untitled"}</p>
+          <p className="truncate text-xs text-gray-500 dark:text-muted">{j.location || "—"}</p>
         </div>
       ),
     },
-    { header: "Company", cell: (j) => <span className="text-gray-600">{j.company_name || "—"}</span> },
-    { header: "Contract", cell: (j) => <span className="text-gray-600">{j.contract_type || "—"}</span> },
+    { header: "Company", cell: (j) => <span className="text-gray-600 dark:text-ink">{j.company_name || "—"}</span> },
+    { header: "Contract", cell: (j) => <span className="text-gray-600 dark:text-ink">{j.contract_type || "—"}</span> },
     {
       header: "Status",
       cell: (j) =>
@@ -86,7 +86,7 @@ export function JobsPage() {
           <StatusBadge active={!!j.status} labels={["Active", "Inactive"]} />
         ),
     },
-    { header: "Created", cell: (j) => <span className="text-gray-500">{formatDate(j.created_at)}</span> },
+    { header: "Created", cell: (j) => <span className="text-gray-500 dark:text-muted">{formatDate(j.created_at)}</span> },
     {
       header: "",
       align: "right",
@@ -111,7 +111,7 @@ export function JobsPage() {
       <PageHeader title="Jobs" subtitle="Job pools across all recruiters" />
 
       <Card>
-        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-border-brand">
           <SearchInput value={search} onChange={setSearch} placeholder="Search by title, company or location…" className="sm:max-w-xs" />
           <Select value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)} className="sm:w-44">
             <option value="">All statuses</option>

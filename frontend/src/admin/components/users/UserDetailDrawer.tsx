@@ -113,6 +113,8 @@ export function UserDetailDrawer({
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [savingPwd, setSavingPwd] = useState(false);
 
   const groups = useMemo(
     () => (userRef?.type === "recruiter" ? RECRUITER_GROUPS : CANDIDATE_GROUPS),
@@ -122,6 +124,7 @@ export function UserDetailDrawer({
   useEffect(() => {
     if (!open || !userRef) return;
     setEditing(false);
+    setNewPassword("");
     setLoading(true);
     setError(null);
     usersService
@@ -176,6 +179,20 @@ export function UserDetailDrawer({
     }
   };
 
+  const resetPassword = async () => {
+    if (!userRef || newPassword.length < 6) return;
+    setSavingPwd(true);
+    try {
+      await usersService.setUserPassword(userRef.type, userRef.id, newPassword);
+      setNewPassword("");
+      toast.success("Mot de passe mis à jour");
+    } catch (e: any) {
+      toast.error(e.message || "Échec de la mise à jour du mot de passe");
+    } finally {
+      setSavingPwd(false);
+    }
+  };
+
   return (
     <Drawer
       open={open}
@@ -218,11 +235,11 @@ export function UserDetailDrawer({
       ) : user ? (
         <div className="space-y-6">
           {/* Header card */}
-          <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-border-brand dark:bg-surface">
             <Avatar name={user.full_name} className="h-12 w-12 text-sm" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-gray-900">{user.full_name}</p>
-              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+              <p className="truncate text-sm font-semibold text-gray-900 dark:text-ink">{user.full_name}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-muted">
                 <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{displayValue(user.email)}</span>
                 <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{displayValue(user.phone)}</span>
                 <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Joined {formatDate(user.created_at)}</span>
@@ -233,13 +250,13 @@ export function UserDetailDrawer({
           {/* Field groups */}
           {groups.map((group) => (
             <section key={group.title}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">
                 {group.title}
               </h3>
               <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                 {group.fields.map((f) => (
                   <div key={f.key} className={f.key === "company_description" ? "sm:col-span-2" : ""}>
-                    <dt className="mb-1 text-xs font-medium text-gray-500">{f.label}</dt>
+                    <dt className="mb-1 text-xs font-medium text-gray-500 dark:text-muted">{f.label}</dt>
                     {editing ? (
                       f.type === "bool" ? (
                         <Select
@@ -261,13 +278,43 @@ export function UserDetailDrawer({
                         />
                       )
                     ) : (
-                      <dd className="text-sm text-gray-900">{displayValue(profile[f.key])}</dd>
+                      <dd className="text-sm text-gray-900 dark:text-ink">{displayValue(profile[f.key])}</dd>
                     )}
                   </div>
                 ))}
               </dl>
             </section>
           ))}
+
+          {/* Security: admin sets a new password for this account */}
+          <section>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">
+              Sécurité
+            </h3>
+            <div className="rounded-xl border border-gray-200 p-4 dark:border-border-brand">
+              <p className="mb-1 text-xs font-medium text-gray-500 dark:text-muted">Nouveau mot de passe</p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Min. 6 caractères"
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  loading={savingPwd}
+                  disabled={newPassword.length < 6}
+                  onClick={resetPassword}
+                >
+                  Réinitialiser le mot de passe
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-gray-400 dark:text-muted">
+                Définit immédiatement un nouveau mot de passe pour ce compte.
+              </p>
+            </div>
+          </section>
         </div>
       ) : null}
     </Drawer>

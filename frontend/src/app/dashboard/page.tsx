@@ -6,9 +6,8 @@ import SearchComponent from '@/components/SearchComponent';
 import ResultsComponent from '@/components/ResultsComponent';
 import { Candidate, SearchHistoryItem } from '@/lib/types';
 import { listSearchHistory, getSearchHistoryDetails } from '@/lib/jobPoolService';
-import { useRecruiter, useRecruiterContext } from '@/lib/recruiter-context';
-import AppHeader from '@/components/AppHeader';
-import AppSidebar from '@/components/AppSidebar';
+import { useRecruiter } from '@/lib/recruiter-context';
+import { PageHeader } from '@/shared/components';
 
 export default function DashboardPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -17,7 +16,6 @@ export default function DashboardPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [openingHistoryId, setOpeningHistoryId] = useState<string | null>(null);
   const user = useRecruiter();
-  const { refreshUser } = useRecruiterContext();
   const hrProfileId = user.id;
 
   const fetchSearchHistory = async () => {
@@ -85,15 +83,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-brand-light/40">
-      <AppSidebar user={user} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <Toaster position="top-right" />
-
-        <AppHeader user={user} hrProfileId={hrProfileId} onProfileSaved={refreshUser} />
-
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div>
+      <Toaster position="top-right" />
+      <PageHeader title="Recherche de candidats" subtitle="Matching sémantique propulsé par l'IA." />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <SearchComponent
                 hrProfileId={hrProfileId}
@@ -112,7 +105,7 @@ export default function DashboardPage() {
             </div>
 
             <aside className="lg:col-span-1">
-              <section className="bg-white rounded-2xl border border-border-brand shadow-sm p-5 sticky top-6">
+              <section className="bg-white dark:bg-card rounded-2xl border border-border-brand shadow-sm p-5 sticky top-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-ink">Search History</h2>
                   <button
@@ -124,9 +117,9 @@ export default function DashboardPage() {
                 </div>
 
                 {historyLoading ? (
-                  <div className="text-sm text-gray-500">Loading history...</div>
+                  <div className="text-sm text-gray-500 dark:text-muted">Loading history...</div>
                 ) : historyItems.length === 0 ? (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-muted">
                     No previous searches yet. Your recent matching runs will appear here.
                   </div>
                 ) : (
@@ -137,11 +130,11 @@ export default function DashboardPage() {
                         <article
                           key={item.id}
                           className={`rounded-xl border p-3 transition ${
-                            isActive ? 'border-brand/40 bg-brand-light' : 'border-border-brand bg-white'
+                            isActive ? 'border-brand/40 bg-brand-light' : 'border-border-brand bg-white dark:bg-card'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-gray-400 dark:text-muted">
                               {new Date(item.createdAt).toLocaleString()}
                             </p>
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-light text-brand font-bold border border-brand/10">
@@ -153,7 +146,7 @@ export default function DashboardPage() {
                               Pool: {item.pool_title}
                             </p>
                           )}
-                          <p className="text-sm text-gray-705 line-clamp-3 mb-3 leading-relaxed">
+                          <p className="text-sm text-gray-705 dark:text-ink line-clamp-3 mb-3 leading-relaxed">
                             {item.queryDescription}
                           </p>
                           <button
@@ -170,16 +163,6 @@ export default function DashboardPage() {
                 )}
               </section>
             </aside>
-          </div>
-        </main>
-
-        <footer className="bg-white border-t border-gray-200 mt-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-center text-sm text-gray-500">
-              HR Dashboard - Candidate Matching System
-            </p>
-          </div>
-        </footer>
       </div>
     </div>
   );

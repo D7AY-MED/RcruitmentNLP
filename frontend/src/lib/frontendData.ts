@@ -7,7 +7,7 @@ export const demoUser: AuthUser = {
   id: 'demo-recruiter',
   email: 'recruiter@example.com',
   fullName: 'Demo Recruiter',
-  companyName: 'xQuesty',
+  companyName: 'PooLink',
 };
 
 export const demoCandidates: Candidate[] = [

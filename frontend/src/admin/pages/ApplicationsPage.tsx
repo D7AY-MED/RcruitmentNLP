@@ -36,23 +36,23 @@ export function ApplicationsPage() {
         <div className="flex items-center gap-3">
           <Avatar name={a.candidate_name} />
           <div className="min-w-0">
-            <p className="truncate font-medium text-gray-900">{a.candidate_name || "Unknown"}</p>
-            <p className="truncate text-xs text-gray-500">{a.phone || "—"}</p>
+            <p className="truncate font-medium text-gray-900 dark:text-ink">{a.candidate_name || "Unknown"}</p>
+            <p className="truncate text-xs text-gray-500 dark:text-muted">{a.phone || "—"}</p>
           </div>
         </div>
       ),
     },
-    { header: "Job pool", cell: (a) => <span className="text-gray-600">{a.pool_title || "—"}</span> },
+    { header: "Job pool", cell: (a) => <span className="text-gray-600 dark:text-ink">{a.pool_title || "—"}</span> },
     {
       header: "Progress",
       cell: (a) => {
         const pct = a.total_questions ? Math.round((a.answered / a.total_questions) * 100) : 0;
         return (
           <div className="flex items-center gap-2">
-            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100 dark:bg-surface-2">
               <div className="h-full rounded-full bg-indigo-600" style={{ width: `${pct}%` }} />
             </div>
-            <span className="text-xs text-gray-500">{a.answered}/{a.total_questions}</span>
+            <span className="text-xs text-gray-500 dark:text-muted">{a.answered}/{a.total_questions}</span>
           </div>
         );
       },
@@ -66,7 +66,7 @@ export function ApplicationsPage() {
         </Badge>
       ),
     },
-    { header: "Updated", cell: (a) => <span className="text-gray-500">{formatDateTime(a.updated_at)}</span> },
+    { header: "Updated", cell: (a) => <span className="text-gray-500 dark:text-muted">{formatDateTime(a.updated_at)}</span> },
   ];
 
   return (
@@ -74,7 +74,7 @@ export function ApplicationsPage() {
       <PageHeader title="Applications" subtitle="Candidate interviews across all job pools" />
 
       <Card>
-        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-border-brand">
           <SearchInput value={search} onChange={setSearch} placeholder="Search by candidate or job…" className="sm:max-w-xs" />
           <Select value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)} className="sm:w-44">
             <option value="">All statuses</option>

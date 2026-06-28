@@ -13,11 +13,11 @@ type Variant = "primary" | "secondary" | "outline" | "ghost" | "destructive";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
-  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-  outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-  ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-  destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
+  primary: "bg-brand text-white hover:bg-brand-hover shadow-sm",
+  secondary: "bg-gray-100 dark:bg-surface-2 text-gray-900 dark:text-ink hover:bg-gray-200 dark:hover:bg-surface-2",
+  outline: "border border-gray-300 dark:border-border-brand bg-white dark:bg-card text-gray-700 dark:text-ink hover:bg-gray-50 dark:hover:bg-surface-2",
+  ghost: "text-gray-600 dark:text-ink hover:bg-gray-100 dark:hover:bg-surface-2 hover:text-gray-900",
+  destructive: "bg-danger text-danger-foreground hover:opacity-90 shadow-sm",
 };
 
 const SIZES: Record<Size, string> = {
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled={disabled || loading}
       className={cn(
         "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
         VARIANTS[variant],
         SIZES[size],

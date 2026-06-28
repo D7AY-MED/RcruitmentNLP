@@ -11,7 +11,7 @@ import { Button } from "./Button";
 export function Card({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-xl border border-gray-200 bg-white shadow-sm", className)}
+      className={cn("rounded-xl border border-gray-200 dark:border-border-brand bg-white dark:bg-card shadow-sm", className)}
       {...props}
     >
       {children}
@@ -21,12 +21,12 @@ export function Card({ className, children, ...props }: React.HTMLAttributes<HTM
 
 type BadgeTone = "gray" | "green" | "red" | "indigo" | "amber" | "blue";
 const TONES: Record<BadgeTone, string> = {
-  gray: "bg-gray-100 text-gray-700",
-  green: "bg-emerald-100 text-emerald-700",
-  red: "bg-red-100 text-red-700",
-  indigo: "bg-indigo-100 text-indigo-700",
-  amber: "bg-amber-100 text-amber-700",
-  blue: "bg-blue-100 text-blue-700",
+  gray: "bg-surface-2 text-muted",
+  green: "bg-success-soft text-success",
+  red: "bg-danger-soft text-danger",
+  indigo: "bg-brand-light text-brand",
+  amber: "bg-warning-soft text-warning",
+  blue: "bg-brand-accent-50 text-brand-accent",
 };
 
 export function Badge({
@@ -56,24 +56,24 @@ export function StatusBadge({ active, labels }: { active: boolean; labels?: [str
   const [on, off] = labels ?? ["Active", "Disabled"];
   return (
     <Badge tone={active ? "green" : "gray"}>
-      <span className={cn("h-1.5 w-1.5 rounded-full", active ? "bg-emerald-500" : "bg-gray-400")} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", active ? "bg-success" : "bg-gray-400")} />
       {active ? on : off}
     </Badge>
   );
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("h-5 w-5 animate-spin text-indigo-600", className)} />;
+  return <Loader2 className={cn("h-5 w-5 animate-spin text-brand", className)} />;
 }
 
 export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return <div className={cn("animate-pulse rounded-md bg-gray-200", className)} style={style} />;
+  return <div className={cn("animate-pulse rounded-md bg-gray-200 dark:bg-surface-2", className)} style={style} />;
 }
 
 /** Centered loading state for a whole panel. */
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-500">
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-500 dark:text-muted">
       <Spinner className="h-6 w-6" />
       <p className="text-sm">{label}</p>
     </div>
@@ -106,11 +106,11 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-surface-2 text-gray-400 dark:text-muted">
         {icon ?? <Inbox className="h-6 w-6" />}
       </div>
-      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-      {description && <p className="max-w-sm text-sm text-gray-500">{description}</p>}
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-ink">{title}</h3>
+      {description && <p className="max-w-sm text-sm text-gray-500 dark:text-muted">{description}</p>}
       {action && <div className="mt-1">{action}</div>}
     </div>
   );
@@ -119,11 +119,11 @@ export function EmptyState({
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">
         <AlertTriangle className="h-6 w-6" />
       </div>
-      <h3 className="text-sm font-semibold text-gray-900">Something went wrong</h3>
-      <p className="max-w-sm text-sm text-gray-500">{message}</p>
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-ink">Something went wrong</h3>
+      <p className="max-w-sm text-sm text-gray-500 dark:text-muted">{message}</p>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
           Try again
@@ -146,8 +146,8 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-ink">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-gray-500 dark:text-muted">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
@@ -166,7 +166,7 @@ export function Avatar({ name, className }: { name?: string | null; className?: 
   return (
     <div
       className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700",
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-light text-xs font-semibold text-brand",
         className
       )}
     >

@@ -6,6 +6,8 @@ import { startInterview, continueInterview, getSessionStatus } from '../lib/api'
 import SetupForm from './SetupForm';
 import QASession from './QASession';
 import CompletedScreen from './CompletedScreen';
+import ThemeToggle from '@/components/ThemeToggle';
+import { BrandLogo } from '@/shared/components';
 import type { InterviewStatus } from '../lib/types';
 
 interface InterviewViewProps {
@@ -113,7 +115,7 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
 
   if (pageStatus === 'loading') {
     return (
-      <div className="flex items-center justify-center py-20 text-gray-400">
+      <div className="flex items-center justify-center py-20 text-gray-400 dark:text-muted">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
         Chargement...
       </div>
@@ -121,21 +123,17 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f7f9fb' }}>
-      <header className="border-b border-gray-200/80 bg-white/90 sticky top-0 z-50" style={{ backdropFilter: 'blur(16px)' }}>
+    <div className="min-h-screen flex flex-col dark:bg-bg" style={{ background: '#f7f9fb' }}>
+      <header className="border-b border-gray-200/80 dark:border-border-brand bg-white/90 dark:bg-card/80 sticky top-0 z-50" style={{ backdropFilter: 'blur(16px)' }}>
         <div className="max-w-2xl mx-auto px-4 py-6 sm:py-8 flex justify-between items-center w-full">
           <div className="flex items-center gap-3">
-            <span
-              className="text-xl font-bold tracking-tight bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(to right, #2563EB, #60A5FA)' }}
-            >
-              PooLink
-            </span>
-            <span className="text-gray-300 text-sm">|</span>
-            <span className="text-sm text-gray-500 font-medium truncate max-w-[150px] sm:max-w-none">{companyName}</span>
+            <BrandLogo className="h-6" />
+            <span className="text-gray-300 dark:text-muted text-sm">|</span>
+            <span className="text-sm text-gray-500 dark:text-muted font-medium truncate max-w-[150px] sm:max-w-none">{companyName}</span>
           </div>
           <nav className="hidden md:flex gap-8 items-center text-sm font-semibold">
-            <span className="text-gray-400 hover:text-blue-600 transition-colors cursor-pointer">Help Center</span>
+            <ThemeToggle />
+            <span className="text-gray-400 dark:text-muted hover:text-blue-600 transition-colors cursor-pointer">Help Center</span>
             <span className="text-blue-600 transition-all duration-300 cursor-default">Interview Session</span>
           </nav>
         </div>
@@ -147,16 +145,16 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
             <>
               {/* Header Section */}
               <section className="text-center mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ink tracking-tight mb-2">
                   Upload CV to start your interview
                 </h1>
-                <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto">
+                <p className="text-sm sm:text-base text-gray-500 dark:text-muted max-w-md mx-auto">
                   Welcome to your PooLink AI assessment. Please provide your professional details to begin the automated screening process.
                 </p>
               </section>
 
               {/* Card Container */}
-              <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="bg-white dark:bg-card border border-gray-200/80 dark:border-border-brand rounded-2xl p-6 sm:p-8 shadow-sm">
                 <SetupForm onStart={handleStart} isStarting={isStarting} />
               </div>
             </>
@@ -175,12 +173,12 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
           )}
 
           {pageStatus === 'completed' && (
-            <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div className="bg-white dark:bg-card border border-gray-200/80 dark:border-border-brand rounded-2xl p-6 sm:p-8 shadow-sm">
               <div className="text-center mb-6">
-                <h1 className="text-lg font-bold text-gray-950 mb-1">
+                <h1 className="text-lg font-bold text-gray-950 dark:text-ink mb-1">
                   Entretien IA
                 </h1>
-                <p className="text-xs text-gray-400">{companyName} — {jobTitle}</p>
+                <p className="text-xs text-gray-400 dark:text-muted">{companyName} — {jobTitle}</p>
               </div>
               <CompletedScreen />
             </div>
@@ -189,8 +187,8 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-transparent py-8 mt-auto border-t border-gray-200/50">
-        <div className="max-w-2xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400 font-medium">
+      <footer className="w-full bg-transparent py-8 mt-auto border-t border-gray-200/50 dark:border-border-brand">
+        <div className="max-w-2xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400 dark:text-muted font-medium">
           <div>
             © 2026 PooLink. Secure & Private.
           </div>

@@ -15,6 +15,6 @@ export const getSummary = () => http.get<ReportSummary>("/api/v1/admin/reports/s
 export function exportDataset(dataset: ReportDataset, format: "csv" | "xlsx"): Promise<void> {
   return http.download(
     `/api/v1/admin/reports/export?dataset=${dataset}&format=${format}`,
-    `xquesty-${dataset}.${format}`
+    `poolink-${dataset}.${format}`
   );
 }

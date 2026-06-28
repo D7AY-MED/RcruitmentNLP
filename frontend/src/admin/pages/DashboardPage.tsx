@@ -90,8 +90,8 @@ export function DashboardPage() {
         <Card className="p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Growth</h2>
-              <p className="text-sm text-gray-500">New candidates vs recruiters, last 6 months</p>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Growth</h2>
+              <p className="text-sm text-gray-500 dark:text-muted">New candidates vs recruiters, last 6 months</p>
             </div>
           </div>
           {charts.loading ? (
@@ -104,8 +104,8 @@ export function DashboardPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="text-base font-semibold text-gray-900">Applications</h2>
-          <p className="mb-2 text-sm text-gray-500">Status breakdown</p>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Applications</h2>
+          <p className="mb-2 text-sm text-gray-500 dark:text-muted">Status breakdown</p>
           {charts.loading ? <ChartSkeleton height={220} /> : <StatusDonut data={charts.data?.applicationStatus ?? []} />}
         </Card>
       </div>
@@ -114,7 +114,7 @@ export function DashboardPage() {
         {/* Activity feed */}
         <Card className="p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">Recent activity</h2>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Recent activity</h2>
             <Badge tone="gray">Live</Badge>
           </div>
           {activity.loading ? (
@@ -122,9 +122,9 @@ export function DashboardPage() {
           ) : activity.error ? (
             <ErrorState message={activity.error} onRetry={activity.reload} />
           ) : !activity.data?.length ? (
-            <p className="py-8 text-center text-sm text-gray-400">No recent activity</p>
+            <p className="py-8 text-center text-sm text-gray-400 dark:text-muted">No recent activity</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-100 dark:divide-[hsl(var(--border))]">
               {activity.data.map((item, i) => {
                 const meta = ACTIVITY_META[item.type] ?? ACTIVITY_META.candidate;
                 return (
@@ -133,10 +133,10 @@ export function DashboardPage() {
                       {meta.icon}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">{item.title}</p>
-                      <p className="truncate text-xs text-gray-500">{item.subtitle}</p>
+                      <p className="truncate text-sm font-medium text-gray-900 dark:text-ink">{item.title}</p>
+                      <p className="truncate text-xs text-gray-500 dark:text-muted">{item.subtitle}</p>
                     </div>
-                    <span className="shrink-0 text-xs text-gray-400">{timeAgo(item.timestamp)}</span>
+                    <span className="shrink-0 text-xs text-gray-400 dark:text-muted">{timeAgo(item.timestamp)}</span>
                   </li>
                 );
               })}
@@ -147,7 +147,7 @@ export function DashboardPage() {
         {/* Quick actions + pools state */}
         <div className="space-y-6">
           <Card className="p-5">
-            <h2 className="mb-3 text-base font-semibold text-gray-900">Quick actions</h2>
+            <h2 className="mb-3 text-base font-semibold text-gray-900 dark:text-ink">Quick actions</h2>
             <div className="space-y-2">
               <QuickAction label="Manage users" icon={<Users className="h-4 w-4" />} onClick={() => navigate("/admin/users")} />
               <QuickAction label="Review applications" icon={<ClipboardList className="h-4 w-4" />} onClick={() => navigate("/admin/applications")} />
@@ -157,8 +157,8 @@ export function DashboardPage() {
           </Card>
 
           <Card className="p-5">
-            <h2 className="text-base font-semibold text-gray-900">Job pools</h2>
-            <p className="mb-2 text-sm text-gray-500">By state</p>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Job pools</h2>
+            <p className="mb-2 text-sm text-gray-500 dark:text-muted">By state</p>
             {charts.loading ? <ChartSkeleton height={220} /> : <SimpleBarChart data={charts.data?.poolsState ?? []} />}
           </Card>
         </div>
@@ -171,7 +171,7 @@ function QuickAction({ label, icon, onClick }: { label: string; icon: React.Reac
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-700"
+      className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-700 dark:border-border-brand dark:text-ink dark:hover:bg-brand-light"
     >
       <span className="flex items-center gap-2.5">{icon}{label}</span>
       <ArrowRight className="h-4 w-4 text-gray-300" />

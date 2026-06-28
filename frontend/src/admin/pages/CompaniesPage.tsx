@@ -61,14 +61,14 @@ export function CompaniesPage() {
             >
               <Card className="h-full p-5 transition-all hover:border-indigo-200 hover:shadow-md">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-brand-light">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="truncate font-semibold text-gray-900 group-hover:text-indigo-700">
+                    <h3 className="truncate font-semibold text-gray-900 group-hover:text-indigo-700 dark:text-ink">
                       {c.company_name}
                     </h3>
-                    <p className="truncate text-xs text-gray-500">{displayValue(c.company_industry)}</p>
+                    <p className="truncate text-xs text-gray-500 dark:text-muted">{displayValue(c.company_industry)}</p>
                   </div>
                 </div>
 
@@ -79,7 +79,7 @@ export function CompaniesPage() {
                 </div>
 
                 {c.company_website && (
-                  <p className="mt-3 flex items-center gap-1.5 truncate text-xs text-gray-400">
+                  <p className="mt-3 flex items-center gap-1.5 truncate text-xs text-gray-400 dark:text-muted">
                     <Globe className="h-3.5 w-3.5" />
                     {c.company_website}
                   </p>

@@ -14,16 +14,21 @@ export async function getSessionStatus(poolId: string): Promise<SessionStatus> {
   const headers: Record<string, string> = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const response = await fetch(
-    `${API_URL}/api/v1/interview/session?pool_id=${encodeURIComponent(poolId)}`,
-    { headers },
-  );
-
-  if (!response.ok) {
+  // 8s timeout so this never hangs the page (it runs inside Promise.all).
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/interview/session?pool_id=${encodeURIComponent(poolId)}`,
+      { headers, signal: ctrl.signal },
+    );
+    if (!response.ok) return { status: 'none' };
+    return (await response.json()) as SessionStatus;
+  } catch {
     return { status: 'none' };
+  } finally {
+    clearTimeout(timer);
   }
-
-  return response.json();
 }
 
 export async function startInterview(

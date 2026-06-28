@@ -58,14 +58,14 @@ export default function QASession({
       {/* Progress Indicator */}
       <div className="w-full">
         <div className="flex justify-between items-end mb-2">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          <span className="text-[10px] font-bold text-gray-400 dark:text-muted uppercase tracking-widest">
             Assessment Phase
           </span>
           <span className="text-sm text-blue-600 font-semibold">
             Question {questionIndex || '?'} of {totalQuestions}
           </span>
         </div>
-        <div className="w-full h-1 bg-gray-200/60 rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-gray-200/60 dark:bg-surface-2 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}
@@ -75,13 +75,13 @@ export default function QASession({
 
       {/* Question Card */}
       <section className="space-y-6">
-        <div className="bg-white border border-gray-200/80 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white dark:bg-card border border-gray-200/80 dark:border-border-brand p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-start gap-4">
-            <div className="bg-blue-50 text-blue-600 p-2.5 rounded-xl shrink-0 border border-blue-100/50">
+            <div className="bg-blue-50 dark:bg-brand-light text-blue-600 p-2.5 rounded-xl shrink-0 border border-blue-100/50">
               <Brain className="w-6 h-6 fill-current animate-pulse" />
             </div>
             <div className="space-y-2">
-              <p className="text-base text-gray-600 leading-relaxed whitespace-pre-line">
+              <p className="text-base text-gray-600 dark:text-ink leading-relaxed whitespace-pre-line">
                 {question || 'Chargement de la question...'}
               </p>
             </div>
@@ -95,8 +95,8 @@ export default function QASession({
         )}
 
         {canRetry && (
-          <div className="text-center bg-white border border-gray-200/80 rounded-2xl p-8 shadow-sm">
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="text-center bg-white dark:bg-card border border-gray-200/80 dark:border-border-brand rounded-2xl p-8 shadow-sm">
+            <p className="text-sm text-gray-500 dark:text-muted mb-4">
               L&apos;entretien n&apos;a pas pu démarrer correctement. Vous pouvez réessayer.
             </p>
             <button
@@ -116,20 +116,20 @@ export default function QASession({
               {/* Glowing focus border background decoration */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/10 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
               
-              <div className="relative bg-white border border-gray-200 rounded-2xl overflow-hidden focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 transition-all duration-300">
+              <div className="relative bg-white dark:bg-surface border border-gray-200 dark:border-border-brand rounded-2xl overflow-hidden focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 transition-all duration-300">
                 <textarea
                   value={answer}
                   onChange={handleInputChange}
                   placeholder="Type your answer here..."
-                  className="w-full min-h-[250px] p-6 text-base text-gray-700 bg-transparent border-none focus:ring-0 resize-none placeholder:text-gray-400/60"
+                  className="w-full min-h-[250px] p-6 text-base text-gray-700 dark:text-ink bg-transparent border-none focus:ring-0 resize-none placeholder:text-gray-400/60 dark:placeholder:text-[hsl(var(--text-muted))]"
                   autoComplete="off"
                   disabled={isSubmitting}
                   required
                 />
                 
                 {/* Text Area Footer Tools */}
-                <div className="flex justify-end items-center px-6 py-4 bg-gray-50/50 border-t border-gray-100">
-                  <span className="text-xs font-semibold text-gray-400">
+                <div className="flex justify-end items-center px-6 py-4 bg-gray-50/50 dark:bg-surface border-t border-gray-100 dark:border-border-brand">
+                  <span className="text-xs font-semibold text-gray-400 dark:text-muted">
                     {wordCount} {wordCount === 1 ? 'word' : 'words'}
                   </span>
                 </div>
@@ -138,8 +138,8 @@ export default function QASession({
 
             {/* Action Section */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2 text-gray-400/80">
-                <Info className="w-4 h-4 shrink-0 text-gray-400" />
+              <div className="flex items-center gap-2 text-gray-400/80 dark:text-muted">
+                <Info className="w-4 h-4 shrink-0 text-gray-400 dark:text-muted" />
                 <p className="text-xs font-medium">Your answer is automatically saved as you type.</p>
               </div>
               

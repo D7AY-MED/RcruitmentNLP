@@ -1,30 +1,32 @@
 'use client';
 import { AuthUser } from '@/lib/types';
 import ProfileDropdown from './ProfileDropdown';
+import ThemeToggle from './ThemeToggle';
 
-export default function AppHeader({ 
-  user, 
-  hrProfileId, 
+export default function AppHeader({
+  user,
+  hrProfileId,
   refreshBalance = 0,
   onProfileSaved,
   children
-}: { 
-  user: AuthUser; 
-  hrProfileId: string; 
+}: {
+  user: AuthUser;
+  hrProfileId: string;
   refreshBalance?: number;
   onProfileSaved?: () => void;
   children?: React.ReactNode;
 }) {
   return (
-    <header className="bg-white shadow-sm border-b border-border-brand">
+    <header className="bg-white dark:bg-card shadow-sm border-b border-border-brand">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
             <h1 className="text-2xl font-bold text-ink">HR Dashboard</h1>
           </div>
-          
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-3">
             {children}
+            <ThemeToggle />
             <ProfileDropdown user={user} onProfileSaved={onProfileSaved} />
           </div>
         </div>

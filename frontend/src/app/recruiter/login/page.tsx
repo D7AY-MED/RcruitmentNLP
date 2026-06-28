@@ -32,13 +32,13 @@ export default function RecruiterLoginPage() {
   };
 
   const inputClass =
-    'w-full rounded-xl border border-border-brand px-3 py-2 text-sm bg-white text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
+    'w-full rounded-xl border border-border-brand px-3 py-2 text-sm bg-white dark:bg-surface text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-light px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border-brand bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-brand-light dark:bg-bg px-4">
+      <div className="w-full max-w-md rounded-2xl border border-border-brand bg-white dark:bg-card p-8 shadow-sm">
         <h1 className="mb-1 text-2xl font-bold text-ink">Recruiter sign in</h1>
-        <p className="mb-6 text-sm text-gray-500">Welcome back.</p>
+        <p className="mb-6 text-sm text-gray-500 dark:text-muted">Welcome back.</p>
 
         {/* Simple error message */}
         {error && (
@@ -74,7 +74,7 @@ export default function RecruiterLoginPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-ink">
           Don&apos;t have an account?{' '}
           <Link to="/recruiter/register" className="font-semibold text-brand hover:text-brand-hover hover:underline">
             Create one

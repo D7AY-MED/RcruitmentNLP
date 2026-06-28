@@ -55,13 +55,20 @@ class CandidateOut(BaseModel):
     expected_salary_min: float | None = None
     expected_salary_max: float | None = None
     profile_picture_url: str | None = None
+    cv_url: str | None = None
     open_to_work: bool | None = True
     created_at: datetime
 
     model_config = {"from_attributes": True}
 
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)
+
+
 class CandidateToken(BaseModel):
     access_token: str
+    refresh_token: str | None = None
     token_type: str = "bearer"
     candidate: CandidateOut

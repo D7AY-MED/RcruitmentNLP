@@ -75,8 +75,8 @@ function ProfileSection() {
       <div className="mb-6 flex items-center gap-4">
         <Avatar name={admin?.full_name} className="h-14 w-14 text-base" />
         <div>
-          <p className="font-semibold text-gray-900">{admin?.full_name}</p>
-          <p className="text-sm text-gray-500">{admin?.email}</p>
+          <p className="font-semibold text-gray-900 dark:text-ink">{admin?.full_name}</p>
+          <p className="text-sm text-gray-500 dark:text-muted">{admin?.email}</p>
           <Badge tone="indigo" className="mt-1">Administrator</Badge>
         </div>
       </div>
@@ -123,16 +123,16 @@ function AdminUsersSection() {
         <div className="flex items-center gap-3">
           <Avatar name={a.full_name} />
           <div className="min-w-0">
-            <p className="truncate font-medium text-gray-900">
+            <p className="truncate font-medium text-gray-900 dark:text-ink">
               {a.full_name}
               {a.id === admin?.id && <span className="ml-2 text-xs text-indigo-600">(you)</span>}
             </p>
-            <p className="truncate text-xs text-gray-500">{a.email}</p>
+            <p className="truncate text-xs text-gray-500 dark:text-muted">{a.email}</p>
           </div>
         </div>
       ),
     },
-    { header: "Added", cell: (a) => <span className="text-gray-500">{formatDate(a.created_at)}</span> },
+    { header: "Added", cell: (a) => <span className="text-gray-500 dark:text-muted">{formatDate(a.created_at)}</span> },
     {
       header: "",
       align: "right",
@@ -150,10 +150,10 @@ function AdminUsersSection() {
 
   return (
     <Card>
-      <div className="flex items-center justify-between border-b border-gray-100 p-4">
+      <div className="flex items-center justify-between border-b border-gray-100 p-4 dark:border-border-brand">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Administrators</h2>
-          <p className="text-sm text-gray-500">People with full access to this console</p>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Administrators</h2>
+          <p className="text-sm text-gray-500 dark:text-muted">People with full access to this console</p>
         </div>
         <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" />Add admin</Button>
       </div>
@@ -251,8 +251,8 @@ function SecuritySection() {
       <div className="mb-4 flex items-center gap-2">
         <Lock className="h-5 w-5 text-indigo-600" />
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Change password</h2>
-          <p className="text-sm text-gray-500">Update the password for your admin account</p>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-ink">Change password</h2>
+          <p className="text-sm text-gray-500 dark:text-muted">Update the password for your admin account</p>
         </div>
       </div>
       <form onSubmit={submit} className="space-y-4">

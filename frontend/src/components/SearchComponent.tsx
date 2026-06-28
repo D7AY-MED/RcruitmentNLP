@@ -60,21 +60,21 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-border-brand shadow-sm p-6">
+    <div className="bg-white dark:bg-card rounded-2xl border border-border-brand shadow-sm p-6">
       <h2 className="text-xl font-bold text-ink mb-4">Search Candidates</h2>
       <div className="space-y-4">
         <div>
-          <label htmlFor="poolSelect" className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="poolSelect" className="block text-sm font-semibold text-gray-700 dark:text-ink mb-2">
             Select Job Pool
           </label>
           {isLoadingPools ? (
-            <div className="text-sm text-gray-500 py-2">Loading job pools...</div>
+            <div className="text-sm text-gray-500 dark:text-muted py-2">Loading job pools...</div>
           ) : pools.length === 0 ? (
             <div className="text-sm text-red-500 py-2">No active job pools found. Please create a job pool first.</div>
           ) : (
             <select
               id="poolSelect"
-              className="w-full px-3 py-2.5 border border-border-brand rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand bg-white text-ink transition-all"
+              className="w-full px-3 py-2.5 border border-border-brand rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/35 focus:border-brand bg-white dark:bg-surface text-ink transition-all"
               value={selectedPoolId}
               onChange={(e) => setSelectedPoolId(e.target.value)}
               disabled={isSearching}
@@ -89,7 +89,7 @@ export default function SearchComponent({ hrProfileId, onSearchComplete }: Searc
         </div>
 
         <div>
-          <label htmlFor="jobDescription" className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="jobDescription" className="block text-sm font-semibold text-gray-700 dark:text-ink mb-2">
             Search Query / Criteria
           </label>
           <textarea

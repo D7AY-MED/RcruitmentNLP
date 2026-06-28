@@ -51,7 +51,7 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
 
       {/* Professional Resume */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 px-1 block">
+        <label className="text-sm font-semibold text-gray-700 dark:text-ink px-1 block">
           Professional Resume
         </label>
         
@@ -59,7 +59,7 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
           className={`relative group cursor-pointer border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-all duration-300 ${
             isDragOver
               ? 'border-blue-500 bg-blue-50/50'
-              : 'border-gray-200 bg-gray-50/50 hover:border-blue-500'
+              : 'border-gray-200 dark:border-border-brand bg-gray-50/50 dark:bg-surface hover:border-blue-500'
           }`}
           onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
           onDragLeave={() => setIsDragOver(false)}
@@ -80,15 +80,15 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
           {!cvFile ? (
             <div className="text-center space-y-2 pointer-events-none">
               <Upload className="w-12 h-12 text-blue-600 mx-auto" />
-              <div className="text-base text-gray-900">
+              <div className="text-base text-gray-900 dark:text-ink">
                 Drop your CV here or <span className="text-blue-600 font-semibold">Browse</span>
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-muted">
                 Supports PDF or TXT (Max 5MB)
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3 bg-blue-50 text-blue-800 p-4 rounded-xl w-full justify-center border border-blue-100 z-10">
+            <div className="flex items-center gap-3 bg-blue-50 dark:bg-brand-light text-blue-800 p-4 rounded-xl w-full justify-center border border-blue-100 z-10">
               <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />
               <span className="text-sm font-medium truncate max-w-[240px]">
                 {cvFile.name}
@@ -108,11 +108,11 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
 
       {/* Phone Number Input */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-gray-700 px-1 block" htmlFor="phone">
+        <label className="text-sm font-semibold text-gray-700 dark:text-ink px-1 block" htmlFor="phone">
           Phone Number
         </label>
         <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400 pointer-events-none">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400 dark:text-muted pointer-events-none">
             <Phone className="w-5 h-5" />
           </div>
           <input
@@ -121,7 +121,7 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+1 (555) 000-0000"
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-gray-400"
+            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-surface border border-gray-200 dark:border-border-brand rounded-xl text-base focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-[hsl(var(--text-muted))]"
           />
         </div>
       </div>
@@ -148,8 +148,8 @@ export default function SetupForm({ onStart, isStarting }: SetupFormProps) {
       </div>
 
       {/* Privacy Trust Note */}
-      <div className="flex items-center justify-center gap-2 text-gray-400 pt-2">
-        <Lock className="w-4 h-4 text-gray-400 fill-current animate-none" />
+      <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-muted pt-2">
+        <Lock className="w-4 h-4 text-gray-400 dark:text-muted fill-current animate-none" />
         <span className="text-xs font-medium">
           Encrypted and private screening powered by PooLink AI
         </span>

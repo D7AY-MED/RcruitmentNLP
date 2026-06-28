@@ -115,21 +115,21 @@ export function CompanyDetailDrawer({
         <div className="space-y-6">
           {/* Quick contact */}
           {!editing && (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-              <span className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-gray-400" />{displayValue(company.company_website)}</span>
-              <span className="flex items-center gap-1.5"><Mail className="h-4 w-4 text-gray-400" />{displayValue(company.company_email)}</span>
-              <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-gray-400" />{displayValue(company.company_phone)}</span>
-              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-gray-400" />{displayValue(company.company_address)}</span>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600 dark:border-border-brand dark:bg-surface dark:text-ink">
+              <span className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(company.company_website)}</span>
+              <span className="flex items-center gap-1.5"><Mail className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(company.company_email)}</span>
+              <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(company.company_phone)}</span>
+              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(company.company_address)}</span>
             </div>
           )}
 
           {/* Company fields */}
           <section>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Company profile</h3>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">Company profile</h3>
             <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
               {EDIT_FIELDS.map((f) => (
                 <div key={f.key as string} className={f.textarea ? "sm:col-span-2" : ""}>
-                  <dt className="mb-1 text-xs font-medium text-gray-500">{f.label}</dt>
+                  <dt className="mb-1 text-xs font-medium text-gray-500 dark:text-muted">{f.label}</dt>
                   {editing ? (
                     f.textarea ? (
                       <Textarea value={form[f.key as string] ?? ""} onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))} />
@@ -143,7 +143,7 @@ export function CompanyDetailDrawer({
                       />
                     )
                   ) : (
-                    <dd className="text-sm text-gray-900">{displayValue((company as any)[f.key])}</dd>
+                    <dd className="text-sm text-gray-900 dark:text-ink">{displayValue((company as any)[f.key])}</dd>
                   )}
                 </div>
               ))}
@@ -152,16 +152,16 @@ export function CompanyDetailDrawer({
 
           {/* Members */}
           <section>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">
               Recruiters ({company.members.length})
             </h3>
             <ul className="space-y-2">
               {company.members.map((m) => (
-                <li key={m.id} className="flex items-center gap-3 rounded-lg border border-gray-100 p-2.5">
+                <li key={m.id} className="flex items-center gap-3 rounded-lg border border-gray-100 p-2.5 dark:border-border-brand">
                   <Avatar name={m.full_name} className="h-8 w-8 text-[11px]" />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">{m.full_name}</p>
-                    <p className="truncate text-xs text-gray-500">{m.email}</p>
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-ink">{m.full_name}</p>
+                    <p className="truncate text-xs text-gray-500 dark:text-muted">{m.email}</p>
                   </div>
                 </li>
               ))}
@@ -171,13 +171,13 @@ export function CompanyDetailDrawer({
           {/* Jobs */}
           {!!company.pools?.length && (
             <section>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">
                 Job pools ({company.pools.length})
               </h3>
               <ul className="space-y-2">
                 {company.pools.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-2.5">
-                    <span className="truncate text-sm text-gray-900">{p.title}</span>
+                  <li key={p.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-2.5 dark:border-border-brand">
+                    <span className="truncate text-sm text-gray-900 dark:text-ink">{p.title}</span>
                     <Badge tone={p.status ? "green" : "gray"}>{p.status ? "Active" : "Inactive"}</Badge>
                   </li>
                 ))}

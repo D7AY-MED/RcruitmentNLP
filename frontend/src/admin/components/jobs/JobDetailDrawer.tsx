@@ -115,11 +115,11 @@ export function JobDetailDrawer({
       {loading ? <LoadingState /> : error ? <ErrorState message={error} /> : job ? (
         <div className="space-y-6">
           {/* Meta */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-gray-400" />{displayValue(job.company_name)}</span>
-            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-gray-400" />{displayValue(job.location)}</span>
-            <span className="flex items-center gap-1.5"><Briefcase className="h-4 w-4 text-gray-400" />{displayValue(job.contract_type)}</span>
-            <span className="text-gray-400">Created {formatDate(job.created_at)}</span>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600 dark:border-border-brand dark:bg-surface dark:text-ink">
+            <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(job.company_name)}</span>
+            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(job.location)}</span>
+            <span className="flex items-center gap-1.5"><Briefcase className="h-4 w-4 text-gray-400 dark:text-muted" />{displayValue(job.contract_type)}</span>
+            <span className="text-gray-400 dark:text-muted">Created {formatDate(job.created_at)}</span>
           </div>
 
           {/* Core (editable) */}
@@ -157,7 +157,7 @@ export function JobDetailDrawer({
                 if (!arr?.length) return null;
                 return (
                   <div key={f.key as string}>
-                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">{f.label}</h4>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">{f.label}</h4>
                     <div className="flex flex-wrap gap-1.5">
                       {arr.map((s, i) => <Badge key={i} tone="indigo">{s}</Badge>)}
                     </div>
@@ -175,8 +175,8 @@ export function JobDetailDrawer({
 function DetailBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</h4>
-      <p className="whitespace-pre-wrap text-sm text-gray-700">{value}</p>
+      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-muted">{label}</h4>
+      <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-ink">{value}</p>
     </div>
   );
 }
@@ -184,8 +184,8 @@ function DetailBlock({ label, value }: { label: string; value: string }) {
 function Meta({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
-      <p className="text-xs font-medium text-gray-500">{label}</p>
-      <p className="text-sm text-gray-900">{displayValue(value)}</p>
+      <p className="text-xs font-medium text-gray-500 dark:text-muted">{label}</p>
+      <p className="text-sm text-gray-900 dark:text-ink">{displayValue(value)}</p>
     </div>
   );
 }
