@@ -10,6 +10,7 @@ export type StartDone = {
   responseId: string;
   question: string;
   status: string;
+  totalQuestions?: number;
 };
 
 export type NextDone = {
@@ -18,6 +19,7 @@ export type NextDone = {
   sessionId: string;
   question?: string;
   status: string;
+  totalQuestions?: number;
 };
 
 export type DeltaPayload = {
@@ -31,4 +33,5 @@ export type ErrorPayload = {
 export type SessionStatus =
   | { status: 'none' }
   | { status: 'completed' }
-  | { status: 'active'; sessionId: string; responseId: string; question: string; sequence: number };
+  | { status: 'active'; sessionId: string; responseId: string; question: string; sequence: number; totalQuestions?: number };
+

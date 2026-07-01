@@ -34,7 +34,7 @@ export async function getSessionStatus(poolId: string): Promise<SessionStatus> {
 export async function startInterview(
   formData: FormData,
   onDelta: (text: string) => void,
-): Promise<{ sessionId: string; responseId: string; question: string }> {
+): Promise<{ sessionId: string; responseId: string; question: string; totalQuestions?: number }> {
   const token = getToken();
   const headers: Record<string, string> = { Accept: 'text/event-stream' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -99,7 +99,7 @@ export async function startInterview(
       if (eventType === 'done') {
         responseId = payload.responseId || '';
         question = payload.question || question;
-        return { sessionId, responseId, question };
+        return { sessionId, responseId, question, totalQuestions: payload.totalQuestions };
       }
 
       if (eventType === 'error') {
@@ -116,7 +116,7 @@ export async function continueInterview(
   previousResponseId: string,
   answer: string,
   onDelta: (text: string) => void,
-): Promise<{ completed: boolean; responseId: string; question?: string }> {
+): Promise<{ completed: boolean; responseId: string; question?: string; totalQuestions?: number }> {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -186,5 +186,6 @@ export async function continueInterview(
     completed: result.completed || false,
     responseId: result.responseId || '',
     question: result.question || undefined,
+    totalQuestions: result.totalQuestions,
   };
 }

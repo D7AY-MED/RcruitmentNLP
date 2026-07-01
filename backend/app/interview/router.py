@@ -61,6 +61,7 @@ async def get_session_status(
         "responseId": current["openai_session_id"],
         "question": current["question"],
         "sequence": current["sequence"],
+        "totalQuestions": TOTAL_QUESTIONS,
     }
 
 
@@ -208,6 +209,7 @@ async def handle_start(
                     "responseId": response_id,
                     "question": final_question,
                     "status": "active",
+                    "totalQuestions": TOTAL_QUESTIONS,
                 })
             else:
                 yield ("error", {"error": "Failed to generate first question."})
@@ -432,6 +434,7 @@ async def handle_next(
                     "sessionId": str(session_uuid),
                     "question": next_question,
                     "status": "active",
+                    "totalQuestions": TOTAL_QUESTIONS,
                 })
 
         except RuntimeError as e:

@@ -25,6 +25,7 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
   const [responseId, setResponseId] = useState<string | null>(null);
   const [question, setQuestion] = useState('');
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(maxQuestions);
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -38,6 +39,9 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
         setResponseId(status.responseId);
         setQuestion(status.question);
         setQuestionIndex(status.sequence);
+        if (status.totalQuestions) {
+          setTotalQuestions(status.totalQuestions);
+        }
         setPageStatus('active');
       } else {
         setPageStatus('idle');
@@ -61,6 +65,9 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
       setResponseId(result.responseId);
       setQuestion(result.question);
       setQuestionIndex(1);
+      if (result.totalQuestions) {
+        setTotalQuestions(result.totalQuestions);
+      }
       setPageStatus('active');
     } catch (err: any) {
       setErrorMessage(err.message || 'Impossible de démarrer l\'entretien.');
@@ -78,7 +85,8 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
     setSessionId(null);
     setResponseId(null);
     setErrorMessage(null);
-  }, []);
+    setTotalQuestions(maxQuestions);
+  }, [maxQuestions]);
 
   const handleAnswer = useCallback(async (answer: string) => {
     if (!responseId || !sessionId) return;
@@ -96,7 +104,8 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
         },
       );
 
-      const isFinished = result.completed || questionIndex >= maxQuestions;
+      const currentTotal = result.totalQuestions || totalQuestions;
+      const isFinished = result.completed || questionIndex >= currentTotal;
 
       if (isFinished) {
         setResponseId(result.responseId);
@@ -105,13 +114,16 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
         setResponseId(result.responseId);
         setQuestion(result.question || '');
         setQuestionIndex((prev) => prev + 1);
+        if (result.totalQuestions) {
+          setTotalQuestions(result.totalQuestions);
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Erreur lors de l\'envoi de la réponse.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [responseId, sessionId, questionIndex, maxQuestions]);
+  }, [responseId, sessionId, questionIndex, totalQuestions]);
 
   if (pageStatus === 'loading') {
     return (
@@ -163,7 +175,7 @@ export default function InterviewView({ jobTitle, companyName, poolId, maxQuesti
           {pageStatus === 'active' && (
             <QASession
               questionIndex={questionIndex}
-              totalQuestions={maxQuestions}
+              totalQuestions={totalQuestions}
               question={question}
               onSubmit={handleAnswer}
               isSubmitting={isSubmitting}
