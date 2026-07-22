@@ -6,6 +6,7 @@ google-genai>=1.0.0
 
 # --- Recruiter authentication stack ---
 SQLAlchemy>=2.0.36               # ORM / database layer
+greenlet>=3.0,<3.5.4            # greenlet 3.5.4+ dropped Linux wheels
 psycopg[binary]>=3.2             # PostgreSQL driver (psycopg3 — has wheels for new Python)
 bcrypt>=4.1                      # Password hashing (used directly; passlib is unmaintained)
 python-jose[cryptography]>=3.3   # JWT encode/decode
